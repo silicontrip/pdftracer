@@ -6,17 +6,53 @@ public class Rulelist {
 
 	private ArrayList<ArrayList<File>> duplicatelist;
 
-	public Rulelist (ArrayList<ArrayList<File>> dl) { duplicatelist = dl; }
+	private final Filepart fCanonical;
+	private final Filepart fName;
+	private final Filepart fParent;
+
+// RULE STRATEGY
+	private HashMap<String,Stringcompare> compMap;
+	private HashMap<String,Filepart> partMap;
+	private HashMap<String,Rule> ruleMap;
+
+	public Rulelist () {
+
+		compMap = new HashMap<String,Stringcompare>();
+		compMap.put("Equals", new StringEquals());
+		compMap.put("Matches", new StringMatches());
+		compMap.put("Contains", new StringContains());
+		compMap.put("StartsWith",  new StringStartsWith());
+
+		partMap = new HashMap<String,Filepart>();
+		partMap.put("Canonical" , new FilepartCanonical());
+		partMap.put("Name",  new FilepartName());
+		partMap.put("Parent" , new FilepartParent());
+
+		ruleMap = new HashMap<String,Rule>();
+
+		for (String partName: partMap.keySet())
+		{
+			for (String compName: compMap.keySet())
+			{
+				ruleMap.put ("any" + partName + compName, new RuleAny(partMap.get(partName),compMap.get(compName));
+				ruleMap.put ("one" + partName + compName, new RuleOne(partMap.get(partName),compMap.get(compName));
+				ruleMap.put ("all" + partName + compName, new RuleAll(partMap.get(partName),compMap.get(compName));
+			}
+		}
+
+	}
+
+	public Rulelist (ArrayList<ArrayList<File>> dl) { 
+		this();
+		duplicatelist = dl; 
+	}
 
 
 // filter rules
 //looking like some OO strategy is required
 	private boolean anyCanonicalEquals(String e, ArrayList<File> al)
 	{
-		for (File f : al)
-			if (f.getCanonicalPath().equals(e))
-				return true;
-		return false;
+		return ruleMap.get("anyCanonicalEquals").eval(e,al);
 	}
 
 	private boolean anyCanonicalContains(String e, ArrayList<File> al)
