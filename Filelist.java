@@ -4,15 +4,17 @@ import java.util.*;
 import java.nio.file.*;
 
 
-public class Filelist {
+public class Filelist implements Runnable, Serializable {
 
-	private HashMap<Long,HashSet<File>> flist;
+	transient private HashMap<Long,HashSet<File>> flist;
 	private ArrayList<ArrayList<File>> duplicatelist;
 	private File scanDir;
 
-	private ArrayList<File> toProcess;
+	transient private ArrayList<File> toProcess;
 
-	private int filesProcessed =0;
+	transient private int filesProcessed =0;
+	transient private int matchesProcessed =0;
+	transient private boolean completed = false;
 
 	public Filelist (File dir) { this(); setScanDir(dir); }
 	public Filelist (String dir) { this(); setScanDir(dir); }
@@ -26,6 +28,10 @@ public class Filelist {
 	public void setScanDir (File dir) { scanDir = dir; }
 	public void setScanDir (String dir) { scanDir = new File(dir); }
 	public File getScanDir () { return scanDir; }
+
+// these are needed for serializable...?
+	public ArrayList<ArrayList<File>> getDuplicatelist() { return duplicatelist; }
+	public void setDuplicatelist(ArrayList<ArrayList<File>> dl) { duplicatelist = dl; }
 
 	public void print() 
 	{
@@ -51,21 +57,16 @@ public class Filelist {
 
 
 	// from  https://stackoverflow.com/questions/27379059/determine-if-two-files-store-the-same-content
-	private boolean sameContent(File file1, File file2) throws IOException {
+	private boolean sameContent(File file1, File file2)  {
 		return sameContent (file1.toPath(), file2.toPath());
 	}
 
-	private boolean sameContent(Path file1, Path file2) throws IOException {
+	private boolean sameContent(Path file1, Path file2)  {
 
-		final long size = Files.size(file1);
-
-		System.err.println("Comparing bytes: " + size);
-/*
-    if (size != Files.size(file2))
-        return false;
-*/
-		if (size < 4096)
-			return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+		try {
+			final long size = Files.size(file1);
+			if (size < 4096)
+				return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
 
 			try (BufferedInputStream is1 = new BufferedInputStream (Files.newInputStream(file1));
 				BufferedInputStream is2 = new BufferedInputStream(Files.newInputStream(file2))) {
@@ -79,8 +80,14 @@ public class Filelist {
 					return false;
 			}
 
-		return true;
+			return true;
+		} catch (IOException e) {
+			// if one file has a read error, it's probably not going to be the same as the other file
+			// or it's best not to match it for other reasons.
+			return false;
+		}
 	}
+
 	public int countfiles() 
 	{
 		int total = 0;
@@ -90,26 +97,31 @@ public class Filelist {
 	}
 
 	public int getProcessed() { return filesProcessed; }
+	public int getMatches() { return matchesProcessed; }
+	public boolean completed() { return completed; }
 	
-	public void filecompare() throws IOException
+// compare a list of files
+	public void filecompare() 
 	{
 		// some sort of readable progress
 		filesProcessed = 0;
+		completed = false;
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) {
 			ArrayList<File> samesize = new ArrayList<File>(fe.getValue());
 			if (samesize.size() > 1) {
-				System.err.println("files: " + samesize.size() + " bytes: " + fe.getKey());
+				//System.err.println("files: " + samesize.size() + " bytes: " + fe.getKey());
 				if (samesize.size() == 2)
 				{
 					if (sameContent(samesize.get(0),samesize.get(1)))
 					{
+						matchesProcessed ++;
 						ArrayList<File> samelist = new ArrayList<File>();
 						samelist.add(samesize.get(0));
 						samelist.add(samesize.get(1));
 						duplicatelist.add(samelist);
 					}
 					filesProcessed ++;
-					System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
+					//System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 				} else {
 					ArrayList<File> duplicateFiles = new ArrayList<File>(samesize);
 					while (duplicateFiles.size() > 0)
@@ -120,11 +132,12 @@ public class Filelist {
 						{
 							if (sameContent(duplicateFiles.get(0),duplicateFiles.get(j)))
 							{
+								matchesProcessed ++;
 								samelist.add(duplicateFiles.get(j));
 								duplicateFiles.remove(j);
 							}
 							filesProcessed ++;
-							System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
+					//		System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 						}
 						if (samelist.size() > 1)
 							duplicatelist.add(samelist);
@@ -135,11 +148,13 @@ public class Filelist {
 			}	
 
 		}
-
+		completed = true;
 	}
 
+// create a list of file, index by filesize
 	public void filescan()
 	{
+		completed = false;
 
 		toProcess = new ArrayList<File>();
 		toProcess.add(getScanDir());
@@ -166,12 +181,13 @@ public class Filelist {
 			}
 			toProcess.remove(0);
 		}
+		completed = true;
 
 	}
 	
-	public void scan() { 
+	public void run() { 
 		filescan(); 
-		
+		filecompare();		
 	}
 	
 
