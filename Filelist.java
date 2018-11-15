@@ -10,6 +10,10 @@ public class Filelist {
 	private ArrayList<ArrayList<File>> duplicatelist;
 	private File scanDir;
 
+	private ArrayList<File> toProcess;
+
+	private int filesProcessed =0;
+
 	public Filelist (File dir) { this(); setScanDir(dir); }
 	public Filelist (String dir) { this(); setScanDir(dir); }
 
@@ -54,6 +58,8 @@ public class Filelist {
 	private boolean sameContent(Path file1, Path file2) throws IOException {
 
 		final long size = Files.size(file1);
+
+		System.err.println("Comparing bytes: " + size);
 /*
     if (size != Files.size(file2))
         return false;
@@ -61,8 +67,8 @@ public class Filelist {
 		if (size < 4096)
 			return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
 
-			try (InputStream is1 = Files.newInputStream(file1);
-				InputStream is2 = Files.newInputStream(file2)) {
+			try (BufferedInputStream is1 = new BufferedInputStream (Files.newInputStream(file1));
+				BufferedInputStream is2 = new BufferedInputStream(Files.newInputStream(file2))) {
         // Compare byte-by-byte.
         // Note that this can be sped up drastically by reading large chunks
         // (e.g. 16 KBs) but care must be taken as InputStream.read(byte[])
@@ -75,12 +81,24 @@ public class Filelist {
 
 		return true;
 	}
+	public int countfiles() 
+	{
+		int total = 0;
+		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) 
+			total += fe.getValue().size() - 1;
+		return total;
+	}
+
+	public int getProcessed() { return filesProcessed; }
 	
 	public void filecompare() throws IOException
 	{
+		// some sort of readable progress
+		filesProcessed = 0;
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) {
 			ArrayList<File> samesize = new ArrayList<File>(fe.getValue());
 			if (samesize.size() > 1) {
+				System.err.println("files: " + samesize.size() + " bytes: " + fe.getKey());
 				if (samesize.size() == 2)
 				{
 					if (sameContent(samesize.get(0),samesize.get(1)))
@@ -90,6 +108,8 @@ public class Filelist {
 						samelist.add(samesize.get(1));
 						duplicatelist.add(samelist);
 					}
+					filesProcessed ++;
+					System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 				} else {
 					ArrayList<File> duplicateFiles = new ArrayList<File>(samesize);
 					while (duplicateFiles.size() > 0)
@@ -103,6 +123,8 @@ public class Filelist {
 								samelist.add(duplicateFiles.get(j));
 								duplicateFiles.remove(j);
 							}
+							filesProcessed ++;
+							System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 						}
 						if (samelist.size() > 1)
 							duplicatelist.add(samelist);
@@ -119,7 +141,7 @@ public class Filelist {
 	public void filescan()
 	{
 
-		ArrayList<File> toProcess = new ArrayList<File>();
+		toProcess = new ArrayList<File>();
 		toProcess.add(getScanDir());
 
 		while (toProcess.size() > 0) {
