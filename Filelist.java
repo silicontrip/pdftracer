@@ -23,13 +23,22 @@ public class Filelist {
 	public void setScanDir (String dir) { scanDir = new File(dir); }
 	public File getScanDir () { return scanDir; }
 
-	public void print()
+	public void print() 
 	{
 		for (ArrayList<File> al : duplicatelist)
 		{
+			boolean first = true;
 			for (File fl : al)
 			{
-				System.out.print(fl.getAbsolutePath() + " : ");
+				if(!first)
+					System.out.print(" : ");
+				first=false;
+				try {
+					System.out.print(fl.getCanonicalPath());
+				} catch (Exception e) { 
+					System.out.print("*ERROR*");
+				}
+
 			}
 			System.out.println("");
 
