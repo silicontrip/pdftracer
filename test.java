@@ -1,4 +1,5 @@
-
+import java.util.ArrayList;
+import java.io.*;
 
 public class test {
 
@@ -51,9 +52,9 @@ public class test {
 				print(currentList);
 				System.out.print("> ");	
 				String argument = readln();
-				String[] args = arguments.split("/;/");	
-				if (args.length == 2) {
-					currentList = rulelist.evalGroup(currentList, args[0],args[1]);
+				String[] arguments = argument.split(";");	
+				if (arguments.length == 2) {
+					currentList = rulelist.evalGroup(currentList, arguments[0],arguments[1]);
 				} else {
 					System.out.println("command and argument required ; seperated");
 				}

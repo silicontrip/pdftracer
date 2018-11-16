@@ -1,5 +1,6 @@
 
 import java.util.*;
+import java.io.File;
 
 public class Rulelist {
 
@@ -31,9 +32,9 @@ public class Rulelist {
 		{
 			for (String compName: compMap.keySet())
 			{
-				groupRuleMap.put ("any" + partName + compName, new RuleAny(partMap.get(partName),compMap.get(compName));
-				groupRuleMap.put ("one" + partName + compName, new RuleOne(partMap.get(partName),compMap.get(compName));
-				groupRuleMap.put ("all" + partName + compName, new RuleAll(partMap.get(partName),compMap.get(compName));
+				groupRuleMap.put ("any" + partName + compName, new RuleAny(partMap.get(partName),compMap.get(compName)));
+				groupRuleMap.put ("one" + partName + compName, new RuleOne(partMap.get(partName),compMap.get(compName)));
+				groupRuleMap.put ("all" + partName + compName, new RuleAll(partMap.get(partName),compMap.get(compName)));
 			}
 		}
 
@@ -51,17 +52,8 @@ public class Rulelist {
 // file filter
 
 // group filter
-	public Rulelist equalsAny (String e)
-	{
-		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
-		for (ArrayList<File> al : duplicatelist)
-			if (equalsAny(e,al))
-				ndl.add(al);	
-		return new Rulelsit(ndl);
-	}
 
-
-	public ArrayList<ArrayList<File>> evalGroup (ArrayList<ArrayList<File>> duplicatelist, ArrayListString groupCommand, String groupArgument)
+	public ArrayList<ArrayList<File>> evalGroup (ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
 	{
 		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
 		for (ArrayList<File> al : duplicatelist)
