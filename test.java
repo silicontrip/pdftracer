@@ -52,11 +52,19 @@ public class test {
 				print(currentList);
 				System.out.print("> ");	
 				String argument = readln();
-				String[] arguments = argument.split(";");	
-				if (arguments.length == 2) {
-					currentList = rulelist.evalGroup(currentList, arguments[0],arguments[1]);
-				} else {
-					System.out.println("command and argument required ; seperated");
+				String[] arguments = argument.split(":");	
+				if (arguments.length == 3) {
+					if ("group".equals(arguments[0]))
+					{
+						currentList = rulelist.evalGroup(currentList, arguments[1],arguments[2]);
+					} else if ("filter".equals(arguments[0])) {
+						// remember to check that we're not deleting all duplicates
+						currentList = rulelist.evalFilter(currentList, arguments[1], arguments[2]);
+					} else {
+						rulelist.printHelp();
+					}
+ 				} else {
+					rulelist.printHelp();
 				}
 				
 

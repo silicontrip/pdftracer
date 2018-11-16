@@ -12,7 +12,11 @@ public class Rulelist {
 	private HashMap<String,Filepart> partMap;
 	private HashMap<String,Rule> groupRuleMap;
 
+	private HashMap<String,Filter> filterMap;
+
+
 	public Rulelist () {
+
 
 // still would like to automate this even more
 		compMap = new HashMap<String,Stringcompare>();
@@ -27,18 +31,36 @@ public class Rulelist {
 		partMap.put("Parent" , new FilepartParent());
 
 		groupRuleMap = new HashMap<String,Rule>();
+		filterMap = new HashMap<String,Filter>();
 
 		for (String partName: partMap.keySet())
 		{
 			for (String compName: compMap.keySet())
 			{
-				groupRuleMap.put ("any" + partName + compName, new RuleAny(partMap.get(partName),compMap.get(compName)));
-				groupRuleMap.put ("one" + partName + compName, new RuleOne(partMap.get(partName),compMap.get(compName)));
-				groupRuleMap.put ("all" + partName + compName, new RuleAll(partMap.get(partName),compMap.get(compName)));
+				groupRuleMap.put ("Any" + partName + compName, new RuleAny(partMap.get(partName),compMap.get(compName)));
+				groupRuleMap.put ("One" + partName + compName, new RuleOne(partMap.get(partName),compMap.get(compName)));
+				groupRuleMap.put ("All" + partName + compName, new RuleAll(partMap.get(partName),compMap.get(compName)));
+
+				filterMap.put("Any" + partName + compName, new FilterAny(partMap.get(partName),compMap.get(compName)));
+				filterMap.put("One" + partName + compName, new FilterOne(partMap.get(partName),compMap.get(compName)));
+
 			}
 		}
+	}
+
+	// maybe return a string instead.
+	public void printHelp() 
+	{
+		System.out.println("Group filter commands");
+		for (String k : groupRuleMap.keySet())
+			System.out.println("group:"+k+":<argument>");
+
+		System.out.println("File filter commands");
+			for (String k : filterMap.keySet())
+				System.out.println("filter:"+k+":<argument>");
 
 	}
+
 /*
 	public Rulelist (ArrayList<ArrayList<File>> dl) { 
 		this();
@@ -62,5 +84,17 @@ public class Rulelist {
 		return ndl;
 	}
 
+	public ArrayList<ArrayList<File>> evalFilter(ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
+	{
+		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
+		for (ArrayList<File> al : duplicatelist)
+		{
+			ArrayList<File> nl = filterMap.get(groupCommand).eval(groupArgument,al);
+			if (nl.size() > 0)
+				ndl.add(nl);	
+		}
+		// need to check that this doesn't delete all files.
+		return ndl;
+	}
 
 }
