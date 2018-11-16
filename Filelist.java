@@ -14,7 +14,9 @@ public class Filelist implements Runnable, Serializable {
 
 	transient private int filesProcessed =0;
 	transient private int matchesProcessed =0;
-	transient private boolean completed = false;
+	transient private boolean scanCompleted = false;
+	transient private boolean compareCompleted = false;
+
 
 	public Filelist (File dir) { this(); setScanDir(dir); }
 	public Filelist (String dir) { this(); setScanDir(dir); }
@@ -92,20 +94,26 @@ public class Filelist implements Runnable, Serializable {
 	{
 		int total = 0;
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) 
-			total += fe.getValue().size() - 1;
+			total += fe.getValue().size()-1;
 		return total;
 	}
 
 	public int getProcessed() { return filesProcessed; }
 	public int getMatches() { return matchesProcessed; }
-	public boolean completed() { return completed; }
-	
+	public int getScanRemain() { 
+		if (toProcess != null)
+			return toProcess.size(); 
+			return 0;
+		}
+	public boolean getScanCompleted() { return scanCompleted; }
+	public boolean getCompareCompleted() { return compareCompleted; }
+
 // compare a list of files
 	public void filecompare() 
 	{
 		// some sort of readable progress
 		filesProcessed = 0;
-		completed = false;
+		compareCompleted = false;
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) {
 			ArrayList<File> samesize = new ArrayList<File>(fe.getValue());
 			if (samesize.size() > 1) {
@@ -136,9 +144,10 @@ public class Filelist implements Runnable, Serializable {
 								samelist.add(duplicateFiles.get(j));
 								duplicateFiles.remove(j);
 							}
-							filesProcessed ++;
 					//		System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 						}
+						filesProcessed ++;
+
 						if (samelist.size() > 1)
 							duplicatelist.add(samelist);
 
@@ -148,13 +157,13 @@ public class Filelist implements Runnable, Serializable {
 			}	
 
 		}
-		completed = true;
+		compareCompleted = true;
 	}
 
 // create a list of file, index by filesize
 	public void filescan()
 	{
-		completed = false;
+		scanCompleted = false;
 
 		toProcess = new ArrayList<File>();
 		toProcess.add(getScanDir());
@@ -181,7 +190,7 @@ public class Filelist implements Runnable, Serializable {
 			}
 			toProcess.remove(0);
 		}
-		completed = true;
+		scanCompleted = true;
 
 	}
 	

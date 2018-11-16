@@ -41,10 +41,44 @@ public class test {
 			Rulelist  rulelist  = new Rulelist();
 			Filelist fl = new Filelist(".");
 			System.out.println("-- SCAN --");
-			fl.filescan();
-			System.out.println("Files to Compare: " + fl.countfiles());
+			// start this in thread
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					fl.filescan();
+				}
+			   }).start();
+
+			// loop progress...
+			while (!fl.getScanCompleted()) { 
+				try {
+					System.out.println("scanning... " + fl.getScanRemain());
+					Thread.sleep(1000); 
+				} catch (InterruptedException ie) { ; }
+			}
+		
+			int totalfiles = fl.countfiles();
+
+			System.out.println("Files to Compare: " + totalfiles);
 			System.out.println("-- COMPARE --");
-			fl.filecompare();
+			// start this in thread
+
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					fl.filecompare();
+				}
+			   }).start();
+
+			// loop progress...
+			while (!fl.getCompareCompleted()) { 
+				try {
+					System.out.println("comparing... " + fl.getProcessed() + "/" + totalfiles + " " + fl.getMatches());
+					Thread.sleep(1000); 
+				} catch (InterruptedException ie) { ; }
+			}
+
 		//	fl.print();
 			ArrayList<ArrayList<File>> currentList = fl.getDuplicatelist();
 
@@ -67,8 +101,6 @@ public class test {
 					rulelist.printHelp();
 				}
 				
-
-
 			}
 
 		} catch (Exception e) {
