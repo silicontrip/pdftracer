@@ -226,7 +226,7 @@ public class dupefind {
 					} else if ("print".equals(arguments[0])) {
 							print(currentList);	
 					} else if ("quit".equals(arguments[0])) {
-						System.exit();
+						System.exit(0);
 					}
 				} else if (arguments.length == 3) {
 					if ("group".equals(arguments[0])) {
