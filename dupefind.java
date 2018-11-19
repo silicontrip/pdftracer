@@ -50,6 +50,33 @@ public class dupefind {
 		return ln;
 	}
 
+	private static void printParentLine (ArrayList<File> al)
+	{
+		if (al != null )
+		{
+		boolean first = true;
+		for (File fl : al)
+					{
+							if(!first)
+									System.out.print(" : ");
+							first=false;
+							try {
+									System.out.print(fl.getParent());
+							} catch (Exception e) {
+									System.out.print("*ERROR*");
+							}
+					}
+					System.out.println("");
+				}
+				else      
+				System.out.println("null");
+	}
+	public static void printParent(ArrayList<ArrayList<File>> duplicatelist)
+	{
+			for (ArrayList<File> al : duplicatelist)
+				printParentLine(al);
+	}
+
 		private static void printLine (ArrayList<File> al)
 		{
 			if (al != null )
@@ -184,14 +211,28 @@ public class dupefind {
 								printLine(deleteList);
 							}
 						}
-					
+					} else if ("all".equals(arguments[0])) {
+						for (ArrayList<File> al : allList)
+						{
+							ArrayList<File> deleteList = findEntry(al,currentList);
+							if (deleteList != null)
+							{
+								if (al.size() == deleteList.size())
+								printLine(al);
+							}
+						}
+					} else if ("parent".equals(arguments[0])) {
+							printParent(currentList);
 					} else if ("print".equals(arguments[0])) {
-						print(currentList);
+							print(currentList);	
+					} else if ("quit".equals(arguments[0])) {
+						System.exit();
 					}
 				} else if (arguments.length == 3) {
-					if ("group".equals(arguments[0]))
-					{
+					if ("group".equals(arguments[0])) {
 						currentList = rulelist.evalGroup(currentList, arguments[1],arguments[2]);
+					} else if ("ignore".equals(arguments[0])) {
+							currentList = rulelist.evalIgnore(currentList, arguments[1],arguments[2]);
 					} else if ("filter".equals(arguments[0])) {
 						// remember to check that we're not deleting all duplicates
 						currentList = rulelist.evalFilter(currentList, arguments[1], arguments[2]);

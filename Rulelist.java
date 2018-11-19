@@ -13,6 +13,7 @@ public class Rulelist {
 	private HashMap<String,Rule> groupRuleMap;
 
 	private HashMap<String,Filter> filterMap;
+	private HashMap<String,Filter> ignoreMap;
 
 
 	public Rulelist () {
@@ -83,6 +84,16 @@ public class Rulelist {
 				ndl.add(al);	
 		return ndl;
 	}
+
+	public ArrayList<ArrayList<File>> evalIgnore (ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
+	{
+		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
+		for (ArrayList<File> al : duplicatelist)
+			if (!groupRuleMap.get(groupCommand).eval(groupArgument,al))
+				ndl.add(al);	
+		return ndl;
+	}
+
 
 	public ArrayList<ArrayList<File>> evalFilter(ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
 	{
