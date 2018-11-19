@@ -36,6 +36,16 @@ eg `group:AnyNameContains:jpg` is a valid matching command.
 Selecting single files in a group is performed with the `filter` command, then followed by the same matching command as found in the group mathcing excluding `All` Create rules that select less than the number of total files in a group.
 
 ```
+java -jar yajdf.jar ~/Music
+-- SCAN --
+scanning... 0
+scanning... 618
+scanning... 490
+scanning... 246
+Files Remaining to Compare: 469
+-- COMPARE --
+comparing... 0/469 0
+comparing... 300/469 81
 101> group:AnyNameContains:jpg
 2> print
 /mnt/c/Users/mheath/Music/Compilations/One Perfect Day/AlbumArt_{B67670CF-FAA6-48FF-BFA4-CC8D6FDACAAE}_Small.jpg : /mnt/c/Users/mheath/Music/Compilations/One Perfect Day/AlbumArtSmall.jpg
