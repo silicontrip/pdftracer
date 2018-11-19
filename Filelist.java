@@ -67,6 +67,7 @@ public class Filelist implements Runnable, Serializable {
 
 		try {
 			final long size = Files.size(file1);
+			// zero length check
 			if (size < 4096)
 				return Arrays.equals(Files.readAllBytes(file1), Files.readAllBytes(file2));
 
@@ -179,15 +180,17 @@ public class Filelist implements Runnable, Serializable {
 				//System.out.println(sourcefile.getAbsolutePath());
 				if (sourcefile.isFile()) {
 					Long fsize = new Long(sourcefile.length());
-					if (flist.containsKey(fsize))
+					if (fsize > 0)  // use find -empty
 					{
-						flist.get(fsize).add(sourcefile);
-					} else {
-						HashSet<File> hs = new HashSet<File>();
-						hs.add(sourcefile);
-						flist.put(fsize,hs);
+						if (flist.containsKey(fsize))
+						{
+							flist.get(fsize).add(sourcefile);
+						} else {
+							HashSet<File> hs = new HashSet<File>();
+							hs.add(sourcefile);
+							flist.put(fsize,hs);
+						}
 					}
-					
 				} else if ( sourcefile.isDirectory()) {
 				      toProcess.add(sourcefile);
 				} else {
