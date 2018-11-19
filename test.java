@@ -86,6 +86,8 @@ public class test {
 				print(currentList);
 				System.out.print("> ");	
 				String argument = readln();
+
+				// going to need a command parser class...
 				String[] arguments = argument.split(":");	
 				if (arguments.length == 3) {
 					if ("group".equals(arguments[0]))
