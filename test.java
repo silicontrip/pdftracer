@@ -15,6 +15,7 @@ public class test {
 		}
 		return ln;
 	}
+
         public static void print(ArrayList<ArrayList<File>> duplicatelist)
         {
                 for (ArrayList<File> al : duplicatelist)
@@ -30,10 +31,8 @@ public class test {
                                 } catch (Exception e) {
                                         System.out.print("*ERROR*");
                                 }
-
                         }
                         System.out.println("");
-
                 }
         }
 	public static void main(String[] args) {
@@ -80,10 +79,13 @@ public class test {
 			}
 
 		//	fl.print();
-			ArrayList<ArrayList<File>> currentList = fl.getDuplicatelist();
+			ArrayList<ArrayList<File>> allList = fl.getDuplicatelist();
+
+			ArrayList<ArrayList<File>> currentList = allList;
 
 			while (true) {
 				print(currentList);
+
 				System.out.print("> ");	
 				String argument = readln();
 
@@ -102,7 +104,7 @@ public class test {
  				} else {
 					rulelist.printHelp();
 				}
-				
+
 			}
 
 		} catch (Exception e) {
