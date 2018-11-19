@@ -90,11 +90,15 @@ public class Filelist implements Runnable, Serializable {
 		}
 	}
 
+
+	// public int countfiles() { return flist.size(); }
+
+	
 	public int countfiles() 
 	{
 		int total = 0;
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) 
-			total += fe.getValue().size()-1;
+			total += fe.getValue().size()>1? 1:0;
 		return total;
 	}
 
@@ -117,6 +121,8 @@ public class Filelist implements Runnable, Serializable {
 		for (Map.Entry<Long, HashSet<File>> fe : flist.entrySet()) {
 			ArrayList<File> samesize = new ArrayList<File>(fe.getValue());
 			if (samesize.size() > 1) {
+				filesProcessed ++;
+
 				//System.err.println("files: " + samesize.size() + " bytes: " + fe.getKey());
 				if (samesize.size() == 2)
 				{
@@ -128,7 +134,7 @@ public class Filelist implements Runnable, Serializable {
 						samelist.add(samesize.get(1));
 						duplicatelist.add(samelist);
 					}
-					filesProcessed ++;
+				//	filesProcessed ++;
 					//System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 				} else {
 					ArrayList<File> duplicateFiles = new ArrayList<File>(samesize);
@@ -146,7 +152,7 @@ public class Filelist implements Runnable, Serializable {
 							}
 					//		System.err.println("processed: " + filesProcessed); // tp be handled in a different thread
 						}
-						filesProcessed ++;
+				//		filesProcessed ++;
 
 						if (samelist.size() > 1)
 							duplicatelist.add(samelist);

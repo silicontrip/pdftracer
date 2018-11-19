@@ -50,6 +50,11 @@ public class dupefind {
 		return ln;
 	}
 
+	private static void printFile(File f)
+	{
+		// make an ls -l type display
+	}
+
 	private static void printParentLine (ArrayList<File> al)
 	{
 		if (al != null )
@@ -181,12 +186,22 @@ public class dupefind {
 									System.out.println("Deleting... " + f.getCanonicalPath());
 									f.delete();
 								}
-								// find entry in alllist
-								// count entries
-								// if al.size < alllist.entry.size()
-								// delete
-
-								//
+								if(al.size() - deleteList.size() > 1 )
+								{
+									ArrayList<File> nal = new ArrayList<File>();
+									// add remaining duplicates
+									for (File f: al)
+									{
+										boolean found = false;
+										for (File delf: deleteList)
+											if (delf.equals(f))
+												found = true;
+												
+										if (!found)
+											nal.add(f);
+									}
+									newList.add(nal);
+								}
 							} else {
 								if (deleteList != null) {
 									System.out.print("WARNING not deleting all: "  );
