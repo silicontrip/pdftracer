@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 import java.io.File;
-public class RuleAll extends Rule {
+public class RuleAll extends FilterRule {
 
 	public RuleAll (Filepart fp, Stringcompare sc) { super(fp,sc); }
 

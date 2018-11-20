@@ -1,7 +1,7 @@
 
 import java.util.ArrayList;
 import java.io.File;
-public class RuleOne extends Rule {
+public class RuleOne extends FilterRule {
 
 	public RuleOne (Filepart fp, Stringcompare sc) { super(fp,sc); }
 

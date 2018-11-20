@@ -1,5 +1,8 @@
 
 import java.util.*;
+
+import com.sun.javafx.css.Rule;
+
 import java.io.File;
 
 public class Rulelist {
@@ -10,11 +13,9 @@ public class Rulelist {
 // RULE STRATEGY
 	private HashMap<String,Stringcompare> compMap;
 	private HashMap<String,Filepart> partMap;
-	private HashMap<String,Rule> groupRuleMap;
 
+	private HashMap<String,FilterRule> groupRuleMap;
 	private HashMap<String,Filter> filterMap;
-	private HashMap<String,Filter> ignoreMap;
-
 
 	public Rulelist () {
 
@@ -31,7 +32,7 @@ public class Rulelist {
 		partMap.put("Name",  new FilepartName());
 		partMap.put("Parent" , new FilepartParent());
 
-		groupRuleMap = new HashMap<String,Rule>();
+		groupRuleMap = new HashMap<String,FilterRule>();
 		filterMap = new HashMap<String,Filter>();
 
 		for (String partName: partMap.keySet())
@@ -62,22 +63,10 @@ public class Rulelist {
 
 	}
 
-/*
-	public Rulelist (ArrayList<ArrayList<File>> dl) { 
-		this();
-		duplicatelist = dl; 
-	}
-*/
-
-// filter rules
-// (handled in strategies)
-
-// file filter
-
-// group filter
-
 	public ArrayList<ArrayList<File>> evalGroup (ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
 	{
+		if (!groupRuleMap.containsKey(groupCommand))
+			return duplicatelist;
 		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
 		for (ArrayList<File> al : duplicatelist)
 			if (groupRuleMap.get(groupCommand).eval(groupArgument,al))
@@ -87,6 +76,8 @@ public class Rulelist {
 
 	public ArrayList<ArrayList<File>> evalIgnore (ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
 	{
+		if (!groupRuleMap.containsKey(groupCommand))
+			return duplicatelist;
 		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
 		for (ArrayList<File> al : duplicatelist)
 			if (!groupRuleMap.get(groupCommand).eval(groupArgument,al))
@@ -97,6 +88,8 @@ public class Rulelist {
 
 	public ArrayList<ArrayList<File>> evalFilter(ArrayList<ArrayList<File>> duplicatelist, String groupCommand, String groupArgument)
 	{
+		if (!filterMap.containsKey(groupCommand))
+		return duplicatelist;
 		ArrayList<ArrayList<File>> ndl = new ArrayList<ArrayList<File>>();
 		for (ArrayList<File> al : duplicatelist)
 		{

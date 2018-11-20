@@ -1,10 +1,10 @@
 import java.util.ArrayList;
 import java.io.File;
 
-public class RuleAny extends Rule {
+public class RuleAny extends FilterRule {
 
-	public RuleAny (Filepart fp, Stringcompare sc) { super(fp,sc); }
-
+        public RuleAny (Filepart fp, Stringcompare sc) { super(fp,sc); }
+        
 	public boolean eval (String e, ArrayList<File> al)
 	{
                 for (File f : al)

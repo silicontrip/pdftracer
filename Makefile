@@ -2,7 +2,7 @@
 CP=.
 CLASSES=Filelist.class Rulelist.class \
 Filepart.class FilepartCanonical.class FilepartName.class FilepartParent.class \
-Rule.class RuleAll.class RuleAny.class RuleOne.class \
+FilterRule.class RuleAll.class RuleAny.class RuleOne.class \
 Filter.class FilterAny.class FilterOne.class \
 Stringcompare.class StringContains.class StringEquals.class StringMatches.class StringStartsWith.class \
 test.class dupefind.class
