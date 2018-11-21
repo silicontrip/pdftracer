@@ -1,6 +1,6 @@
-
 import java.util.ArrayList;
 import java.io.File;
+
 public abstract class Rule {
 
 	protected Filepart file;
