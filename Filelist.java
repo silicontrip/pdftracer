@@ -8,7 +8,8 @@ public class Filelist implements Runnable, Serializable {
 
 	transient private HashMap<Long,HashSet<File>> flist;
 	private ArrayList<ArrayList<File>> duplicatelist;
-	private File scanDir;
+//	private File scanDir;
+	private ArrayList<File>scanDirs;
 
 	transient private ArrayList<File> toProcess;
 
@@ -18,18 +19,22 @@ public class Filelist implements Runnable, Serializable {
 	transient private boolean compareCompleted = false;
 
 
-	public Filelist (File dir) { this(); setScanDir(dir); }
-	public Filelist (String dir) { this(); setScanDir(dir); }
+	public Filelist (File dir) { this(); addScanDir(dir); }
+	public Filelist (String dir) { this(); addScanDir(dir); }
 
 	public Filelist ()
 	{
+		scanDirs = new ArrayList<File>();
 		flist = new HashMap<Long,HashSet<File>>();
 		duplicatelist = new ArrayList<ArrayList<File>>();
 	}
 
-	public void setScanDir (File dir) { scanDir = dir; }
-	public void setScanDir (String dir) { scanDir = new File(dir); }
-	public File getScanDir () { return scanDir; }
+	//public void setScanDir (File dir) { scanDir = dir; }
+//	public void setScanDir (String dir) { scanDir = new File(dir); }
+//	public File getScanDir () { return scanDir; }
+
+	public void addScanDir(File dir) { scanDirs.add(dir); }
+	public void addScanDir(String dir) { scanDirs.add(new File(dir)); }
 
 // these are needed for serializable...?
 	public ArrayList<ArrayList<File>> getDuplicatelist() { return duplicatelist; }
@@ -172,8 +177,9 @@ public class Filelist implements Runnable, Serializable {
 	{
 		scanCompleted = false;
 
-		toProcess = new ArrayList<File>();
-		toProcess.add(getScanDir());
+		toProcess = new ArrayList<File>(scanDirs);
+		
+		//toProcess.add(getScanDir());
 
 		while (toProcess.size() > 0) {
 			for (File sourcefile: toProcess.get(0).listFiles()) {

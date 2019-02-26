@@ -116,7 +116,11 @@ public class dupefind {
 			if (args.length == 0)
 				fl = new Filelist(".");
 			else 
-				fl = new Filelist (args[0]);
+			{
+				fl = new Filelist ();
+				for (String sd: args)
+					fl.addScanDir(sd);
+			}
 
 			System.out.println("-- SCAN --");
 			// start this in thread
