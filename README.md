@@ -1,6 +1,5 @@
 # pdftracer
 Yet another PDF editor.
-<<<<<<< HEAD
 
 =======
 ## Background
@@ -23,4 +22,3 @@ Tracer features
 * variable transperancy background layer, from any Quartz image.
 * obtain document co-ordinates from PDFView.
 * selecting element in PDFview highlights it in content stream view. 
->>>>>>> e2006e21a87280d2b971f23342f9e1fcd286caa2
