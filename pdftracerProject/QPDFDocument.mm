@@ -34,37 +34,32 @@
 
 - (nullable instancetype)initForURL:(nullable NSURL *)urlOrNil withContentsOfURL:(NSURL *)contentsURL ofType:(NSString *)typeName error:(NSError **)outError
 {
-	NSLog(@"QPDFDocument initForURL: %@",contentsURL);
-	[self setFileURL:urlOrNil];
 	self = [super init];
 	if (self) {
+		[self setFileURL:urlOrNil];
+
+		NSLog(@"QPDFDocument %@ initForURL: %@",self,contentsURL);
+
+		
 		pDoc = nil;
 		//	NSString *fn = [url description];
 		contentData = [[NSData alloc] initWithContentsOfURL:contentsURL]; // read data from file
-		
-		/* we know that it is correct upto here
-		 NSString* pdfd = [[NSString alloc] initWithData:content encoding:NSMacOSRomanStringEncoding];
-		 NSLog(@"%@",pdfd);
-		 */
-		
 		qDocument.processMemoryFile("memory", (char*)[contentData bytes], [contentData length]);  // initialise QPDF from memory
 		
-		/*
-		 NSData * depro = [self dataOfType:@"" error:nil];
-		 NSString* pdfd = [[NSString alloc] initWithData:depro encoding:NSMacOSRomanStringEncoding];
-		 NSLog(@"%@",pdfd);
-		 */
+		// force QPDF to initialize its internal data
 		
-		//	[QPDFDocument pdfretain:qDocument];
+		QPDFWriter qpdfWriter(qDocument);
+		qpdfWriter.setOutputMemory();
+		qpdfWriter.write();
 		
-		[self source];
+
 	}
 	return self;
 }
 
 - (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-	NSLog(@"QPDFDocument readFromURL: %@",url);
+	NSLog(@"QPDFDocument %@ readFromURL: %@",self,url);
 	[self setFileURL:url];
 	NSString *fn = [url description];
 
@@ -161,7 +156,7 @@
 - (PDFDocument*)pdfdocument
 {
 	QPDF qLocal = qDocument;
-	NSLog(@"QPDFDocument create PDFView");
+	NSLog(@"QPDFDocument %@ create PDFView",self);
 	QPDFWriter qpdfWriter(qDocument);
 	qpdfWriter.setOutputMemory();
 	qpdfWriter.write();
@@ -172,7 +167,7 @@
 	NSData* qPDFData = [NSData dataWithBytes:qBytes length:qBuf->getSize()];
 	
 //	NSDictionary* stringOptions = [NSDictionary dictionaryWithObjectsAndKeys:<#(nonnull id), ...#>, nil]
-	NSLog(@"QPDFDocument make PDFDocument:");
+//	NSLog(@"QPDFDocument make PDFDocument:");
 
 	NSString* pdfd = [[NSString alloc] initWithData:qPDFData encoding:NSMacOSRomanStringEncoding];
 	
@@ -222,25 +217,14 @@
 
 -(void)makeWindowControllers
 {
-	NSLog(@"QPDFDocument makeWindowControllers");
+	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
 	QPDFWindowController* winCon = [[QPDFWindowController alloc] initWithDocument:self];
 	[self addWindowController:winCon ];
 }
--(void)source;
+
+- (QPDF)qpdf
 {
-	
-//	 NSLog(@"special source, lettuce, cheese, on a: %@",[self pdfString]);
-	
-	pdfDS = [[OutlineQPDF alloc] initWithPDF:qDocument];
-	objDS = [[OutlinePDFObj alloc] initWithPDF:qDocument];
-	pageDS = [[OutlinePDFPage alloc] initWithPDF:qDocument];
-	
-//	winCon = [[QPDFWindowController alloc] initWithDocument:self];
-
+	return qDocument;
 }
-
-- (OutlineQPDF*)pdfDataSource { return pdfDS; }
-- (OutlinePDFObj*)pdfObjDataSource { return objDS; }
-- (OutlinePDFPage*)pdfPageDataSource { return pageDS; }
 
 @end

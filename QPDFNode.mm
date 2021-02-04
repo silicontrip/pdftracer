@@ -14,13 +14,13 @@
 
 - (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandle)qp
 {
-	NSLog(@"QPDFNode initWithParent: %@ %@ ",pa,nm);
+	// NSLog(@"QPDFNode initWithParent: %@ %@ ",pa,nm);
     self = [super init];
     if(self){
 		
 		name = [NSString stringWithString:nm];
-		NSLog(@"New node: '%@' created",name);
-		NSLog(@"Parent node: %@",pa);
+		// NSLog(@"New node: '%@' created",name);
+		// NSLog(@"Parent node: %@",pa);
 		[name retain];
 
 		qpdfhandle = qp;

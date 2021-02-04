@@ -18,13 +18,13 @@
 	{
 		qpDocument = pdf;
 		QPDFObjectHandle rootCatalog = pdf.getRoot();
-		NSLog(@"make catalog");
-		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"" Handle:rootCatalog];
+		//NSLog(@"make catalog");
+		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
 		//CGPDFDocumentRetain(myDocument);
 		// pdfObjectCache = [[NSMutableDictionary alloc] initWithCapacity:3];
 		// pdfNull = [NSValue valueWithPointer:nil];
-		NSLog(@"return self");
+		// NSLog(@"return self");
 	}
 	return self;
 }
@@ -43,7 +43,7 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	NSLog(@"OutlineQPDF Number of children");
+	NSLog(@"OutlineQPDF %@ Number of children",self);
 	
 	if (item == nil)
 		item = catalog;
@@ -53,13 +53,13 @@
 	if (pdfitem.isArray())
 	{
 		int itemCount = pdfitem.getArrayNItems();
-		NSLog(@"pdfitem array length: %d",itemCount);
+		NSLog(@"OutlineQPDF %@ pdfitem array length: %d",self,itemCount);
 		return itemCount;
 	}
 	if (pdfitem.isDictionary())
 	{
 		long count = pdfitem.getKeys().size();
-		NSLog(@"pdfitem dictionary length: %ld",count);
+		NSLog(@"OutlineQPDF %@ pdfitem dictionary length: %ld",self,count);
 
 		return count;
 	}

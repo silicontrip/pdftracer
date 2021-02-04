@@ -14,9 +14,13 @@
 		ooView = [OutlinePDFObj view];
 		opView = [OutlinePDFPage view];
 
-		[oView setDataSource:[[self document] pdfDataSource]];
-		[ooView setDataSource:[[self document] pdfObjDataSource]];
-		[opView setDataSource:[[self document] pdfPageDataSource]];
+		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp qpdf]];
+		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp qpdf]];
+		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp qpdf]];
+		
+		[oView setDataSource:pdfDS];
+		[ooView setDataSource:objDS];
+		[opView setDataSource:pageDS];
 		
 		// scroll view, because you can't fit it all on the screen
 		NSScrollView* scView = [[NSScrollView alloc] init];
@@ -94,6 +98,8 @@
 		[soView setAutosaveName:@"SplitOutline"];
 		[sView setAutosaveName:@"SplitMain"];
 
+
+		
 	}
 	return self;
 }

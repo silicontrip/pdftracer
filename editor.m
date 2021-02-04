@@ -115,8 +115,8 @@ int main (int argc, char * const argv[])
 	NSAutoreleasePool *splash=[NSAutoreleasePool new];
 	
 	[NSApplication sharedApplication];
-	
 	QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
+	
 	pdfApp *mm = [[pdfApp alloc] initWithController:docControl];
 	
 	[NSApp setDelegate:mm];
@@ -138,8 +138,14 @@ int main (int argc, char * const argv[])
 		NSString *fn = [aa positionalArgumentAt:0];  // filename from arg
 
 		NSURL *fu = [NSURL fileURLWithPath:fn];
+		NSError *errorError;
+		// [docControl makeDocumentWithContentsOfURL:fu ofType:@"PDF" error:&errorError];
+		[docControl openDocumentWithContentsOfURL:fu display:YES completionHandler:^(NSDocument *document, BOOL alreadyOpen, NSError *error){
+			NSLog(@"%@",document);
+		}];
+	//	[docControl openDocument:nil];
 		
-		[docControl openDocument:fu];
+		// [docControl openDocument:fu];
 
 	}
 

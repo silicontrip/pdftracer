@@ -2,12 +2,14 @@
 
 @implementation QPDFDocumentController
 
+/*
 + (void) load
 {
 	NSLog(@"QPDFDocumentController load");
 	[QPDFDocumentController new];
 }
-
+*/
+ 
 - (NSArray<NSString*>*) documentClassNames
 {
 	return @[@"PDF"];
@@ -20,15 +22,10 @@
 
 - (Class)documentClassForType:(NSString *)typeName
 {
-//	if ([typeName isEqualToString:@"PDF"])
-//		 {
-			 return [QPDFDocument class];
-//		 }
-//	return nil;
+	return [QPDFDocument class];
 }
 
-
-
+/*
 - (QPDFDocument*)documentForURL:(NSURL*)uel
 {
 	NSLog(@"QPDFDocumentController documentForURL");
@@ -42,7 +39,8 @@
 	}
 	return nil;
 }
-
+*/
+/*
 - (nullable __kindof NSDocument *)documentForWindow:(NSWindow *)window
 {
 	NSLog(@"QPDFDocumentController documentForWindow");
@@ -54,8 +52,15 @@
 	}
 	return nil;
 }
-	
+*/
 
+- (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError
+{
+	NSError* theError;
+	return [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
+}
+
+/*
 - (void)openDocument:(id)sender
 {
 	NSLog(@"QPDFDocumentController openDocument");
@@ -70,12 +75,12 @@
 		// Get an array containing the full filenames of all
 		// files and directories selected.
 		NSURL* url = [[openDlg URLs] firstObject];
-		NSError* theError;
-		QPDFDocument* nd = [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
-		[self addDocument:nd];
+
+	//	[self addDocument:nd];
 	}
 }
-
+ */
+/*
 - (void)newDocument:(id)sender
 {
 	NSLog(@"QPDFDocumentController newDocument:sender");
@@ -83,6 +88,7 @@
 	NSError* theError;
 	[self openUntitledDocumentAndDisplay:YES error:&theError];
 }
+*/
 
 - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError
 {
@@ -97,13 +103,13 @@
 	return newDoc;
 }
 
+
 - (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)pdf error:(NSError **)outError
 {
 	NSLog(@"QPDFDocumentController makeUntitledDocumentOfType");
 	// we only ever deal with PDF
 	return [[QPDFDocument alloc] init];
 
-	
 }
 
 

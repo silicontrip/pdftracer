@@ -14,6 +14,10 @@
 	PDFView *dView;
 	PDFDocument *pDoc;
 
+	OutlineQPDF* pdfDS;
+	OutlinePDFPage* pageDS;
+	OutlinePDFObj* objDS;
+	
 	// QPDF qDocument;
 	// Buffer* rawDoc;
 	NSTextView* tView;

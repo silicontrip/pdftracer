@@ -31,7 +31,9 @@
 	self = [super init];
 	if (self != nil)
 	{
+		NSLog(@"OutlinePDFPage %@ set qpdf",self);
 		qpDocument = pdf;
+		/*
 		std::vector<QPDFObjectHandle> ot = pdf.getAllObjects();
 
 		NSLog(@"object table size: %ld",ot.capacity());
@@ -39,12 +41,12 @@
 		for (int i =0; i<ot.capacity();++i)
 			NSLog(@"obj %d: %s",i,ot[i].unparse().c_str());
 
-		//QPDFObjectHandle o7 = ot[0];
+		QPDFObjectHandle o7 = ot[0];
 		
-		
-		
-		//NSLog(@"object 7: %s",o7.unparse().c_str());
-		
+		NSLog(@"object 7: %s",o7.unparse().c_str());
+*/
+		NSLog(@"OutlinePDFPage %@ getAllPages",self);
+
 		pageArray = pdf.getAllPages();
 		
 		NSLog(@"Page array len: %ld",pageArray.capacity());

@@ -28,9 +28,9 @@ NS_ASSUME_NONNULL_BEGIN
 //	NSURL* fileURL;  // from super
 //	QPDFWindowController* winCon;  // suspecting it's in super somewhere
 	
-	OutlineQPDF* pdfDS;
-	OutlinePDFPage* pageDS;
-	OutlinePDFObj* objDS;
+//	OutlineQPDF* pdfDS;
+//	OutlinePDFPage* pageDS;
+//	OutlinePDFObj* objDS;
 	
 	NSData *contentData;
 }
@@ -42,13 +42,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
+- (QPDF)qpdf;
 + (BOOL)autosavesInPlace;
 + (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
 
+/*
 - (OutlineQPDF*)pdfDataSource;
 - (OutlinePDFObj*)pdfObjDataSource;
 - (OutlinePDFPage*)pdfPageDataSource;
-
+*/
 @end
 
 NS_ASSUME_NONNULL_END
