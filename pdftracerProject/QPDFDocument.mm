@@ -12,7 +12,7 @@
 
 -(instancetype)init
 {
-	NSLog(@"QPDFDocument init");
+//	NSLog(@"QPDFDocument init");
 	self=[super init];
 	if (self) {
 		pDoc = nil;
@@ -38,7 +38,7 @@
 	if (self) {
 		[self setFileURL:urlOrNil];
 
-		NSLog(@"QPDFDocument %@ initForURL: %@",self,contentsURL);
+	//	NSLog(@"QPDFDocument %@ initForURL: %@",self,contentsURL);
 
 		
 		pDoc = nil;
@@ -59,7 +59,7 @@
 
 - (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-	NSLog(@"QPDFDocument %@ readFromURL: %@",self,url);
+//	NSLog(@"QPDFDocument %@ readFromURL: %@",self,url);
 	[self setFileURL:url];
 	NSString *fn = [url description];
 
@@ -109,7 +109,7 @@
 }
 
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError {
-	NSLog(@"QPDFDocument readFromData");
+//	NSLog(@"QPDFDocument readFromData");
     // Insert code here to read your document from the given data of the specified type. If outError != NULL, ensure that you create and set an appropriate error if you return NO.
     // Alternatively, you could remove this method and override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
     // If you do, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
@@ -156,7 +156,7 @@
 - (PDFDocument*)pdfdocument
 {
 	QPDF qLocal = qDocument;
-	NSLog(@"QPDFDocument %@ create PDFView",self);
+//	NSLog(@"QPDFDocument %@ create PDFView",self);
 	QPDFWriter qpdfWriter(qDocument);
 	qpdfWriter.setOutputMemory();
 	qpdfWriter.write();
@@ -169,15 +169,15 @@
 //	NSDictionary* stringOptions = [NSDictionary dictionaryWithObjectsAndKeys:<#(nonnull id), ...#>, nil]
 //	NSLog(@"QPDFDocument make PDFDocument:");
 
-	NSString* pdfd = [[NSString alloc] initWithData:qPDFData encoding:NSMacOSRomanStringEncoding];
+//	NSString* pdfd = [[NSString alloc] initWithData:qPDFData encoding:NSMacOSRomanStringEncoding];
 	
-	NSLog(@"%@",pdfd);
+//	NSLog(@"%@",pdfd);
 	
-	NSLog(@"PDFView pdfdata: %@",qPDFData);
+//	NSLog(@"PDFView pdfdata: %@",qPDFData);
 	
 	// release old pdf doc
 	
-	NSLog(@"PDFView release old data: %@",pDoc);
+//	NSLog(@"PDFView release old data: %@",pDoc);
 	
 	if (pDoc)
 		[pDoc release];
@@ -217,7 +217,7 @@
 
 -(void)makeWindowControllers
 {
-	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
+	// NSLog(@"QPDFDocument %@ makeWindowControllers",self);
 	QPDFWindowController* winCon = [[QPDFWindowController alloc] initWithDocument:self];
 	[self addWindowController:winCon ];
 }

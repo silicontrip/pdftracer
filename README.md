@@ -1,7 +1,6 @@
 # pdftracer
 Yet another PDF editor.
 
-=======
 ## Background
 
 Many years ago I learnt PostScript, initially to automate filling electronic forms for faxing but then it became my favourite vector image format.   So as soon as PDF became available I set out to learn that as a replacement to PostScript.  PDF however was more machine friendly and less human friendly, as the document contains the length of Content streams in bytes and each PDF object's byte offset is stored in the document, making writing one by hand quite difficult.

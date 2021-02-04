@@ -41,9 +41,9 @@
 }
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	NSLog(@"OutlinePDFObj Number of children");
+//	NSLog(@"OutlinePDFObj Number of children");
 	
-	NSLog(@"Object table: %d",objTable.size());
+//	NSLog(@"Object table: %d",objTable.size());
 	
 	if (item == nil)
 		return objTable.size();

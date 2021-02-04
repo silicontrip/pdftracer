@@ -1,2 +1,5 @@
 *.pdf
 *.ps
+*.o
+QPDFEditor.*
+*.gz

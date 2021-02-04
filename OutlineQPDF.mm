@@ -43,7 +43,7 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	NSLog(@"OutlineQPDF %@ Number of children",self);
+//	NSLog(@"OutlineQPDF %@ Number of children",self);
 	
 	if (item == nil)
 		item = catalog;
@@ -53,13 +53,13 @@
 	if (pdfitem.isArray())
 	{
 		int itemCount = pdfitem.getArrayNItems();
-		NSLog(@"OutlineQPDF %@ pdfitem array length: %d",self,itemCount);
+//		NSLog(@"OutlineQPDF %@ pdfitem array length: %d",self,itemCount);
 		return itemCount;
 	}
 	if (pdfitem.isDictionary())
 	{
 		long count = pdfitem.getKeys().size();
-		NSLog(@"OutlineQPDF %@ pdfitem dictionary length: %ld",self,count);
+//		NSLog(@"OutlineQPDF %@ pdfitem dictionary length: %ld",self,count);
 
 		return count;
 	}
@@ -92,13 +92,14 @@
 	}
 }
 
+/*
 void getStream(QPDFObjectHandle qpdf) {
 	if (qpdf.isStream()) {
 		PointerHolder<Buffer> bufRef = qpdf.getStreamData();
 		Buffer* buf = bufRef.getPointer();
 		size_t sz = buf->getSize();
 		unsigned char * bb = buf->getBuffer();
-		
+	
 		NSLog(@"buffer size: %ld addr: %x",sz,bb);
 			
 		for (int i=0; i<sz;++i)
@@ -111,9 +112,10 @@ void getStream(QPDFObjectHandle qpdf) {
 		NSString* objText= [[[NSString alloc] initWithBytes:bb length:sz encoding:NSMacOSRomanStringEncoding ] autorelease];
 			
 		NSLog(@"=======: %@",objText);
+	 
 	}
 }
-
+*/
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 // NSLog(@"child: %ld ofItem:",index);
@@ -129,7 +131,7 @@ void getStream(QPDFObjectHandle qpdf) {
 	{
 		QPDFObjectHandle thisObject = pdfitem.getArrayItem((int)index);
 		
-		getStream(thisObject);
+	//	getStream(thisObject);
 
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
@@ -148,7 +150,7 @@ void getStream(QPDFObjectHandle qpdf) {
 			if (loopindex == index)
 			{
 				QPDFObjectHandle thisObject = pdfitem.getKey(*iterKey);
-				getStream(thisObject);
+			//	getStream(thisObject);
 
 				NSString* sKey = [NSString stringWithUTF8String:iterKey->c_str()];
 				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:sKey Handle:thisObject];

@@ -31,7 +31,7 @@
 	self = [super init];
 	if (self != nil)
 	{
-		NSLog(@"OutlinePDFPage %@ set qpdf",self);
+//		NSLog(@"OutlinePDFPage %@ set qpdf",self);
 		qpDocument = pdf;
 		/*
 		std::vector<QPDFObjectHandle> ot = pdf.getAllObjects();
@@ -45,20 +45,20 @@
 		
 		NSLog(@"object 7: %s",o7.unparse().c_str());
 */
-		NSLog(@"OutlinePDFPage %@ getAllPages",self);
+//		NSLog(@"OutlinePDFPage %@ getAllPages",self);
 
 		pageArray = pdf.getAllPages();
 		
-		NSLog(@"Page array len: %ld",pageArray.capacity());
+//		NSLog(@"Page array len: %ld",pageArray.capacity());
 		
 		QPDFObjectHandle p1 = pageArray[0];
 		
-		NSLog(@"page Array %s",p1.unparse().c_str());
+//		NSLog(@"page Array %s",p1.unparse().c_str());
 
 		
 		//pageArray = [[QPDFNode alloc] initWithParent:nil Named:@"" Handle:root];
 	}
-	NSLog(@"returning self");
+//	NSLog(@"returning self");
 	return self;
 }
 
@@ -77,7 +77,7 @@
 }
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
-	NSLog(@"OutlinePDFPage Number of children");
+//	NSLog(@"OutlinePDFPage Number of children");
 	
 	if (item == nil)
 		return pageArray.size();
@@ -87,13 +87,13 @@
 	if (pdfitem.isArray())
 	{
 		int itemCount = pdfitem.getArrayNItems();
-		NSLog(@"Array count %d",itemCount);
+	//	NSLog(@"Array count %d",itemCount);
 		return itemCount;
 	}
 	if (pdfitem.isDictionary())
 	{
 		NSInteger count = pdfitem.getKeys().size();
-		NSLog(@"Dictionary count %d",(int)count);
+	//	NSLog(@"Dictionary count %d",(int)count);
 
 		return count;
 	}
