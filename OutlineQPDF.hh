@@ -7,6 +7,10 @@
 #import <qpdf/QPDFWriter.hh>
 
 #import "QPDFNode.hh"
+
+#import "QPDFOutlineView.h"
+
+
 @interface OutlineQPDF : NSObject <NSOutlineViewDataSource>
 {
 	@private
@@ -23,6 +27,9 @@
 + (NSOutlineView*)view;
 // protocol overrides
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
+
+
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;

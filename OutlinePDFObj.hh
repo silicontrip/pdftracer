@@ -6,6 +6,7 @@
 #import <qpdf/QPDFWriter.hh>
 
 #import "QPDFNode.hh"
+#import "QPDFOutlineView.h"
 
 @interface OutlinePDFObj : NSObject <NSOutlineViewDataSource>
 {
@@ -16,6 +17,7 @@
 
 - (instancetype)initWithPDF:(QPDF)pdf;
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
+
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;

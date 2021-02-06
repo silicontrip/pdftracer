@@ -9,7 +9,7 @@
 	NSTableColumn* pdfObjectType = [[NSTableColumn alloc] initWithIdentifier:@"Type"];
 //	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
 	
-	NSOutlineView* oView=[[NSOutlineView alloc] init];
+	NSOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];
 	[oView setIndentationMarkerFollowsCell:YES];

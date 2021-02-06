@@ -29,6 +29,8 @@
 	return self;
 }
 
+
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 //	NSLog(@"outlineView:isItemExpandable: %@",item);
@@ -83,8 +85,6 @@
 	}
 }
 
-
-
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 // NSLog(@"child: %ld ofItem:",index);
@@ -103,13 +103,12 @@
 	return nil;
 }
 
-
 + (NSOutlineView*)view
 {
 	NSTableColumn* pdfObjectObjRef = [[NSTableColumn alloc] initWithIdentifier:@"objref"];
 	NSTableColumn* pdfObjectObjRefType = [[NSTableColumn alloc] initWithIdentifier:@"type"];
 	
-	NSOutlineView* ooView = [[NSOutlineView alloc] init];
+	NSOutlineView* ooView = [[QPDFOutlineView alloc] init];
 	[ooView setIndentationPerLevel:16.0];
 	[ooView setIndentationMarkerFollowsCell:YES];
 	[ooView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
