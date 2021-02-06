@@ -47,11 +47,11 @@
 		qDocument.processMemoryFile("memory", (char*)[contentData bytes], [contentData length]);  // initialise QPDF from memory
 		
 		// force QPDF to initialize its internal data
-		
+		/*
 		QPDFWriter qpdfWriter(qDocument);
 		qpdfWriter.setOutputMemory();
 		qpdfWriter.write();
-		
+		*/
 
 	}
 	return self;

@@ -6,6 +6,10 @@
 #import "OutlinePDFPage.hh"
 
 @class QPDFDocument;
+@class OutlineQPDF;  // arg inconsistent names!
+@class OutlinePDFObj;
+@class OutlinePDFPage;
+
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate>
 {
@@ -38,6 +42,7 @@
 -(void)textDidEndEditing:(NSNotification*)notification;
 -(void)changeNotification:(NSNotification*)nn;
 -(void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
+- (void)selectChangeNotification:(NSOutlineView*)no;
 -(void)selectObject:(id)sender;
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor;
 

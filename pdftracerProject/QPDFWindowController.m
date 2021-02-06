@@ -60,7 +60,7 @@
 
 		dView = [[PDFView alloc] init];
 		pDoc = [[self document] pdfdocument];
-		NSLog(@"QPDFWindowController pdfdocument pdf : %@",pDoc);
+		//NSLog(@"QPDFWindowController pdfdocument pdf : %@",pDoc);
 		[dView setDocument:pDoc];
 
 		
@@ -69,6 +69,7 @@
 		[soView addArrangedSubview:scView];
 		[soView addArrangedSubview:socView];
 		[soView addArrangedSubview:spcView];
+		[soView setPostsFrameChangedNotifications:YES];
 
 		NSSplitView* sView=[[NSSplitView alloc] initWithFrame:vRect];
 		[sView setVertical:YES];
@@ -86,19 +87,25 @@
 		[[self window] setContentView:sView];
 		[[self window] orderFrontRegardless];
 
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:oView];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:oView];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:ooView];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:ooView];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:opView];
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:opView];
+		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
+		
+	//	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSViewFrameDidChangeNotification" object:oView];
+	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:ooView];
+	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:opView];
+
+		
+		
+		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:oView];
+		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:oView];
+		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:ooView];
+		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:ooView];
+		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:opView];
+		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:opView];
 
 		[[self window] setFrameAutosaveName:@"MainWindow"];
 
 		[soView setAutosaveName:@"SplitOutline"];
 		[sView setAutosaveName:@"SplitMain"];
-
-
 		
 	}
 	return self;
@@ -110,8 +117,8 @@
 {
 	// release old pdf doc
 	
-	/*
-	if (pDoc)
+	/* who owns pDoc?
+ 	if (pDoc)
 		[pDoc release];
 	*/
 	
@@ -152,7 +159,19 @@
 
 	}
 }
+- (void)selectChangeNotification:(NSOutlineView*)no
+{
+//	NSLog(@" %@",nn);
+
+	selectedView = no;
+	selectedRow = [selectedView selectedRow];
+	[self changeRow:selectedRow forSource:no];
+	
+}
 - (void)changeNotification:(NSNotification*)nn {
+	
+	NSLog(@"QPDFWindowController changeNotification %@",nn);
+	//NSLog(@"FR: %@",[[self window] firstResponder]);
 	
 	selectedView = [nn object];
 	selectedRow = [selectedView selectedRow];

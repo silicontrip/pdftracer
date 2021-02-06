@@ -25,12 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 	@private
 	QPDF qDocument;
 	PDFDocument* pDoc;
-//	NSURL* fileURL;  // from super
-//	QPDFWindowController* winCon;  // suspecting it's in super somewhere
-	
-//	OutlineQPDF* pdfDS;
-//	OutlinePDFPage* pageDS;
-//	OutlinePDFObj* objDS;
 	
 	NSData *contentData;
 }
