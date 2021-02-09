@@ -37,6 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
 - (QPDF)qpdf;
+- (NSString*)filePath;
 + (BOOL)autosavesInPlace;
 + (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
 

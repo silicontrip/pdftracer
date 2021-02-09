@@ -18,9 +18,6 @@
 		pDoc = nil;
 		[self setFileURL:nil];
 		qDocument.emptyPDF();
-
-	//	[self source];
-
 	}
 	return self;
 }
@@ -42,9 +39,11 @@
 
 		
 		pDoc = nil;
-		//	NSString *fn = [url description];
-		contentData = [[NSData alloc] initWithContentsOfURL:contentsURL]; // read data from file
-		qDocument.processMemoryFile("memory", (char*)[contentData bytes], [contentData length]);  // initialise QPDF from memory
+		NSString *fn = [[self fileURL] path];
+//		contentData = [[NSData alloc] initWithContentsOfURL:contentsURL]; // read data from file
+//		qDocument.processMemoryFile("memory", (char*)[contentData bytes], [contentData length]);  // initialise QPDF from memory
+		
+		qDocument.processFile([fn UTF8String]);
 		
 		// force QPDF to initialize its internal data
 		/*
@@ -225,6 +224,12 @@
 - (QPDF)qpdf
 {
 	return qDocument;
+}
+
+- (NSString*)filePath
+{
+	NSString * fn =[[NSString alloc] initWithUTF8String:qDocument.getFilename().c_str()];
+	return fn;
 }
 
 @end
