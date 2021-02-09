@@ -15,7 +15,7 @@
 
 //- (QPDFDocument*)documentForURL:(NSURL*)uel;
 //- (void)openDocument:(id)sender;
-//- (void)newDocument:(id)sender;
+- (void)newDocument:(id)sender;
 // - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError;
 - (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)type error:(NSError**)outError;
 - (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError;

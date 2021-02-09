@@ -11,8 +11,14 @@
 - (BOOL)becomeFirstResponder
 {
 	NSLog(@"BECOME FR: %@",self);
-	[super becomeFirstResponder];
 	
+	
+	[super becomeFirstResponder];
+	NSResponder* fr = [[self window] firstResponder];
+	do {
+		NSLog(@"resp: %@",fr);
+		fr = [fr nextResponder];
+	} while (fr != nil);
 	[[[self window] windowController] selectChangeNotification:self];
 	
 	return YES;

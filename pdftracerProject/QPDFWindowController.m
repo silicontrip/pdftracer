@@ -86,6 +86,8 @@
 		[[self window] setCollectionBehavior:behavior];
 		[[self window] setContentView:sView];
 		[[self window] orderFrontRegardless];
+		
+		[[self window]  setTitle:[[self document] filePath]];
 
 		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 		
@@ -305,6 +307,12 @@
 		[opView reloadItem:nn];
 	
 	[self updatePDF];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	// lets see if this does anything.
+	return YES;
 }
 
 @end

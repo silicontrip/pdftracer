@@ -22,6 +22,9 @@
 		4D3A6B9D25BD98DD00B22499 /* OutlinePDFPage.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D3A6B9C25BD98DD00B22499 /* OutlinePDFPage.mm */; };
 		4D5450E025C5310800ED6F54 /* OutlineQPDF.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D5450DF25C5310700ED6F54 /* OutlineQPDF.mm */; };
 		4D5BEC2825C58A96006CBE02 /* QPDFWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */; };
+		4D5BEC3025CD5887006CBE02 /* testqpdf.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D5BEC2F25CD5887006CBE02 /* testqpdf.mm */; };
+		4D5BEC3E25CEB443006CBE02 /* QPDFOutlineView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */; };
+		4D5BEC6425D276AD006CBE02 /* QPDFMenu.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5BEC6325D276AD006CBE02 /* QPDFMenu.m */; };
 		4D638AE225C2C84200BAB433 /* QPDFDocument.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D638AE125C2C84200BAB433 /* QPDFDocument.mm */; };
 		4D638AE425C2DBBB00BAB433 /* QPDFDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D638AE325C2DBBB00BAB433 /* QPDFDocumentController.m */; };
 		4D8EE7012598A230008D2DA2 /* ArgumentsObj.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163CF325987A1F00C8C7D3 /* ArgumentsObj.m */; };
@@ -45,6 +48,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		4D36C05025A2D43F007E0EAD /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		4D5BEC3325CD5951006CBE02 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -98,7 +110,12 @@
 		4D5450E225C535F500ED6F54 /* QPDFWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFWindowController.h; sourceTree = SOURCE_ROOT; };
 		4D5450E425C5492000ED6F54 /* OutlineQPDF.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = OutlineQPDF.hh; path = ../../OutlineQPDF.hh; sourceTree = "<group>"; };
 		4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFWindowController.m; sourceTree = SOURCE_ROOT; };
-		4D5BEC2D25C8C0C9006CBE02 /* example.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = example.cpp; path = ../../example.cpp; sourceTree = "<group>"; };
+		4D5BEC2F25CD5887006CBE02 /* testqpdf.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = testqpdf.mm; path = ../../testqpdf.mm; sourceTree = "<group>"; };
+		4D5BEC3525CD5951006CBE02 /* testqpdf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = testqpdf; sourceTree = BUILT_PRODUCTS_DIR; };
+		4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFOutlineView.m; sourceTree = SOURCE_ROOT; };
+		4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFOutlineView.h; sourceTree = SOURCE_ROOT; };
+		4D5BEC6225D276AD006CBE02 /* QPDFMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QPDFMenu.h; sourceTree = "<group>"; };
+		4D5BEC6325D276AD006CBE02 /* QPDFMenu.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = QPDFMenu.m; sourceTree = "<group>"; };
 		4D638ADC25C00AA800BAB433 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 		4D638AE025C2C84200BAB433 /* QPDFDocument.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = QPDFDocument.hh; sourceTree = SOURCE_ROOT; };
 		4D638AE125C2C84200BAB433 /* QPDFDocument.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QPDFDocument.mm; sourceTree = SOURCE_ROOT; };
@@ -122,6 +139,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4D36C04F25A2D43F007E0EAD /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4D5BEC3225CD5951006CBE02 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -153,11 +177,10 @@
 		4D163CDE259879ED00C8C7D3 = {
 			isa = PBXGroup;
 			children = (
-				4D5BEC2B25C827FE006CBE02 /* example */,
+				4D5BEC2E25CD5870006CBE02 /* test */,
 				4D36C04B25A2CFC0007E0EAD /* genpdf */,
 				4D163CE9259879ED00C8C7D3 /* pdftracer */,
 				4D8EE6FA2598A21C008D2DA2 /* parsepdf */,
-				4D8EE7072598A259008D2DA2 /* editor */,
 				4D8EE7142598A27C008D2DA2 /* psconverter */,
 				4D163CE8259879ED00C8C7D3 /* Products */,
 				4D163CF625987BFF00C8C7D3 /* Frameworks */,
@@ -172,6 +195,7 @@
 				4D8EE6F92598A21C008D2DA2 /* parsepdf */,
 				4D8EE7132598A27C008D2DA2 /* psconverter */,
 				4D36C05225A2D43F007E0EAD /* genpdf */,
+				4D5BEC3525CD5951006CBE02 /* testqpdf */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -182,8 +206,12 @@
 				4D163CF425987A1F00C8C7D3 /* ArgumentsObj.h */,
 				4D163CF325987A1F00C8C7D3 /* ArgumentsObj.m */,
 				4D163D002598A0A000C8C7D3 /* editor.m */,
+				4D5BEC6225D276AD006CBE02 /* QPDFMenu.h */,
+				4D5BEC6325D276AD006CBE02 /* QPDFMenu.m */,
 				4D36C047259EEF0C007E0EAD /* Editor.xib */,
 				4D638ADC25C00AA800BAB433 /* MainMenu.xib */,
+				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
+				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
 				4D3A6B9825BD8E0600B22499 /* OutlinePDFObj.hh */,
 				4D3A6B9925BD8E0600B22499 /* OutlinePDFObj.mm */,
 				4D3A6B9B25BD98DD00B22499 /* OutlinePDFPage.hh */,
@@ -231,12 +259,12 @@
 			path = /usr/local/Cellar/qpdf/10.0.4/include/qpdf;
 			sourceTree = "<absolute>";
 		};
-		4D5BEC2B25C827FE006CBE02 /* example */ = {
+		4D5BEC2E25CD5870006CBE02 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				4D5BEC2D25C8C0C9006CBE02 /* example.cpp */,
+				4D5BEC2F25CD5887006CBE02 /* testqpdf.mm */,
 			);
-			path = example;
+			path = test;
 			sourceTree = "<group>";
 		};
 		4D8EE6FA2598A21C008D2DA2 /* parsepdf */ = {
@@ -245,13 +273,6 @@
 				4D147B9825ADD824001AB1A3 /* parsepdf.mm */,
 			);
 			path = parsepdf;
-			sourceTree = "<group>";
-		};
-		4D8EE7072598A259008D2DA2 /* editor */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = editor;
 			sourceTree = "<group>";
 		};
 		4D8EE7142598A27C008D2DA2 /* psconverter */ = {
@@ -297,6 +318,23 @@
 			name = genpdf;
 			productName = genpdf;
 			productReference = 4D36C05225A2D43F007E0EAD /* genpdf */;
+			productType = "com.apple.product-type.tool";
+		};
+		4D5BEC3425CD5951006CBE02 /* testqpdf */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4D5BEC3925CD5951006CBE02 /* Build configuration list for PBXNativeTarget "testqpdf" */;
+			buildPhases = (
+				4D5BEC3125CD5951006CBE02 /* Sources */,
+				4D5BEC3225CD5951006CBE02 /* Frameworks */,
+				4D5BEC3325CD5951006CBE02 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = testqpdf;
+			productName = testqpdf;
+			productReference = 4D5BEC3525CD5951006CBE02 /* testqpdf */;
 			productType = "com.apple.product-type.tool";
 		};
 		4D8EE6F82598A21C008D2DA2 /* parsepdf */ = {
@@ -350,6 +388,10 @@
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
 					};
+					4D5BEC3425CD5951006CBE02 = {
+						CreatedOnToolsVersion = 10.1;
+						ProvisioningStyle = Automatic;
+					};
 					4D8EE6F82598A21C008D2DA2 = {
 						CreatedOnToolsVersion = 9.2;
 						ProvisioningStyle = Automatic;
@@ -376,6 +418,7 @@
 				4D8EE6F82598A21C008D2DA2 /* parsepdf */,
 				4D8EE7122598A27C008D2DA2 /* psconverter */,
 				4D36C05125A2D43F007E0EAD /* genpdf */,
+				4D5BEC3425CD5951006CBE02 /* testqpdf */,
 			);
 		};
 /* End PBXProject section */
@@ -385,7 +428,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D5BEC3E25CEB443006CBE02 /* QPDFOutlineView.m in Sources */,
 				4D3A6B9D25BD98DD00B22499 /* OutlinePDFPage.mm in Sources */,
+				4D5BEC6425D276AD006CBE02 /* QPDFMenu.m in Sources */,
 				4D5BEC2825C58A96006CBE02 /* QPDFWindowController.m in Sources */,
 				4D638AE225C2C84200BAB433 /* QPDFDocument.mm in Sources */,
 				4D5450E025C5310800ED6F54 /* OutlineQPDF.mm in Sources */,
@@ -403,6 +448,14 @@
 			files = (
 				4D36C05925A2D445007E0EAD /* genpdf.m in Sources */,
 				4D36C05A25A2D49B007E0EAD /* ArgumentsObj.m in Sources */,
+				4D5BEC3025CD5887006CBE02 /* testqpdf.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4D5BEC3125CD5951006CBE02 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -593,6 +646,27 @@
 			};
 			name = Release;
 		};
+		4D5BEC3A25CD5951006CBE02 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4D5BEC3B25CD5951006CBE02 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_STYLE = Automatic;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		4D8EE6FD2598A21C008D2DA2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -670,6 +744,15 @@
 			buildConfigurations = (
 				4D36C05725A2D43F007E0EAD /* Debug */,
 				4D36C05825A2D43F007E0EAD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4D5BEC3925CD5951006CBE02 /* Build configuration list for PBXNativeTarget "testqpdf" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4D5BEC3A25CD5951006CBE02 /* Debug */,
+				4D5BEC3B25CD5951006CBE02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -80,15 +80,15 @@
 	}
 }
  */
-/*
+
 - (void)newDocument:(id)sender
 {
 	NSLog(@"QPDFDocumentController newDocument:sender");
 
-	NSError* theError;
-	[self openUntitledDocumentAndDisplay:YES error:&theError];
+//	NSError* theError;
+//	[self openUntitledDocumentAndDisplay:YES error:&theError];
 }
-*/
+
 
 - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError
 {
