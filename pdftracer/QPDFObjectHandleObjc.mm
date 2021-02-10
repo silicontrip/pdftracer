@@ -1,17 +1,5 @@
 #import "QPDFObjectHandleObjc.hh"
 
-#include <qpdf/QPDF.hh>
-#include <qpdf/QPDFWriter.hh>
-
-@interface QPDFObjectHandleObjc ()
-{
-    QPDFObjectHandle qObject;
-}
-
--(instancetype)initWithObject:(QPDFObjectHandle)obj;
-
-@end
-
 @implementation QPDFObjectHandleObjc
 
 -(instancetype)initWithObject:(QPDFObjectHandle)obj
@@ -54,7 +42,7 @@
 	return 0;
 }
 
--(NSArray<NSString*>*)array
+-(NSArray<QPDFObjectHandleObjc*>*)array
 {
 	if (objectArray)
 		return objectArray;
@@ -62,9 +50,11 @@
 	NSMutableArray* tempObjectArray = [NSMutableArray arrayWithCapacity:[self count]];
 	for (int index = 0; index <[self count]; ++index)
 		[tempObjectArray addObject:[self objectAtIndex:index]];
-	
+/* // we don't handle cache invalidation yet
 	objectArray = [[NSArray alloc] initWithArray:tempObjectArray];
 	return objectArray;
+ */
+	return [[NSArray alloc] initWithArray:tempObjectArray];
 }
 	
 -(NSArray<NSString*>*)keys
@@ -83,8 +73,11 @@
 		NSString* keyString = [NSString stringWithCString:itKey.c_str() encoding:NSMacOSRomanStringEncoding ];
 		[tempKeyArray addObject:keyString];
 	}
+	/*  // we don't handle cache invalidation yet
 	dictionaryKeys = [[NSArray alloc] initWithArray:tempKeyArray];
 	return dictionaryKeys;
+	 */
+	return [[NSArray alloc] initWithArray:tempKeyArray];
 }
 -(QPDFObjectHandleObjc*)objectForKey:(NSString*)key
 {
@@ -109,7 +102,7 @@
 }
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj
 {
-	qObject.setArrayItem(index, [obj qpdfobject]);
+	qObject.setArrayItem((int)index, [obj qpdfobject]);
 }
 -(void)replaceStreamData:(NSString*)data
 {
@@ -158,10 +151,22 @@
 		return NO;
 }
 
-
 -(QPDFObjectHandle)qpdfobject
 {
 	return qObject;
+}
+
++ (NSArray<QPDFObjectHandleObjc*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec
+{
+	NSUInteger veclen = vec.size();
+	NSMutableArray* tempObjectArray = [NSMutableArray arrayWithCapacity:veclen];
+	for (int index = 0; index < veclen; ++index)
+	{
+		QPDFObjectHandle elem = vec[index];
+		QPDFObjectHandleObjc* tempElem = [[QPDFObjectHandleObjc alloc] initWithObject:elem];
+		[tempObjectArray addObject:tempElem];
+	}
+	return [[NSArray alloc] initWithArray:tempObjectArray];
 }
 
 @end

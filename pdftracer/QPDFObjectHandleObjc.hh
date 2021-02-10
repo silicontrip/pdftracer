@@ -1,31 +1,17 @@
-#import <Foundation/Foundation.h>
-// I'd like to turn this into a class cluster
-@interface QPDFObjectHandleObjc : NSObject
+#import "QPDFObjectHandleObjc.h"
+#import "QPDFObjc.hh"
+// they all go in the other one
+#include <qpdf/QPDF.hh>
+#include <qpdf/QPDFWriter.hh>
+// put c++ here in the extension interface.
+@interface QPDFObjectHandleObjc()
 {
-// do not put c++ in the header
-	NSArray<NSString*>* dictionaryKeys;
-	NSArray<NSString*>* objectArray;
+	@private
+    QPDFObjectHandle qObject;
 }
 
--(instancetype)initWithString:(NSString*)def;
--(BOOL)isNull;
--(BOOL)isStream;
--(BOOL)isArray;
--(BOOL)isDictionary;
--(BOOL)isExpandable;
--(NSUInteger)count;
--(NSArray<NSString*>*)keys;
--(QPDFObjectHandleObjc*)objectForKey:(NSString*)key;
--(QPDFObjectHandleObjc*)objectAtIndex:(NSUInteger)index;
--(void)removeObjectForKey:(NSString*)key;
--(void)replaceObject:(QPDFObjectHandleObjc*)obj ForKey:(NSString*)key;
--(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj;
-
--(void)replaceStreamData:(NSData*)data;
--(NSString*)name;
--(NSString*)typeName;
--(NSString*)unparse;
--(NSString*)unparseResolved;
--(BOOL)childrenContainIndirects;
+-(instancetype)initWithObject:(QPDFObjectHandle)obj;
+-(QPDFObjectHandle)qpdfobject;  // where is this needed ?
++(NSArray<QPDFObjectHandleObjc*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec;
 
 @end

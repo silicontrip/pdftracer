@@ -1,21 +1,15 @@
-#import <Foundation/Foundation.h>
+#import "QPDFObjc.h"
+
 #import "QPDFObjectHandleObjc.hh"
-#import <Quartz/Quartz.h>
 
-@interface QPDFObjc : NSObject
+#include <iostream>
+#include <qpdf/QPDF.hh>
+#include <qpdf/QPDFWriter.hh>
+
+@interface QPDFObjc ()
 {
-// QPDF qDocument; // not here
+	@private
+	QPDF qDocument;   // but we hide it from all the other
 }
-
--(instancetype)init; // empty pdf
--(instancetype)initWithURL:(NSURL*)fileURL;
-
-
--(NSString*)filename;
--(NSString*)pdfVersion;
--(NSArray<QPDFObjectHandleObjc*>*)pages;
--(NSArray<QPDFObjectHandleObjc*>*)objects;
--(QPDFObjectHandleObjc*)rootCatalog;
--(PDFDocument*)document;
 
 @end
