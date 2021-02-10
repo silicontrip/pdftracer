@@ -1,23 +1,23 @@
 
-#import "OutlineQPDF.hh"
+#import "OutlineQPDF.h"
 
 @implementation OutlineQPDF
 
-- (instancetype)initWithPDF:(QPDF)pdf
+- (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
-	std::string fn = pdf.getFilename();
-	std::string vr = pdf.getPDFVersion();
+	NSString* fn = [pdf filename];
+	NSString8 vr = [pdf PDFVersion];
 	std::stringstream buffer;
 
 	// buffer << pdf;
 	
-	NSLog(@"OutlineQPDF initWithPDF: %s_%s",fn.c_str(),vr.c_str());
+	NSLog(@"OutlineQPDF initWithPDF: %@_%@",fn,vr);
 	
 	self = [super init];
 	if (self)
 	{
 		qpDocument = pdf;
-		QPDFObjectHandle rootCatalog = pdf.getRoot();
+		QPDFObjectHandleObjc* rootCatalog = [pdf rootCatalog];
 		//NSLog(@"make catalog");
 		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
@@ -37,10 +37,7 @@
 	if (item == nil) // NULL means Root node
 		return YES;
 	
-	QPDFObjectHandle pdfitem = [(QPDFNode*)item object];
-	
-	return (pdfitem.isArray() || pdfitem.isDictionary());
-	
+	return [[(QPDFNode*)item object] isExpandable];
 }
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
@@ -50,17 +47,17 @@
 	if (item == nil)
 		item = catalog;
 
-	QPDFObjectHandle  pdfitem  = [(QPDFNode*)item object];
+	QPDFObjectHandleObjc*  pdfitem  = [(QPDFNode*)item object];
 	
-	if (pdfitem.isArray())
+	if ([pdfitem isArray])
 	{
-		int itemCount = pdfitem.getArrayNItems();
+		int itemCount = [pdfitem count];
 //		NSLog(@"OutlineQPDF %@ pdfitem array length: %d",self,itemCount);
 		return itemCount;
 	}
-	if (pdfitem.isDictionary())
+	if ([pdfitem isDictionary])
 	{
-		long count = pdfitem.getKeys().size();
+		long count = [pdfitem count];
 //		NSLog(@"OutlineQPDF %@ pdfitem dictionary length: %ld",self,count);
 
 		return count;
@@ -78,16 +75,16 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandle pdfitem = [node object];
+		QPDFObjectHandleObjc* pdfitem = [node object];
 
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
 			rs = [node name];
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
-			rs = [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
+			rs = [pdfitem typeName];
 		else
-			rs= [NSString stringWithFormat:@"%s",pdfitem.unparse().c_str()];
+			rs = [pdfitem unparse];
 
 		return rs;
 		
@@ -103,11 +100,11 @@
 	if (item == nil)
 		item = catalog;
 	
-	QPDFObjectHandle pdfitem = [(QPDFNode*)item object];
+	QPDFObjectHandleObjc* pdfitem = [(QPDFNode*)item object];
 	
-	if (pdfitem.isArray())
+	if ([pdfitem isArray])
 	{
-		QPDFObjectHandle thisObject = pdfitem.getArrayItem((int)index);
+		QPDFObjectHandleObjc* thisObject = [pdfitem objectAtIndex:index];
 		
 	//	getStream(thisObject);
 
@@ -116,22 +113,22 @@
 		
 		return sindex;
 		
-	} else if (pdfitem.isDictionary()) {
+	} else if ([pdfitem isDictionary]) {
 		// NSLog(@"obj is dictionary. child:ofItem:");
 		
+/*
 		std::set<std::string> keys = pdfitem.getKeys();  // I need this to be order preserving.
 		std::vector<std::string> ord(keys.begin(), keys.end());
 		std::set<std::string>::iterator iterKey;
+*/
 		int loopindex=0;
-		for(iterKey = keys.begin(); iterKey != keys.end(); ++iterKey)
+		for(NSString* iterKey in [pdfitem keys])
 		{
 			if (loopindex == index)
 			{
-				QPDFObjectHandle thisObject = pdfitem.getKey(*iterKey);
-			//	getStream(thisObject);
+				QPDFObjectHandleiObjc* thisObject = [pdfitem objectForKey:iterKey];
 
-				NSString* sKey = [NSString stringWithUTF8String:iterKey->c_str()];
-				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:sKey Handle:thisObject];
+				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
 				return nKey;
 			}
 			++loopindex;
@@ -149,14 +146,14 @@
 	
 	QPDFNode* node = (QPDFNode*)item;  // node item for selected row
 	
-	QPDFObjectHandle parent = [node parent]; // parent object
+	QPDFObjectHandleObjc* parent = [node parent]; // parent object
 //	if ([tableColumn isKindOfClass:[NSOutlineView class ]])
 //	{
-		NSString* col = [tableColumn identifier]; // which column was edited.
-		NSString* name = [node name];  // dictionary key or array index value
-		NSString* newValue = (NSString*)object;  // name, (type), value
+	NSString* col = [tableColumn identifier]; // which column was edited.
+	NSString* name = [node name];  // dictionary key or array index value
+	NSString* newValue = (NSString*)object;  // name, (type), value
 	
-		std::string *qpdfValue = new std::string([newValue UTF8String]);
+	//	std::string *qpdfValue = new std::string([newValue UTF8String]);
 		
 	//	NSLog(@"name in parent: %@",name);
 		
@@ -165,9 +162,9 @@
 			// this only makes sense if it's a dictionary
 			// keep old object,
 			// rs = object;
-			if (parent.isDictionary()) {
-				parent.removeKey([name UTF8String]);
-				parent.replaceKey(*qpdfValue, [node object]);
+			if ([parent isDictionary]) {
+				[parent removeObjectForKey:name];
+				[parent replaceObject:[node object] forKey:newValue];
 			} else {
 				NSLog(@"Not CHANGING");
 			}
@@ -180,30 +177,26 @@
 		else
 		{// if (pdfitem->isScalar())
 			// rs= [NSString stringWithFormat:@"%s",pdfitem->unparse().c_str()];
-			try {
-				QPDFObjectHandle newobj = QPDFObjectHandle::parse(*qpdfValue);
-			
-				if (parent.isArray())
+			QPDFObjectHandleObjc* newobj = [[QPDFObjectHandle alloc] initWithString:newValue];
+			if (newobj) {	
+				if ([parent isArray])
 				{
 				//	NSLog(@"index name: %@",name);
 					int index = (int)[name integerValue];
-					parent.setArrayItem(index, newobj);
+					[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
+					//parent.setArrayItem(index, newobj);
 					
-				} else if (parent.isDictionary()) {
+				} else if ([parent isDictionary]) {
 					
 			//		NSLog(@"REPLACING dictionary key %@",name);
-					std::string key([name UTF8String]);
-					parent.replaceKey(key, newobj);
-
-					//parent->removeKey([name UTF8String]);
-					//parent->
+					//std::string key([name UTF8String]);
+					//parent.replaceKey(key, newobj);
+					[parent replaceObject:newobj forKey:name];
 					
 				} else {
 					// who's your daddy?
 					NSLog(@"parent is not dictionary or array");  // so wtf is it?
 				}
-			} catch (const std::exception& e) {
-					NSLog(@"error parsing");
 			}
 		}
 //	}

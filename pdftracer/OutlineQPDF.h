@@ -3,10 +3,7 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import <qpdf/QPDF.hh>
-#import <qpdf/QPDFWriter.hh>
-
-#import "QPDFNode.hh"
+#import "QPDFNode.h"
 
 #import "QPDFOutlineView.h"
 
@@ -22,16 +19,13 @@
 	// NSValue* pdfNull;
 }
 
-// - (instancetype)initWithURL:(NSURL*)url;
-- (instancetype)initWithPDF:(QPDF)pdf;
+- (instancetype)initWithPDF:(QPDFObjc*)pdf;
 + (NSOutlineView*)view;
+
 // protocol overrides
-- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
-
-
-
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 
