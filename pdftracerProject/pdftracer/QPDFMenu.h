@@ -16,9 +16,8 @@ NS_ASSUME_NONNULL_BEGIN
 }
 
 - (instancetype)init;
-+ (NSMenuItem*)newMenuBar:(NSString*)menutitle with:(NSArray*)menus key:(NSArray*)keys;
-+ (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv;
-
++ (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select;
++ (NSMenuItem*)newMenuBar:(NSString*)menutitle with:(NSArray*)menus keys:(NSArray*)keys selectors:(NSArray*)select;
 
 @end
 

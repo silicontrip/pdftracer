@@ -19,7 +19,7 @@
 	
 	NSArray* menuItems = @[
 						   @[@"About",@"Quit PDFTracer"],
-						   @[@"New",@"Open...",@"Open Recent",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved"],
+						   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved"],
 						   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste"],
 						   @[@"Font"],
 						   @[@"Actual Size",@"Zoom to Fit",@"Zoom In",@"Zoom Out",@"Zoom to Selection"],
@@ -32,7 +32,7 @@
 	
 	NSArray* keyEquivalents = @[
 								@[tnil,@"q"],
-								@[@"n", @"o",tnil,tnil,@"w",@"s",@"S",@"r"],
+								@[@"n", @"o",tnil,@"w",@"s",@"S",@"r"],
 								@[@"z",@"Z",tnil,@"x",@"c",@"v"],
 								@[tnil],
 								@[@"0",@"9",@"+",@"-",@"*"],
@@ -72,7 +72,7 @@
 // NSMenu* newMenu(NSArray * menutitle)
 + (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select
 {
-	NSMenu *menu = [NSMenu new];
+	NSMenu *myMenu = [NSMenu new];
 	for (NSUInteger i=0; i<[menutitle count]; ++i)
 	{
 		NSMenuItem *mi = [[NSMenuItem new] autorelease];
@@ -91,10 +91,10 @@
 				[mi setAction:NSSelectorFromString(selstr)];
 		}
 		[mi setEnabled:YES];
-		[menu addItem:mi];
+		[myMenu addItem:mi];
 	}
-	[menu setAutoenablesItems:YES];
-	return menu;
+	[myMenu setAutoenablesItems:YES];
+	return myMenu;
 	
 }
 

@@ -19,9 +19,6 @@
 	// NSMutableArray<QPDFEditor*>* openDocuments;
 	QPDFDocumentController* docControl;
 }
-- (NSMenu*)newMenu:(NSArray*)menutitle;
-- (NSMenuItem*)newMenuBar:(NSString*)menutitle with:(NSArray*)menus;
-- (NSMenu*)newAppMenu;
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
 // - (BOOL)validateMenuItem:(NSMenuItem *)menuItem;
