@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
-#import "ArgumentsObj.h"
+#import "Arguments.h"
 #import "OutlineQPDF.hh"
 // #import "QPDFEditor.hh"
 #import "QPDFDocumentController.h"

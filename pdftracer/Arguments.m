@@ -1,4 +1,4 @@
-#import "ArgumentsObj.h"
+#import "Arguments.h"
 @implementation Arguments
 
 + (instancetype)argumentsWithCount:(int)argc values:(char*const*)argv
