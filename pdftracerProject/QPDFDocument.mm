@@ -46,11 +46,11 @@
 		qDocument.processFile([fn UTF8String]);
 		
 		// force QPDF to initialize its internal data
-		/*
+		
 		QPDFWriter qpdfWriter(qDocument);
 		qpdfWriter.setOutputMemory();
 		qpdfWriter.write();
-		*/
+		
 
 	}
 	return self;
@@ -216,7 +216,7 @@
 
 -(void)makeWindowControllers
 {
-	// NSLog(@"QPDFDocument %@ makeWindowControllers",self);
+	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
 	QPDFWindowController* winCon = [[QPDFWindowController alloc] initWithDocument:self];
 	[self addWindowController:winCon ];
 }
@@ -229,7 +229,39 @@
 - (NSString*)filePath
 {
 	NSString * fn =[[NSString alloc] initWithUTF8String:qDocument.getFilename().c_str()];
-	return fn;
+	
+	if ([fn isEqualToString:@"empty PDF"])
+		return @"Untitled";
+	
+//	NSLog(@"FN: %@",fn);
+	
+	return [fn lastPathComponent];
 }
 
+- (void)saveDocumentAs:(id)sender
+{
+	NSLog(@"save as %@",sender);
+	
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+	NSString* selstr =NSStringFromSelector(aSelector);
+	if (![selstr isEqualToString:@"validModesForFontPanel:"])
+	{
+		NSLog(@"DOC EVENT -> %@",NSStringFromSelector(aSelector));
+		if( [NSWindowController instancesRespondToSelector:aSelector] ) {
+			// invoke the inherited method
+			return YES;
+		}
+	}
+	return NO;
+}
+
+/*
+- (NSResponder*)nextResponder
+{
+	return [QPDFDocumentController sharedDocumentController];
+}
+*/
 @end

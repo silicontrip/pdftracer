@@ -60,7 +60,7 @@
 	return [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
 }
 
-/*
+
 - (void)openDocument:(id)sender
 {
 	NSLog(@"QPDFDocumentController openDocument");
@@ -75,24 +75,26 @@
 		// Get an array containing the full filenames of all
 		// files and directories selected.
 		NSURL* url = [[openDlg URLs] firstObject];
+		NSError* theError;
+		QPDFDocument* nd = [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
 
-	//	[self addDocument:nd];
+		[self addDocument:nd];
 	}
 }
- */
+ 
 
 - (void)newDocument:(id)sender
 {
 	NSLog(@"QPDFDocumentController newDocument:sender");
 
-//	NSError* theError;
-//	[self openUntitledDocumentAndDisplay:YES error:&theError];
+	NSError* theError;
+	[self openUntitledDocumentAndDisplay:YES error:&theError];
 }
 
 
 - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError
 {
-	NSLog(@"QPDFDocumentController openUntitledDocumentAndDisplay");
+	NSLog(@"QPDFDocumentController openUntitledDocumentAndDisplay : %d",dd);
 
 	QPDFDocument* newDoc = [self makeUntitledDocumentOfType:@"PDF" error:outError];
 	[self addDocument:newDoc];
@@ -113,7 +115,7 @@
 }
 
 
-/*
+
 - (void)openPDF:(NSString*)filename
 {
 	
@@ -127,21 +129,6 @@
 	
 }
 
-- (void)saveDocumentAs:(id)sender
-{
-	NSLog(@"%@",[self currentDocument]);
-}
 
-- (void)menuHit:(id)sender
-{
-	NSString* selectedMenu = [sender title];
-	if ([selectedMenu isEqualToString:@"Open..."])
-		[self openDocumentPDF:sender];
-	if ([selectedMenu isEqualToString:@"New"])
-		[self newDocumentPDF:sender];
-	if ([selectedMenu isEqualToString:@"Save As..."])
-		[self saveDocumentAs:sender];
-}
-*/
 
 @end

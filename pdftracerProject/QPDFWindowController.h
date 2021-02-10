@@ -29,6 +29,8 @@
 	NSOutlineView* ooView;
 	NSOutlineView* opView;
 
+	NSFont * tfont;
+	
 	NSInteger selectedRow;
 	NSOutlineView* selectedView;
 }
@@ -45,5 +47,9 @@
 - (void)selectChangeNotification:(NSOutlineView*)no;
 -(void)selectObject:(id)sender;
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor;
+-(void)forwardInvocation:(NSInvocation*)inv;
+
+-(void)changeFont:(id)sender;
+
 
 @end

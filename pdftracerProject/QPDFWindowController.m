@@ -4,6 +4,7 @@
 
 - (instancetype)initWithDocument:(QPDFDocument*)qp
 {
+	NSLog(@"QPDFWindowController initWithDocument:%@",self);
 	self = [super init];
 	if (self) {
 		[self setDocument:qp];
@@ -38,7 +39,7 @@
 		[spcView setHasHorizontalScroller:YES];
 		[spcView setDocumentView:opView];
 
-		NSFont * tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+		tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 
 		// this should also be in a scroll
 		
@@ -309,10 +310,35 @@
 	[self updatePDF];
 }
 
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+-(void)changeFont:(id)sender
 {
-	// lets see if this does anything.
-	return YES;
+	NSLog(@"changing font: %@",sender);
 }
 
+-(void)forwardInvocation:(NSInvocation*)inv
+{
+	NSLog(@"window Controller: %@",inv);
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+	NSString* selstr =NSStringFromSelector(aSelector);
+	if (![selstr isEqualToString:@"validModesForFontPanel:"])
+	{
+		NSLog(@"WC EVENT -> %@",NSStringFromSelector(aSelector));
+		if( [NSWindowController instancesRespondToSelector:aSelector] ) {
+			// invoke the inherited method
+			return YES;
+		}
+	}
+	return NO;
+}
+
+/*
+- (NSResponder*)nextResponder
+{
+	return [super nextResponder];
+//	return [self document];
+}
+*/
 @end

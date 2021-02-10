@@ -2,6 +2,8 @@
 #import "QPDFDocument.hh"
 #import <Foundation/Foundation.h>
 
+@class QPDFDocument;
+
 @interface QPDFDocumentController : NSDocumentController <NSMenuDelegate>
 {
 	// NSMutableArray* qDocumentList;

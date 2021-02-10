@@ -15,6 +15,8 @@
 #import "OutlinePDFPage.hh"
 #import "OutlinePDFObj.hh"
 #import "QPDFWindowController.h"
+#import "QPDFDocumentController.h"
+
 
 @class QPDFWindowController;
 
