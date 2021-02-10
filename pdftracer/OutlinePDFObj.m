@@ -1,30 +1,19 @@
 
-#import "OutlinePDFObj.hh"
+#import "OutlinePDFObj.h"
 
 @implementation OutlinePDFObj
 
-- (instancetype)initWithPDF:(QPDF)pdf
+- (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
-	std::string fn = pdf.getFilename();
-	std::string vr = pdf.getPDFVersion();
-	NSLog(@"OutlinePDFObj initWithPDF: %s_%s",fn.c_str(),vr.c_str());
+	NSString* fn = [pdf filename];
+	NSString* vr = [pdf PDFVersion];
+	NSLog(@"OutlinePDFObj initWithPDF: %@_%@",fn,vr);
+	
 	self = [super init];
 	if (self != nil)
 	{
 		qpDocument = pdf;
-	//	QPDFObjectHandle* rootCatalog = new QPDFObjectHandle(pdf->getRoot());
-	//	catalog = [[QPDFNode alloc] initWithParent:nil Named:@"" Handle:rootCatalog];
-
-		objTable= qpDocument.getAllObjects();
-
-
-		//CGPDFDocumentRetain(myDocument);
-		// pdfObjectCache = [[NSMutableDictionary alloc] initWithCapacity:3];
-		//o pdfNull = [NSValue valueWithPointer:nil];
-
-//    QPDFObjectHandle getObjectByID(int objid, int generation);
-
-		
+		objTable= [qpDocument objects];
 	}
 	return self;
 }

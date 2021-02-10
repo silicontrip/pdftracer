@@ -6,7 +6,25 @@
 //  Copyright © 2021 silicontrip. All rights reserved.
 //
 
-#import "QPDFDocument.hh"
+#import "QPDFDocument.h"
+
+
+
+#import "OutlineQPDF.h"
+#import "OutlinePDFPage.h"
+#import "OutlinePDFObj.h"
+#import "QPDFWindowController.h"
+
+
+@interface QPDFDocument()
+{
+	QPDFObjc* qDocument;
+}
+
++ (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal; // c++ type
+
+
+@end
 
 @implementation QPDFDocument
 
@@ -154,7 +172,7 @@
 
 - (PDFDocument*)pdfdocument
 {
-	QPDF qLocal = qDocument;
+	// QPDF qLocal = qDocument;
 //	NSLog(@"QPDFDocument %@ create PDFView",self);
 	QPDFWriter qpdfWriter(qDocument);
 	qpdfWriter.setOutputMemory();

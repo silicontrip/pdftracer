@@ -94,30 +94,6 @@
 	}
 }
 
-/*
-void getStream(QPDFObjectHandle qpdf) {
-	if (qpdf.isStream()) {
-		PointerHolder<Buffer> bufRef = qpdf.getStreamData();
-		Buffer* buf = bufRef.getPointer();
-		size_t sz = buf->getSize();
-		unsigned char * bb = buf->getBuffer();
-	
-		NSLog(@"buffer size: %ld addr: %x",sz,bb);
-			
-		for (int i=0; i<sz;++i)
-		{
-			printf("%d ",*(bb+i));
-		}
-			
-			// NSError* writeError;
-			// NSData* dd = [[NSData alloc] initWithBytes:bb length:sz];
-		NSString* objText= [[[NSString alloc] initWithBytes:bb length:sz encoding:NSMacOSRomanStringEncoding ] autorelease];
-			
-		NSLog(@"=======: %@",objText);
-	 
-	}
-}
-*/
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 // NSLog(@"child: %ld ofItem:",index);

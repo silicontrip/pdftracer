@@ -1,5 +1,17 @@
 #import "QPDFWindowController.h"
 
+#import "OutlineQPDF.hh"
+#import "OutlinePDFObj.hh"
+#import "OutlinePDFPage.hh"
+
+@interface QPDFWindowController()
+{
+	
+
+}
+
+@end
+
 @implementation QPDFWindowController
 
 - (instancetype)initWithDocument:(QPDFDocument*)qp
@@ -15,9 +27,9 @@
 		ooView = [OutlinePDFObj view];
 		opView = [OutlinePDFPage view];
 
-		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp qpdf]];
-		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp qpdf]];
-		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp qpdf]];
+		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp qDoc]];
+		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp qDoc]];
+		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp qDoc]];
 		
 		[oView setDataSource:pdfDS];
 		[ooView setDataSource:objDS];
@@ -218,7 +230,7 @@
 			}
 			
 		} else {
-			Boolean allowEdit = [QPDFDocument hasNoIndirect:qpdf];
+			BOOL allowEdit = [QPDFDocument hasNoIndirect:qpdf];
 			
 			//		NSLog(@"set editable: %d",allowEdit);
 			[tView setEditable:allowEdit];

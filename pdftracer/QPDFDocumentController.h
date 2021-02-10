@@ -1,6 +1,7 @@
 #import <AppKit/AppKit.h>
-#import "QPDFDocument.hh"
 #import <Foundation/Foundation.h>
+
+#import "QPDFDocument.hh"
 
 @class QPDFDocument;
 
@@ -10,23 +11,19 @@
 	
 }
 
-//+ (void) load;
-- (NSArray<NSString*>*) documentClassNames;
-- (NSString*) defaultType;
-- (Class)documentClassForType:(NSString *)typeName;
+// + (void)load;
+- (nonnull NSArray<NSString*>*)documentClassNames;
+- (nonnull NSString*)defaultType;
+- (nonnull Class)documentClassForType:(nullable NSString *)typeName;
+//- (nullable __kindof NSDocument*)documentForURL:(NSURL* _Nullable)uel;
+// - (nullable __kindof NSDocument*)documentForWindow:(NSWindow *)window;
+- (nullable __kindof NSDocument*)makeDocumentWithContentsOfURL:(NSURL*_Nullable)url ofType:(NSString *_Nullable)type error:(NSError*_Nonnull*_Nullable)outError;
+- (void)openDocument:(id _Nullable)sender;
+- (void)newDocument:(id _Nullable)sender;
+- (QPDFDocument* _Nonnull)openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError * _Nullable * _Nullable)outError;
+- (QPDFDocument* _Nonnull)makeUntitledDocumentOfType:(NSString* _Nullable)pdf error:(NSError * _Nullable * _Nullable)outError;
+- (void)openPDF:(NSString* _Nonnull)filename;
+;
 
-//- (QPDFDocument*)documentForURL:(NSURL*)uel;
-//- (void)openDocument:(id)sender;
-- (void)newDocument:(id)sender;
-// - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError;
-- (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)type error:(NSError**)outError;
-- (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError;
-- (QPDFDocument*)openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError;
+@end;
 
-
-
-//- (IBAction)newDocumentPDF:(id)sender;
-//- (void)openDocumentPDF:(id)sender;
-//- (void)menuHit:(id)sender;
-//- (void)openPDF:(NSString*)filename;
-@end

@@ -3,7 +3,7 @@
 @implementation QPDFDocumentController
 
 /*
-+ (void) load
+//+ (void) load
 {
 	NSLog(@"QPDFDocumentController load");
 	[QPDFDocumentController new];
@@ -26,7 +26,7 @@
 }
 
 /*
-- (QPDFDocument*)documentForURL:(NSURL*)uel
+//- (QPDFDocument*)documentForURL:(NSURL*)uel
 {
 	NSLog(@"QPDFDocumentController documentForURL");
 	//QPDFDocument* fd = nil;
@@ -41,7 +41,7 @@
 }
 */
 /*
-- (nullable __kindof NSDocument *)documentForWindow:(NSWindow *)window
+//- (nullable __kindof NSDocument *)documentForWindow:(NSWindow *)window
 {
 	NSLog(@"QPDFDocumentController documentForWindow");
 

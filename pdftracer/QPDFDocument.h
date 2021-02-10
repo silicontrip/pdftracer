@@ -7,15 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <qpdf/QPDF.hh>
-#import <qpdf/QPDFWriter.hh>
 #import <Quartz/Quartz.h>
-
-#import "OutlineQPDF.hh"
-#import "OutlinePDFPage.hh"
-#import "OutlinePDFObj.hh"
-#import "QPDFWindowController.h"
-#import "QPDFDocumentController.h"
+//#import "QPDFDocumentController.h"
 
 
 @class QPDFWindowController;
@@ -25,9 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface QPDFDocument : NSDocument
 {
 	@private
-	QPDF qDocument;
 	PDFDocument* pDoc;
-	
 	NSData *contentData;
 }
 
@@ -38,10 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
-- (QPDF)qpdf;
+// - (QPDF)qpdf;
 - (NSString*)filePath;
 + (BOOL)autosavesInPlace;
-+ (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
 
 /*
 - (OutlineQPDF*)pdfDataSource;

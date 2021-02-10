@@ -1,9 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import "QPDFDocument.hh"
+#import "QPDFNode.hh"
 
-#import "OutlineQPDF.hh"
-#import "OutlinePDFObj.hh"
-#import "OutlinePDFPage.hh"
 
 @class QPDFDocument;
 @class OutlineQPDF;  // arg inconsistent names!
