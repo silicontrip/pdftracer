@@ -1,5 +1,5 @@
 
-#import "OutlinePDFPage.hh"
+#import "OutlinePDFPage.h"
 
 @implementation OutlinePDFPage
 
@@ -23,31 +23,17 @@
 	return oView;
 }
 
-- (instancetype)initWithPDF:(QPDF)pdf
+- (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
-	std::string fn = pdf.getFilename();
-	std::string vr = pdf.getPDFVersion();
-	NSLog(@"OutlinePDFPage initWithPDF: %s_%s",fn.c_str(),vr.c_str());
+	NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf PDFVersion]);
 	self = [super init];
 	if (self != nil)
 	{
 //		NSLog(@"OutlinePDFPage %@ set qpdf",self);
 		qpDocument = pdf;
-		/*
-		std::vector<QPDFObjectHandle> ot = pdf.getAllObjects();
-
-		NSLog(@"object table size: %ld",ot.capacity());
-		
-		for (int i =0; i<ot.capacity();++i)
-			NSLog(@"obj %d: %s",i,ot[i].unparse().c_str());
-
-		QPDFObjectHandle o7 = ot[0];
-		
-		NSLog(@"object 7: %s",o7.unparse().c_str());
-*/
 //		NSLog(@"OutlinePDFPage %@ getAllPages",self);
 
-		pageArray = pdf.getAllPages();
+		pageArray = [pdf pages];
 		
 //		NSLog(@"Page array len: %ld",pageArray.capacity());
 		
@@ -70,9 +56,7 @@
 		return YES;
 	}
 	
-	QPDFObjectHandle pdfitem = [(QPDFNode*)item object];
-	
-	return (pdfitem.isArray() || pdfitem.isDictionary());
+	return [[(QPDFNode*)item object] isExpandable];
 	
 }
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
@@ -80,24 +64,10 @@
 //	NSLog(@"OutlinePDFPage Number of children");
 	
 	if (item == nil)
-		return pageArray.size();
+		return [pageArray count];
 	
-	QPDFObjectHandle  pdfitem  = [(QPDFNode*)item object];
+	return [[(QPDFNode*)item object] count];
 	
-	if (pdfitem.isArray())
-	{
-		int itemCount = pdfitem.getArrayNItems();
-	//	NSLog(@"Array count %d",itemCount);
-		return itemCount;
-	}
-	if (pdfitem.isDictionary())
-	{
-		NSInteger count = pdfitem.getKeys().size();
-	//	NSLog(@"Dictionary count %d",(int)count);
-
-		return count;
-	}
-	return 0;
 }
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
@@ -109,16 +79,16 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandle pdfitem = [node object];
+		QPDFObjectHandleObjc* pdfitem = [node object];
 		
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
 			rs = [node name];
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
-			rs = [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
+			rs = [pdfitem typename]; // [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 		else
-			rs= [NSString stringWithFormat:@"%s",pdfitem.unparse().c_str()];
+			rs = [pdfitem unparse]; // rs= [NSString stringWithFormat:@"%s",pdfitem.unparse().c_str()];
 		
 		return rs;
 		
@@ -134,26 +104,32 @@
 	
 	if (item == nil)
 	{
-		QPDFObjectHandle pdfitem =  QPDFObjectHandle(pageArray[index]);
+		QPDFObjectHandleObjc* pdfitem = [pageArray objectAtIndex:index];
+		//QPDFObjectHandle pdfitem =  QPDFObjectHandle(pageArray[index]);
 		NSString* lindex = [NSString stringWithFormat:@"Page %d",(int)index+1];
 
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
 		return sindex;
 	}
-	QPDFObjectHandle pdfitem = [(QPDFNode*)item object];
+	QPDFObjectHandleObjc* pdfitem = [(QPDFNode*)item object];
 	
-	if (pdfitem.isArray())
+	if ([pdfitem isArray])
 	{
 		
-		QPDFObjectHandle thisObject =  QPDFObjectHandle( pdfitem.getArrayItem((int)index));
+		//QPDFObjectHandle thisObject =  QPDFObjectHandle( pdfitem.getArrayItem((int)index));
+		QPDFObjectHandle* thisObject =  [pdfitem objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
 		QPDFNode* sindex = [QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
 		
 		return sindex;
 		
-	} else if (pdfitem.isDictionary()) {
+	} else if ([pdfitem isDictionary]) {
 		// NSLog(@"obj is dictionary. child:ofItem:");
-		
+
+		NSString* keyIndex = [[pdfitem keys] objectForIndex:index];
+		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:thisObject];
+		return nKey;
+		/*
 		std::set<std::string> keys = pdfitem.getKeys();  // I need this to be order preserving.
 		std::vector<std::string> ord(keys.begin(), keys.end());
 		std::set<std::string>::iterator iterKey;
@@ -169,7 +145,7 @@
 			}
 			++loopindex;
 		}
-		
+	*/	
 		
 	}
 	return nil;
