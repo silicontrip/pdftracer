@@ -6,7 +6,7 @@
 - (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
 	NSString* fn = [pdf filename];
-	NSString* vr = [pdf PDFVersion];
+	NSString* vr = [pdf version];
 	NSLog(@"OutlinePDFObj initWithPDF: %@_%@",fn,vr);
 	
 	self = [super init];
@@ -37,7 +37,8 @@
 //	NSLog(@"Object table: %d",objTable.size());
 	
 	if (item == nil)
-		return objTable.size();
+		return [objTable count];
+	
 	return 0;
 }
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
@@ -50,24 +51,26 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandle pdfitem = [node object];
+		QPDFObjectHandleObjc* pdfitem = [node object];
 
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"objref"])
 			rs = [node name];
 		else
-			if (pdfitem.isDictionary())
+			if ([pdfitem isDictionary])
 			{
-				QPDFObjectHandle type = pdfitem.getKey("/Type");
-				if (type.isNull()) {
+				QPDFObjectHandleObjc* type = [pdfitem objectForKey:@"/Type"];
+				if ([type isNull]) {
 					rs = @"dictionary";
 				} else {
-					std::string typeName = type.getName();
-					rs = [NSString stringWithFormat:@"dictionary %s",typeName.c_str()];
+					rs = [type name];
+				//	std::string typeName = type.getName();
+				//rs = [NSString stringWithFormat:@"dictionary %s",typeName.c_str()];
 				}
 			} else {
-				rs = [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
+				rs = [pdfitem typeName];
+				//[NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 			}
 		return rs;
 		
@@ -82,7 +85,7 @@
 	
 	if (item == nil)
 	{
-		QPDFObjectHandle pdfitem = objTable[index];
+		QPDFObjectHandleObjc* pdfitem = [objTable objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d 0 R",(int)index+1];
 
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];

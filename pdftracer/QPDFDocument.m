@@ -21,9 +21,6 @@
 	QPDFObjc* qDocument;
 }
 
-+ (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal; // c++ type
-
-
 @end
 
 @implementation QPDFDocument
@@ -35,7 +32,7 @@
 	if (self) {
 		pDoc = nil;
 		[self setFileURL:nil];
-		qDocument.emptyPDF();
+		qDocument = [[QPDFObjc alloc] init];
 	}
 	return self;
 }
@@ -52,24 +49,10 @@
 	self = [super init];
 	if (self) {
 		[self setFileURL:urlOrNil];
-
 	//	NSLog(@"QPDFDocument %@ initForURL: %@",self,contentsURL);
 
-		
 		pDoc = nil;
-		NSString *fn = [[self fileURL] path];
-//		contentData = [[NSData alloc] initWithContentsOfURL:contentsURL]; // read data from file
-//		qDocument.processMemoryFile("memory", (char*)[contentData bytes], [contentData length]);  // initialise QPDF from memory
-		
-		qDocument.processFile([fn UTF8String]);
-		
-		// force QPDF to initialize its internal data
-		
-		QPDFWriter qpdfWriter(qDocument);
-		qpdfWriter.setOutputMemory();
-		qpdfWriter.write();
-		
-
+		qDocument = [[QPDFObjc alloc] initWithURL:urlOrNil];
 	}
 	return self;
 }
@@ -78,10 +61,12 @@
 {
 //	NSLog(@"QPDFDocument %@ readFromURL: %@",self,url);
 	[self setFileURL:url];
-	NSString *fn = [url description];
+	//NSString *fn = [url description];
 
-	NSData *content = [[NSData dataWithContentsOfURL:url] autorelease]; // read data from file
-	qDocument.processMemoryFile([fn UTF8String], (char*)[content bytes], [content length]);  // initialise QPDF from memory
+	//NSData *content = [[NSData dataWithContentsOfURL:url] autorelease]; // read data from file
+	//qDocument.processMemoryFile([fn UTF8String], (char*)[content bytes], [content length]);  // initialise QPDF from memory
+	
+	qDocument = [[QPDFObjc alloc] initWithURL:url];
 	
 //	[self source];
 	
@@ -101,27 +86,14 @@
 */
 - (BOOL)writeToURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-	QPDFWriter qpdfWriter(qDocument);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-	
-	Buffer* qBuf = qpdfWriter.getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	NSData* qPDFData = [NSData dataWithBytes:qBytes length:qBuf->getSize()];
-	return [qPDFData writeToURL:url atomically:YES];
+	return [[qDocument data] writeToURL:url atomically:YES];
 }
  
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error if you return nil.
     // Alternatively, you could remove this method and override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
 	
-	QPDFWriter qpdfWriter(qDocument);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-	
-	Buffer* qBuf = qpdfWriter.getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	return [[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()];
+	return [qDocument data];
 	
 }
 
@@ -131,7 +103,8 @@
     // Alternatively, you could remove this method and override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
     // If you do, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
 	
-	qDocument.processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
+	qDocument = [[QPDFObjc alloc] initWithData:data];
+	//.processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
 	
 //	[self source];
 	
@@ -155,81 +128,12 @@
 */
 - (NSString*)pdfString
 {
-	QPDFWriter qpdfWriter(qDocument);
-
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-
-	// return @"document get buffer to string disabled";
-	
-	Buffer* qBuf = qpdfWriter.getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	NSData* qPDFData = [NSData dataWithBytes:qBytes length:qBuf->getSize()];
-	
-	return [[NSString alloc] initWithData:qPDFData encoding:NSMacOSRomanStringEncoding];
-	
+	return [[NSString alloc] initWithData:[qDocument data] encoding:NSMacOSRomanStringEncoding];
 }
 
 - (PDFDocument*)pdfdocument
 {
-	// QPDF qLocal = qDocument;
-//	NSLog(@"QPDFDocument %@ create PDFView",self);
-	QPDFWriter qpdfWriter(qDocument);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-	
-	
-	Buffer* qBuf = qpdfWriter.getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	NSData* qPDFData = [NSData dataWithBytes:qBytes length:qBuf->getSize()];
-	
-//	NSDictionary* stringOptions = [NSDictionary dictionaryWithObjectsAndKeys:<#(nonnull id), ...#>, nil]
-//	NSLog(@"QPDFDocument make PDFDocument:");
-
-//	NSString* pdfd = [[NSString alloc] initWithData:qPDFData encoding:NSMacOSRomanStringEncoding];
-	
-//	NSLog(@"%@",pdfd);
-	
-//	NSLog(@"PDFView pdfdata: %@",qPDFData);
-	
-	// release old pdf doc
-	
-//	NSLog(@"PDFView release old data: %@",pDoc);
-	
-	if (pDoc)
-		[pDoc release];
-	
-	pDoc = [[PDFDocument alloc] initWithData:qPDFData];
-	
-	return pDoc;
-	
-}
-
-+ (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal
-{
-	QPDFObjectHandle qpdf = qpdfVal;
-	if (qpdf.isDictionary()) {
-		//	NSLog(@"sel obj: %@ isDict",[node name]);
-		std::set<std::string> keys = qpdf.getKeys();
-		std::set<std::string>::iterator iterKey;
-		for(iterKey = keys.begin(); iterKey != keys.end(); ++iterKey)
-		{
-			if(![QPDFDocument hasNoIndirect:(qpdf.getKey(*iterKey))])
-				return NO;
-		}
-	} else if (qpdf.isArray()) {
-		// NSLog(@"sel obj isArray");
-		
-		for (int index=0; index<qpdf.getArrayNItems();++index)
-		{
-			if (![QPDFDocument hasNoIndirect:(qpdf.getArrayItem(index))])
-				return NO;
-		}
-	} else if (qpdf.isIndirect()) {
-		return NO;
-	}
-	
-	return YES;
+	return [qDocument document];
 }
 
 -(void)makeWindowControllers
@@ -239,15 +143,14 @@
 	[self addWindowController:winCon ];
 }
 
-- (QPDF)qpdf
+- (QPDFObjc*)doc
 {
 	return qDocument;
 }
 
 - (NSString*)filePath
 {
-	NSString * fn =[[NSString alloc] initWithUTF8String:qDocument.getFilename().c_str()];
-	
+	NSString * fn = [qDocument filename];
 	if ([fn isEqualToString:@"empty PDF"])
 		return @"Untitled";
 	

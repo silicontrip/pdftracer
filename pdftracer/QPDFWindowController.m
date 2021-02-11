@@ -1,8 +1,8 @@
 #import "QPDFWindowController.h"
 
-#import "OutlineQPDF.hh"
-#import "OutlinePDFObj.hh"
-#import "OutlinePDFPage.hh"
+#import "OutlineQPDF.h"
+#import "OutlinePDFObj.h"
+#import "OutlinePDFPage.h"
 
 @interface QPDFWindowController()
 {
@@ -27,9 +27,9 @@
 		ooView = [OutlinePDFObj view];
 		opView = [OutlinePDFPage view];
 
-		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp qDoc]];
-		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp qDoc]];
-		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp qDoc]];
+		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp doc]];
+		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp doc]];
+		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp doc]];
 		
 		[oView setDataSource:pdfDS];
 		[ooView setDataSource:objDS];
@@ -200,42 +200,26 @@
 		NSString* objText;
 		
 		QPDFNode* node = [ov itemAtRow:row];  // QPDFNode* node = ov->itemAtRow(row);
-		QPDFObjectHandle qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
+		QPDFObjectHandleObjc* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
 		
 	//	NSLog (@"obj selected %s",qpdf->getTypeName());
-		if (qpdf.isStream()) {
-			try {
-				PointerHolder<Buffer> bufRef = qpdf.getStreamData();
-				Buffer* buf = bufRef.getPointer();
-				size_t sz = buf->getSize();
-				unsigned char * bb = buf->getBuffer();
-				
-				/*
-				NSLog(@"buffer size: %ld addr: %x",sz,bb);
-				
-				for (int i=0; i<sz;++i)
-				{
-					printf("%d ",*(bb+i));
-				}
-				*/
-				// NSError* writeError;
-			    // NSData* dd = [[NSData alloc] initWithBytes:bb length:sz];
-				objText= [[NSString alloc] initWithBytes:bb length:sz encoding:NSMacOSRomanStringEncoding ];
+		if ([qpdf isStream]) {
+			objText= [[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ];
 				
 			//	NSLog(@"=======: %@",objText);
 				
 				[tView setEditable:YES];
-			} catch (QPDFExc e) {
+		//	} catch (QPDFExc e) {
 				; // pop up alert.
-			}
+		//	}
 			
 		} else {
-			BOOL allowEdit = [QPDFDocument hasNoIndirect:qpdf];
+			BOOL allowEdit = ![qpdf childrenContainIndirects];
 			
 			//		NSLog(@"set editable: %d",allowEdit);
 			[tView setEditable:allowEdit];
 			// NSString* objText = [NSString stringWithUTF8String:qpdf->unparse().c_str()];
-			objText = [NSString stringWithUTF8String:qpdf.unparseResolved().c_str()];
+			objText = [qpdf unparseResolved];
 		}
 		[tView setString:objText];
 	} else {
@@ -254,34 +238,39 @@
 
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
 {
-	QPDFObjectHandle qpdf = [node object];
-	if (qpdf.isNull())
+	QPDFObjectHandleObjc* qpdf = [node object];
+	if ([qpdf isNull])
 		return;
 	if ([editor length]>0)
 	{
-		std::string replacement = std::string([editor UTF8String]);
+		// std::string replacement = std::string([editor UTF8String]);
 		
-		if(qpdf.isStream())
+		if([qpdf isStream])
 		{
 			//	NSLog(@"edit stream");
-			qpdf.replaceStreamData(replacement,QPDFObjectHandle::newNull(),QPDFObjectHandle::newNull());
+			NSData* replData = [editor dataUsingEncoding:NSMacOSRomanStringEncoding];
+			[qpdf replaceStreamData:replData];
 		} else {
-			try {
-				QPDFObjectHandle rePDFObj = QPDFObjectHandle::parse(replacement);
+		//	try {
+				QPDFObjectHandleObjc* rePDFObj = [[QPDFObjectHandleObjc alloc] initWithString:editor];
 				
 				// work out if rePDFObj is valid
-				QPDFObjectHandle parent = [node parent];
-				NSLog(@"parse object: %@",editor);
+				QPDFObjectHandleObjc* parent = [node parent];
+				//NSLog(@"parse object: %@",editor);
 				
-				if (parent.isArray())
+				if ([parent isArray])
 				{
-					int index =(int) [[node name] integerValue];
-					NSLog(@"replace array index: %d",index);
-					parent.setArrayItem(index, rePDFObj);
-				} else if (parent.isDictionary()) {
-					std::string name = std::string([[node name] UTF8String]); // might have to change this to the correct PDF encoding
+					//int index =(int)
+					[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
+				//	NSLog(@"replace array index: %d",index);
+				//	parent.setArrayItem(index, rePDFObj);
+				} else if ([parent isDictionary]) {
+				//	std::string name = std::string([[node name] UTF8String]); // might have to change this to the correct PDF encoding
 					NSLog(@"replace dictionary key: %@",[node name]);
-					parent.replaceKey(name, rePDFObj);
+			//		parent.replaceKey(name, rePDFObj);
+					
+					[parent replaceObject:rePDFObj forKey:[node name]];
+					
 				} else {
 					// oh no the dreaded child of neither a dictionary or array
 					NSLog(@"unknown parent");
@@ -293,9 +282,9 @@
 				//qpdf->replaceTYPE";
 				//	[self.outlineView reloadDataForRowIndexes:indexRow columnIndexexs:indexColumn];
 				
-			} catch (const std::exception& e) {
+	//		} catch (const std::exception& e) {
 				NSLog(@"error parsing");
-			}
+	//		}
 		}
 		//*  update outlines
 		[self updateOutlines:node];

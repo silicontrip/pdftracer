@@ -12,12 +12,14 @@
 
 -(instancetype)init; // empty pdf
 -(instancetype)initWithURL:(NSURL*)fileURL;
+-(instancetype)initWithData:(NSData*)pdfData;
 
 -(NSString*)filename;
--(NSString*)PDFVersion;
+-(NSString*)version;
 -(NSArray<QPDFObjectHandleObjc*>*)pages;
 -(NSArray<QPDFObjectHandleObjc*>*)objects;
 -(QPDFObjectHandleObjc*)rootCatalog;
+-(NSData*)data;
 -(PDFDocument*)document;
 
 @end

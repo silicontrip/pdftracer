@@ -14,18 +14,21 @@
 -(BOOL)isDictionary;
 -(BOOL)isExpandable;
 -(NSUInteger)count;
+
 -(NSArray<NSString*>*)keys;
 -(QPDFObjectHandleObjc*)objectForKey:(NSString*)key;
 -(QPDFObjectHandleObjc*)objectAtIndex:(NSUInteger)index;
 -(void)removeObjectForKey:(NSString*)key;
--(void)replaceObject:(QPDFObjectHandleObjc*)obj ForKey:(NSString*)key;
+-(void)replaceObject:(QPDFObjectHandleObjc*)obj forKey:(NSString*)key;
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj;
 
+-(NSData*)stream;
 -(void)replaceStreamData:(NSData*)data;
 -(NSString*)name;
 -(NSString*)typeName;
 -(NSString*)unparse;
 -(NSString*)unparseResolved;
 -(BOOL)childrenContainIndirects;
++ (QPDFObjectHandleObjc*)null;
 
 @end

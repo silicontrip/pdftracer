@@ -2,6 +2,7 @@
 
 @implementation QPDFObjectHandleObjc
 
+// C++ data type
 -(instancetype)initWithObject:(QPDFObjectHandle)obj
 {
     self = [super init];
@@ -32,6 +33,7 @@
 -(BOOL)isIndirect { return qObject.isIndirect(); }
 -(BOOL)isDictionary { return qObject.isDictionary(); }
 -(BOOL)isExpandable { return qObject.isArray() || qObject.isDictionary(); }
+
 -(NSUInteger)count
 {
 	if ([self isArray]) {
@@ -56,7 +58,16 @@
  */
 	return [[NSArray alloc] initWithArray:tempObjectArray];
 }
-	
+
+-(NSData*)stream
+{
+	PointerHolder<Buffer> bufRef = qObject.getStreamData();
+	Buffer* buf = bufRef.getPointer();
+	size_t sz = buf->getSize();
+	unsigned char * bb = buf->getBuffer();
+	return [[NSData alloc] initWithBytes:bb length:sz];
+}
+
 -(NSArray<NSString*>*)keys
 {
 	if (dictionaryKeys)
@@ -95,7 +106,7 @@
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.removeKey(tempKey);
 }
--(void)replaceObject:(QPDFObjectHandleObjc*)obj ForKey:(NSString*)key
+-(void)replaceObject:(QPDFObjectHandleObjc*)obj forKey:(NSString*)key
 {
 	std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.replaceKey(ckey, [obj qpdfobject]);
@@ -167,6 +178,10 @@
 		[tempObjectArray addObject:tempElem];
 	}
 	return [[NSArray alloc] initWithArray:tempObjectArray];
+}
++ (QPDFObjectHandleObjc*)null
+{
+	return [[QPDFObjectHandleObjc alloc] initWithObject:QPDFObjectHandle::newNull()];
 }
 
 @end

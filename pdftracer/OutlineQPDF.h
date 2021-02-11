@@ -4,7 +4,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 #import "QPDFNode.h"
-
+#import "QPDFObjc.h"
 #import "QPDFOutlineView.h"
 
 
@@ -12,7 +12,7 @@
 {
 	@private
 	//CGPDFDocumentRef  myDocument;
-	QPDF qpDocument;
+	QPDFObjc* qpDocument;
 	QPDFNode *catalog;
 	
 	//NSMutableDictionary<NSValue*,QPDFNode*>* pdfObjectCache;
@@ -24,7 +24,7 @@
 
 // protocol overrides
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
-- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
+- (NSUInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;

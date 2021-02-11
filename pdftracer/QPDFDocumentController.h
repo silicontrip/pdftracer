@@ -1,7 +1,7 @@
 #import <AppKit/AppKit.h>
 #import <Foundation/Foundation.h>
 
-#import "QPDFDocument.hh"
+#import "QPDFDocument.h"
 
 @class QPDFDocument;
 

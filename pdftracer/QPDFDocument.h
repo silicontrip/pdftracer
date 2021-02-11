@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
+#import "QPDFObjc.h"
+
 //#import "QPDFDocumentController.h"
 
 
@@ -29,7 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
-// - (QPDF)qpdf;
+- (QPDFObjc*)doc;
 - (NSString*)filePath;
 + (BOOL)autosavesInPlace;
 

@@ -1,6 +1,6 @@
 #import <Cocoa/Cocoa.h>
-#import "QPDFDocument.hh"
-#import "QPDFNode.hh"
+#import "QPDFDocument.h"
+#import "QPDFNode.h"
 
 
 @class QPDFDocument;

@@ -25,7 +25,7 @@
 
 - (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
-	NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf PDFVersion]);
+	NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf version]);
 	self = [super init];
 	if (self != nil)
 	{
@@ -37,9 +37,9 @@
 		
 //		NSLog(@"Page array len: %ld",pageArray.capacity());
 		
-		QPDFObjectHandle p1 = pageArray[0];
+//		QPDFObjectHandleObjc* p1 = [pageArray firstObject];
 		
-//		NSLog(@"page Array %s",p1.unparse().c_str());
+//		NSLog(@"page Array %s",[[pageArray firstObject] unparse]);
 
 		
 		//pageArray = [[QPDFNode alloc] initWithParent:nil Named:@"" Handle:root];
@@ -86,7 +86,7 @@
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
 			rs = [node name];
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
-			rs = [pdfitem typename]; // [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
+			rs = [pdfitem typeName]; // [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 		else
 			rs = [pdfitem unparse]; // rs= [NSString stringWithFormat:@"%s",pdfitem.unparse().c_str()];
 		
@@ -117,7 +117,7 @@
 	{
 		
 		//QPDFObjectHandle thisObject =  QPDFObjectHandle( pdfitem.getArrayItem((int)index));
-		QPDFObjectHandle* thisObject =  [pdfitem objectAtIndex:index];
+		QPDFObjectHandleObjc* thisObject =  [pdfitem objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
 		QPDFNode* sindex = [QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
 		
@@ -126,8 +126,8 @@
 	} else if ([pdfitem isDictionary]) {
 		// NSLog(@"obj is dictionary. child:ofItem:");
 
-		NSString* keyIndex = [[pdfitem keys] objectForIndex:index];
-		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:thisObject];
+		NSString* keyIndex = [[pdfitem keys] objectAtIndex:index];
+		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:[pdfitem objectForKey:keyIndex]];
 		return nKey;
 		/*
 		std::set<std::string> keys = pdfitem.getKeys();  // I need this to be order preserving.

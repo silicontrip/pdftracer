@@ -28,11 +28,21 @@
 	return self;
 }
 
+-(instancetype)initWithData:(NSData*)data
+{
+	self = [super init];
+	if (self) {
+		pDoc=nil;
+		qDocument.processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
+	}
+	return self;
+}
+
 -(NSString*)filename
 {
 	return [NSString stringWithUTF8String:qDocument.getFilename().c_str()];
 }
--(NSString*)PDFVersion
+-(NSString*)version
 {
 	return [NSString stringWithUTF8String:qDocument.getPDFVersion().c_str()];
 
@@ -51,20 +61,24 @@
 }
 -(PDFDocument*)document
 {
-	QPDFWriter qpdfWriter(qDocument);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-
-	Buffer* qBuf = qpdfWriter.getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	NSData* qPDFData = [NSData dataWithBytes:qBytes length:qBuf->getSize()];
-	
+	NSData* qPDFData = [self data];
 	if (pDoc)
 		[pDoc release];
 	
 	pDoc = [[PDFDocument alloc] initWithData:qPDFData];
 	
 	return pDoc;
+}
+
+-(NSData*)data
+{
+	QPDFWriter qpdfWriter(qDocument);
+	qpdfWriter.setOutputMemory();
+	qpdfWriter.write();
+	
+	Buffer* qBuf = qpdfWriter.getBuffer();
+	unsigned char const* qBytes = qBuf->getBuffer();
+	return [[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()];
 }
 
 @end

@@ -6,8 +6,9 @@
 - (instancetype)initWithPDF:(QPDFObjc*)pdf
 {
 	NSString* fn = [pdf filename];
-	NSString8 vr = [pdf PDFVersion];
-	std::stringstream buffer;
+	NSString* vr = [pdf version];
+	NSString* buffer;
+//	std::stringstream buffer;
 
 	// buffer << pdf;
 	
@@ -40,7 +41,7 @@
 	return [[(QPDFNode*)item object] isExpandable];
 }
 
-- (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
+- (NSUInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
 {
 //	NSLog(@"OutlineQPDF %@ Number of children",self);
 	
@@ -51,7 +52,7 @@
 	
 	if ([pdfitem isArray])
 	{
-		int itemCount = [pdfitem count];
+		NSUInteger itemCount = [pdfitem count];
 //		NSLog(@"OutlineQPDF %@ pdfitem array length: %d",self,itemCount);
 		return itemCount;
 	}
@@ -126,7 +127,7 @@
 		{
 			if (loopindex == index)
 			{
-				QPDFObjectHandleiObjc* thisObject = [pdfitem objectForKey:iterKey];
+				QPDFObjectHandleObjc* thisObject = [pdfitem objectForKey:iterKey];
 
 				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
 				return nKey;
@@ -177,12 +178,12 @@
 		else
 		{// if (pdfitem->isScalar())
 			// rs= [NSString stringWithFormat:@"%s",pdfitem->unparse().c_str()];
-			QPDFObjectHandleObjc* newobj = [[QPDFObjectHandle alloc] initWithString:newValue];
+			QPDFObjectHandleObjc* newobj = [[QPDFObjectHandleObjc alloc] initWithString:newValue];
 			if (newobj) {	
 				if ([parent isArray])
 				{
 				//	NSLog(@"index name: %@",name);
-					int index = (int)[name integerValue];
+					//int index = (int)[name integerValue];
 					[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
 					//parent.setArrayItem(index, newobj);
 					

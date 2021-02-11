@@ -28,7 +28,7 @@
 		if (pa)
 			parent = [pa object];
 		else
-			parent = [QPDFObjectHandleObjc nul];
+			parent = [QPDFObjectHandleObjc null];
     }
     return self;
 }

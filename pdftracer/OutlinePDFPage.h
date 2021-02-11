@@ -2,20 +2,18 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import <qpdf/QPDF.hh>
-#import <qpdf/QPDFWriter.hh>
-
-#import "QPDFNode.hh"
+#import "QPDFObjc.h"
+#import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 
 @interface OutlinePDFPage : NSObject <NSOutlineViewDataSource>
 {
-	std::vector<QPDFObjectHandle> pageArray;
-	QPDF qpDocument;
+	NSArray<QPDFObjectHandleObjc*>* pageArray;
+	QPDFObjc* qpDocument;
 }
 
 + (NSOutlineView*)view;
-- (instancetype)initWithPDF:(QPDF)pdf;
+- (instancetype)initWithPDF:(QPDFObjc*)pdf;
 
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
