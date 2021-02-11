@@ -1,20 +1,21 @@
 #import <AppKit/AppKit.h>
-#import <qpdf/QPDF.hh>
+#import "QPDFObjc.h"
+#import "QPDFObjectHandleObjc.h"
 
 @interface QPDFNode : NSObject
 {
 	@private
-	QPDFObjectHandle qpdfhandle;
-	QPDFObjectHandle parent;
+	QPDFObjectHandleObjc* qpdfhandle;
+	QPDFObjectHandleObjc* parent;
 	QPDFNode* parentNode;
 	NSString* name;
 }
 
 + (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm;
-+ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandle)qp;
-- (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandle)qp;
-- (QPDFObjectHandle)object;
-- (QPDFObjectHandle)parent;
++ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp;
+- (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp;
+- (QPDFObjectHandleObjc*)object;
+- (QPDFObjectHandleObjc*)parent;
 - (QPDFNode*)parentNode;
 - (NSString*)name;
 // - (NSString*)description;

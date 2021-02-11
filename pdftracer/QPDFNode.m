@@ -1,18 +1,18 @@
-#import "QPDFNode.hh"
+#import "QPDFNode.h"
 
 @implementation QPDFNode
 
 + (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm
 {
-	return [[QPDFNode alloc] initWithParent:pa Named:nm Handle:QPDFObjectHandle::newNull()];
+	return [[QPDFNode alloc] initWithParent:pa Named:nm Handle:[QPDFObjectHandleObjc null]];
 }
 
-+ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandle)qp
++ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp
 {
 	return [[QPDFNode alloc] initWithParent:pa Named:nm Handle:qp];
 }
 
-- (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandle)qp
+- (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp
 {
 	// NSLog(@"QPDFNode initWithParent: %@ %@ ",pa,nm);
     self = [super init];
@@ -28,13 +28,13 @@
 		if (pa)
 			parent = [pa object];
 		else
-			parent = QPDFObjectHandle::newNull();
+			parent = [QPDFObjectHandleObjc nul];
     }
     return self;
 }
 	
-- (QPDFObjectHandle)object { return qpdfhandle; }
-- (QPDFObjectHandle)parent { return parent; }
+- (QPDFObjectHandleObjc*)object { return qpdfhandle; }
+- (QPDFObjectHandleObjc*)parent { return parent; }
 - (QPDFNode*)parentNode { return parentNode; }
 
 - (NSString*)name { return name; }
