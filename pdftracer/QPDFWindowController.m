@@ -311,12 +311,13 @@
 	NSLog(@"window Controller: %@",inv);
 }
 
+/*
 -(BOOL)paste
 {
 	NSLog(@"paste ->");
 	return YES;
 }
-/*
+
 -(void)paste:(id)sender
 {
 	NSLog(@"pasted: %@",sender);

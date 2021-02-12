@@ -48,6 +48,6 @@
 -(void)forwardInvocation:(NSInvocation*)inv;
 
 -(void)changeFont:(id)sender;
--(BOOL)paste;
+//-(BOOL)paste;
 
 @end

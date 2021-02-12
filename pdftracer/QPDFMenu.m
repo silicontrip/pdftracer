@@ -44,7 +44,7 @@
 	NSArray* targets = @[
 						 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
 						 @[@"newDocument:", @"openDocument:",tnil, tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:"],
-						 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste"],
+						 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:"],
 						 @[@"orderFrontFontPanel:"],
 						 @[tnil,tnil,tnil,tnil,tnil],
 						 @[tnil,tnil,tnil,tnil],
