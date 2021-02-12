@@ -23,7 +23,7 @@
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj;
 
 -(NSData*)stream;
--(void)replaceStreamData:(NSData*)data;
+-(void)replaceStreamData:(NSString*)data;
 -(NSString*)name;
 -(NSString*)typeName;
 -(NSString*)unparse;
