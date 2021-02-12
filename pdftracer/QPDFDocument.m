@@ -8,20 +8,11 @@
 
 #import "QPDFDocument.h"
 
-
-
 #import "OutlineQPDF.h"
 #import "OutlinePDFPage.h"
 #import "OutlinePDFObj.h"
 #import "QPDFWindowController.h"
-
-
-@interface QPDFDocument()
-{
-	QPDFObjc* qDocument;
-}
-
-@end
+#import "QPDFObjc.h"
 
 @implementation QPDFDocument
 
@@ -112,23 +103,54 @@
 
 }
 
-//- (void)read
+- (void)saveDocument:(nullable id)sender
+{
+	// NSLog(@"Jesus says you are saved, oh right, it's just a hard drive file called %@",[qDocument filename]);
+	for (NSWindowController* wc in [self windowControllers])
+		[wc setDocumentEdited:NO];
+	
+	NSError *theError;
+	NSURL * fn = [NSURL fileURLWithPath:[qDocument filename]];
+
+	[self writeToURL:fn ofType:@"PDF" error:&theError];
+	
+}
+
+- (void)saveDocumentAs:(nullable id)sender
+{
+	NSLog(@"Jesus says you are saved as bro, ");
+	NSLog(@"Aww man you want me to open up a dialog box?");
+	
+	NSString * fn = [self displayName];
+
+	
+	NSWindow* w = [[[self windowControllers] firstObject] window];
+
+	NSSavePanel* p = [NSSavePanel savePanel];
+	[p retain];
+	[p setNameFieldStringValue:fn];
+	[p beginSheetModalForWindow:w completionHandler:^(NSInteger result){
+		if (result == NSModalResponseOK)
+		{
+			NSURL*  theFile = [p URL];
+			NSError *theError;
+			[self writeToURL:theFile ofType:@"PDF" error:&theError];
+			// Write the contents in the new format.
+			[[[self windowControllers] firstObject] setDocumentEdited:NO];
+
+		}
+		[p autorelease];
+	}];
+}
 
 
 + (BOOL)autosavesInPlace {
     return NO;
 }
-/*
-+ (void)pdfretain:(QPDF)document
-{
-	QPDFWriter qpdfWriter(document);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
-}
-*/
+
 - (NSString*)pdfString
 {
-	return [[NSString alloc] initWithData:[qDocument data] encoding:NSMacOSRomanStringEncoding];
+	return [[[NSString alloc] initWithData:[qDocument data] encoding:NSMacOSRomanStringEncoding] autorelease];
 }
 
 - (PDFDocument*)pdfdocument
@@ -139,8 +161,9 @@
 -(void)makeWindowControllers
 {
 	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
-	QPDFWindowController* winCon = [[QPDFWindowController alloc] initWithDocument:self];
+	QPDFWindowController* winCon = [[[QPDFWindowController alloc] initWithDocument:self] autorelease];
 	[self addWindowController:winCon ];
+//	[self setWindow:[winCon window]];
 }
 
 - (QPDFObjc*)doc
@@ -148,7 +171,7 @@
 	return qDocument;
 }
 
-- (NSString*)filePath
+- (NSString*)displayName
 {
 	NSString * fn = [qDocument filename];
 	if ([fn isEqualToString:@"empty PDF"])
@@ -159,12 +182,7 @@
 	return [fn lastPathComponent];
 }
 
-- (void)saveDocumentAs:(id)sender
-{
-	NSLog(@"save as %@",sender);
-	
-}
-
+/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
@@ -178,6 +196,7 @@
 	}
 	return NO;
 }
+*/
 
 /*
 - (NSResponder*)nextResponder
