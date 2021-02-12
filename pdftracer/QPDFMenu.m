@@ -106,7 +106,7 @@
 	NSMenuItem *appMenuItem;
 	
 	appMenuItem = [NSMenuItem new];
-	bar = [QPDFMenu newMenu:menus keys:keys selectors:select];
+	bar = [[QPDFMenu newMenu:menus keys:keys selectors:select] autorelease];
 	[bar setAutoenablesItems:YES];
 	[bar setTitle:menutitle];
 	[appMenuItem setSubmenu:bar];
