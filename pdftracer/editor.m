@@ -64,7 +64,7 @@ int main (int argc, char * const argv[])
 	[NSApplication sharedApplication];
 	QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
 	
-	pdfApp *mm = [[pdfApp alloc] initWithController:docControl];
+	pdfApp *mm = [[[pdfApp alloc] initWithController:docControl] autorelease];
 	
 	[NSApp setDelegate:mm];
 	
