@@ -41,6 +41,11 @@
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	// Insert code here to initialize your application
 	NSLog(@"applicationDidFinishLaunching");
+	
+	NSMenu* appMenu = [[QPDFMenu alloc] init];
+	[appMenu setDelegate:docControl];
+	// NSLog(@"menu: %@",appMenu);
+	[NSApp setMainMenu:appMenu];
 }
 
 
@@ -63,10 +68,7 @@ int main (int argc, char * const argv[])
 	
 	[NSApp setDelegate:mm];
 	
-	NSMenu* appMenu = [[QPDFMenu alloc] init];
-	[appMenu setDelegate:docControl];
-	// NSLog(@"menu: %@",appMenu);
-	[NSApp setMainMenu:appMenu];
+
 	
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
@@ -91,6 +93,7 @@ int main (int argc, char * const argv[])
 
 	}
 
+	// [aa autorelease];
 
 	
 	[NSApp run];
