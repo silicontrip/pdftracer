@@ -57,7 +57,7 @@
 - (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError
 {
 	NSError* theError;
-	return [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
+	return [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
 }
 
 
@@ -70,6 +70,19 @@
 	[openDlg setAllowsMultipleSelection:NO];
 	[openDlg setCanChooseDirectories:NO];
 	
+	[openDlg beginWithCompletionHandler:^(NSInteger result){
+		if (result == NSModalResponseOK) {
+			NSURL* url = [[openDlg URLs] firstObject];
+			NSError* theError;
+			QPDFDocument* nd = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
+			[self addDocument:nd];
+
+			// Open  the document.
+		}
+	}];
+
+	
+	/*
 	if ( [openDlg runModal] == NSModalResponseOK )
 	{
 		// Get an array containing the full filenames of all
@@ -80,6 +93,7 @@
 
 		[self addDocument:nd];
 	}
+	 */
 }
  
 
@@ -110,7 +124,7 @@
 {
 	NSLog(@"QPDFDocumentController makeUntitledDocumentOfType");
 	// we only ever deal with PDF
-	return [[QPDFDocument alloc] init];
+	return [[[QPDFDocument alloc] init] autorelease];
 
 }
 
@@ -121,7 +135,7 @@
 	
 	NSURL* url = [NSURL fileURLWithPath:filename];
 	NSError* theError;
-	QPDFDocument* nd = [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
+	QPDFDocument* nd = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
 	
 	NSLog(@"QPDFDocumentController openPDF: open document: %@",nd);
 	
