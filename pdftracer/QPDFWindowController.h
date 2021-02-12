@@ -11,8 +11,8 @@
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate>
 {
-//	QPDFDocument* qDocument;
-// NSWindow *window;
+//	QPDFDocument* qDocument;  // handled by super's ivar
+// NSWindow *window; // handled by super's ivar
 	PDFView *dView;
 	PDFDocument *pDoc;
 
@@ -48,6 +48,6 @@
 -(void)forwardInvocation:(NSInvocation*)inv;
 
 -(void)changeFont:(id)sender;
-
+-(BOOL)paste;
 
 @end
