@@ -57,12 +57,18 @@
 		
 		NSRect vRect = NSMakeRect(0,0,0,0);
 		
+		// See NSRulerView
+		
 		tView = [[NSTextView alloc] initWithFrame:vRect];
 		[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
 		[tView setEditable:NO];
 		tView.richText = NO;
 		[tView setAllowsUndo:YES];
+		[tView setSelectable:YES];
+		[tView setUsesRuler:YES];
+		[tView setRulerVisible:YES];
 
+		
 		[tView setFont:tfont];  // user prefs
 		[tView setDelegate:self];
 		tView.autoresizingMask = NSViewHeightSizable|NSViewWidthSizable;
@@ -107,8 +113,6 @@
 	//	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSViewFrameDidChangeNotification" object:oView];
 	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:ooView];
 	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:opView];
-
-		
 		
 		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:oView];
 		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:oView];
@@ -128,18 +132,15 @@
 
 // + (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
 
+- (void)pasteAsPlainText:(id)sender
+{
+	NSLog(@"pasty paste.. %@",sender);
+}
+
 -(void)updatePDF
 {
-	// release old pdf doc
-	
-	/* who owns pDoc?
- 	if (pDoc)
-		[pDoc release];
-	*/
-	
-	pDoc = [[self document] pdfdocument];
-	[dView setDocument:pDoc];
-	
+	PDFDocument* tpDoc = [[self document] pdfdocument];
+	[dView setDocument:tpDoc];
 }
 
 
@@ -185,7 +186,7 @@
 }
 - (void)changeNotification:(NSNotification*)nn {
 	
-	NSLog(@"QPDFWindowController changeNotification %@",nn);
+	// NSLog(@"QPDFWindowController changeNotification %@",nn);
 	//NSLog(@"FR: %@",[[self window] firstResponder]);
 	
 	selectedView = [nn object];
@@ -243,13 +244,12 @@
 		return;
 	if ([editor length]>0)
 	{
-		// std::string replacement = std::string([editor UTF8String]);
-		
 		if([qpdf isStream])
 		{
-			//	NSLog(@"edit stream");
-			NSData* replData = [editor dataUsingEncoding:NSMacOSRomanStringEncoding];
-			[qpdf replaceStreamData:replData];
+			//NSLog(@"edit stream");
+			//NSData* replData = [editor dataUsingEncoding:NSMacOSRomanStringEncoding];
+			[qpdf replaceStreamData:editor];
+			//NSLog(@"replace stream data finish");
 		} else {
 		//	try {
 				QPDFObjectHandleObjc* rePDFObj = [[QPDFObjectHandleObjc alloc] initWithString:editor];
@@ -260,10 +260,7 @@
 				
 				if ([parent isArray])
 				{
-					//int index =(int)
 					[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
-				//	NSLog(@"replace array index: %d",index);
-				//	parent.setArrayItem(index, rePDFObj);
 				} else if ([parent isDictionary]) {
 				//	std::string name = std::string([[node name] UTF8String]); // might have to change this to the correct PDF encoding
 					NSLog(@"replace dictionary key: %@",[node name]);
@@ -275,15 +272,8 @@
 					// oh no the dreaded child of neither a dictionary or array
 					NSLog(@"unknown parent");
 				}
-				//	NSIndexSet* indexRow = [NSMutableIndexSet indexSetWithIndex:srow];
-				//	NSIndexSet* indexColumn = [NSMutableIndexSet indexSetWithIndex:3];
-				
-				// notify outline view of change
-				//qpdf->replaceTYPE";
-				//	[self.outlineView reloadDataForRowIndexes:indexRow columnIndexexs:indexColumn];
-				
-	//		} catch (const std::exception& e) {
-				NSLog(@"error parsing");
+
+			//	NSLog(@"error parsing");
 	//		}
 		}
 		//*  update outlines
@@ -321,6 +311,18 @@
 	NSLog(@"window Controller: %@",inv);
 }
 
+-(BOOL)paste
+{
+	NSLog(@"paste ->");
+	return YES;
+}
+/*
+-(void)paste:(id)sender
+{
+	NSLog(@"pasted: %@",sender);
+}
+*/
+/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
@@ -334,7 +336,7 @@
 	}
 	return NO;
 }
-
+*/
 /*
 - (NSResponder*)nextResponder
 {
