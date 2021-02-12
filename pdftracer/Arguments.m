@@ -3,17 +3,17 @@
 
 + (instancetype)argumentsWithCount:(int)argc values:(char*const*)argv
 {
-	return [[Arguments alloc] initWithArgOptions:@"" Count:argc Values:argv];
+	return [[[Arguments alloc] initWithArgOptions:@"" Count:argc Values:argv] autorelease];
 }
 
 + (instancetype)argumentsWithOptions:(NSString*)opt count:(int)argc values:(char*const*)argv
 {
-	return [[Arguments alloc] initWithArgOptions:opt Count:argc Values:argv];
+	return [[[Arguments alloc] initWithArgOptions:opt Count:argc Values:argv] autorelease];
 }
 
 + (id)argumentsWithArgOptions:(NSString*)arg Count:(int)argc Values:(char*const*)argv
 {
-	return [[Arguments alloc] initWithArgOptions:arg Count:argc Values:argv];
+	return [[[Arguments alloc] initWithArgOptions:arg Count:argc Values:argv] autorelease];
 }
 
 -(id) initWithArgOptions:(NSString *)arg Count:(int)argc Values:(char*const*)argv
