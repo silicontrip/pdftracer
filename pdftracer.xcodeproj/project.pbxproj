@@ -112,7 +112,7 @@
 		4D2BFD6125D3D22700F8128E /* QPDFObjc.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QPDFObjc.mm; sourceTree = "<group>"; };
 		4D2BFD6325D3DE6000F8128E /* QPDFObjectHandleObjc.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QPDFObjectHandleObjc.mm; sourceTree = "<group>"; };
 		4D2BFD6425D3DE6000F8128E /* QPDFObjectHandleObjc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFObjectHandleObjc.h; sourceTree = "<group>"; };
-		4D2BFD6625D486DA00F8128E /* QPDFObjc.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = QPDFObjc.hh; sourceTree = "<group>"; };
+		4D2BFD6625D486DA00F8128E /* QPDFObjc.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = QPDFObjc.hh; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		4D2BFD6725D486DA00F8128E /* QPDFObjectHandleObjc.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = QPDFObjectHandleObjc.hh; sourceTree = "<group>"; };
 		4D36C04925A2CF75007E0EAD /* corepdf.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = corepdf.m; sourceTree = "<group>"; };
 		4D36C04C25A2CFDD007E0EAD /* genpdf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = genpdf.m; path = "/Users/mark/Documents/20200605-pdftext/pdftracerProject/../genpdf.m"; sourceTree = "<absolute>"; };
