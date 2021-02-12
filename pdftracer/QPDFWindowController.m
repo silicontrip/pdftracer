@@ -100,13 +100,28 @@
 		
 		[self setWindow:[[NSWindow alloc] initWithContentRect:vRect styleMask:windowStyle backing:NSBackingStoreBuffered defer:NO]];
 
+		NSLog(@"WindowController's window:%@",[self window]);
+		
+		NSWindow* w =[self window];
+		// [w setDelegate:self];
+		NSRect forceSize = NSMakeRect(100, 100, 640, 480);
+		
+		[w setFrame:forceSize display:YES];
+		
+		//NSRect rw = [w frame];
+		
+		//NSLog(@"window rect: %@)
+		
+		
+		
 		NSWindowCollectionBehavior behavior = [[self window] collectionBehavior];
 		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
 		[[self window] setCollectionBehavior:behavior];
 		[[self window] setContentView:sView];
 		[[self window] orderFrontRegardless];
 		
-		[[self window]  setTitle:[[self document] filePath]];
+		
+	//	[[self window]  setTitle:documentName];
 
 		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 		
@@ -121,20 +136,14 @@
 		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:opView];
 		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:opView];
 
-		[[self window] setFrameAutosaveName:@"MainWindow"];
-
-		[soView setAutosaveName:@"SplitOutline"];
-		[sView setAutosaveName:@"SplitMain"];
+		NSString *documentName =[[self document] displayName];
+		
+		[[self window] setFrameAutosaveName:[NSString stringWithFormat:@"MainWindow-%@",documentName]];
+		[soView setAutosaveName:[NSString stringWithFormat:@"SplitOutline-%@",documentName]];
+		[sView setAutosaveName:[NSString stringWithFormat:@"SplitMain-%@",documentName]];
 		
 	}
 	return self;
-}
-
-// + (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
-
-- (void)pasteAsPlainText:(id)sender
-{
-	NSLog(@"pasty paste.. %@",sender);
 }
 
 -(void)updatePDF
@@ -143,12 +152,17 @@
 	[dView setDocument:tpDoc];
 }
 
+- (NSString*)windowTitleForDocumentDisplayName:(NSString *)displayName
+{
+	return displayName;
+}
 
 - (void)textDidChange:(NSNotification *)notification
 {
 	QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	[self setDocumentEdited:YES];
+	[[self window] setDocumentEdited:YES];
 	
 	NSString *editor = [tView string];
 	[self replaceQPDFNode:node withString:editor];;
@@ -172,6 +186,7 @@
 		
 		[self replaceQPDFNode:node withString:theString];
 		[self setDocumentEdited:YES];
+		[[self window] setDocumentEdited:YES];
 
 	}
 }
