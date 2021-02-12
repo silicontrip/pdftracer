@@ -23,7 +23,11 @@
 		objectArray = nil;
 
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
-        qObject = QPDFObjectHandle::parse(qpdfdef);
+		try {
+        	qObject = QPDFObjectHandle::parse(qpdfdef);
+		} catch (QPDFExc e) {
+			return nil;
+		}
     }
     return self;
 }
@@ -56,16 +60,17 @@
 	objectArray = [[NSArray alloc] initWithArray:tempObjectArray];
 	return objectArray;
  */
-	return [[NSArray alloc] initWithArray:tempObjectArray];
+	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
 }
 
 -(NSData*)stream
 {
 	PointerHolder<Buffer> bufRef = qObject.getStreamData();
+	
 	Buffer* buf = bufRef.getPointer();
 	size_t sz = buf->getSize();
 	unsigned char * bb = buf->getBuffer();
-	return [[NSData alloc] initWithBytes:bb length:sz];
+	return [[[NSData alloc] initWithBytes:bb length:sz] autorelease];
 }
 
 -(NSArray<NSString*>*)keys
@@ -88,18 +93,18 @@
 	dictionaryKeys = [[NSArray alloc] initWithArray:tempKeyArray];
 	return dictionaryKeys;
 	 */
-	return [[NSArray alloc] initWithArray:tempKeyArray];
+	return [[[NSArray alloc] initWithArray:tempKeyArray] autorelease];
 }
 -(QPDFObjectHandleObjc*)objectForKey:(NSString*)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	QPDFObjectHandle tempObj  =  qObject.getKey(tempKey);
-	return [[QPDFObjectHandleObjc alloc] initWithObject:tempObj];
+	return [[[QPDFObjectHandleObjc alloc] initWithObject:tempObj] autorelease];
 }
 -(QPDFObjectHandleObjc*)objectAtIndex:(NSUInteger)index
 {
 	QPDFObjectHandle thisObject = qObject.getArrayItem((int)index);
-	return [[QPDFObjectHandleObjc alloc] initWithObject:thisObject];
+	return [[[QPDFObjectHandleObjc alloc] initWithObject:thisObject] autorelease];
 }
 -(void)removeObjectForKey:(NSString*)key
 {
@@ -174,12 +179,12 @@
 	for (int index = 0; index < veclen; ++index)
 	{
 		QPDFObjectHandle elem = vec[index];
-		QPDFObjectHandleObjc* tempElem = [[QPDFObjectHandleObjc alloc] initWithObject:elem];
+		QPDFObjectHandleObjc* tempElem = [[[QPDFObjectHandleObjc alloc] initWithObject:elem] autorelease];
 		[tempObjectArray addObject:tempElem];
 	}
-	return [[NSArray alloc] initWithArray:tempObjectArray];
+	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
 }
-+ (QPDFObjectHandleObjc*)null
++ (QPDFObjectHandleObjc*)newNull
 {
 	return [[QPDFObjectHandleObjc alloc] initWithObject:QPDFObjectHandle::newNull()];
 }

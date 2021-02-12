@@ -29,6 +29,6 @@
 -(NSString*)unparse;
 -(NSString*)unparseResolved;
 -(BOOL)childrenContainIndirects;
-+ (QPDFObjectHandleObjc*)null;
++ (QPDFObjectHandleObjc*)newNull;
 
 @end
