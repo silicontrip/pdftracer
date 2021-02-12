@@ -7,10 +7,6 @@
 {
 	NSString* fn = [pdf filename];
 	NSString* vr = [pdf version];
-	NSString* buffer;
-//	std::stringstream buffer;
-
-	// buffer << pdf;
 	
 	NSLog(@"OutlineQPDF initWithPDF: %@_%@",fn,vr);
 	
