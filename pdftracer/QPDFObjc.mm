@@ -38,6 +38,10 @@
 	return self;
 }
 
+-(NSURL*)fileURL
+{
+	return [NSURL fileURLWithPath:[NSString stringWithUTF8String:qDocument.getFilename().c_str()]];
+}
 -(NSString*)filename
 {
 	return [NSString stringWithUTF8String:qDocument.getFilename().c_str()];
@@ -55,9 +59,11 @@
 {
 	return [QPDFObjectHandleObjc arrayWithVector:qDocument.getAllObjects()];
 }
--(QPDFObjectHandleObjc*)rootCatalog
+-(QPDFObjectHandleObjc*)copyRootCatalog
 {
-	return [[QPDFObjectHandleObjc alloc] initWithObject:qDocument.getRoot()];
+	QPDFObjectHandle root = qDocument.getRoot();
+	QPDFObjectHandleObjc * rootObjc = [[QPDFObjectHandleObjc alloc] initWithObject:root];
+	return rootObjc;
 }
 -(PDFDocument*)document
 {
@@ -65,7 +71,7 @@
 	if (pDoc)
 		[pDoc release];
 	
-	pDoc = [[PDFDocument alloc] initWithData:qPDFData];
+	pDoc = [[[PDFDocument alloc] initWithData:qPDFData] autorelease];
 	
 	return pDoc;
 }
@@ -78,7 +84,7 @@
 	
 	Buffer* qBuf = qpdfWriter.getBuffer();
 	unsigned char const* qBytes = qBuf->getBuffer();
-	return [[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()];
+	return [[[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()] autorelease];
 }
 
 @end
