@@ -43,7 +43,7 @@
 	
 	NSArray* targets = @[
 						 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
-						 @[@"newDocument:", @"openDocument:",tnil, tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:"],
+						 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:"],
 						 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:"],
 						 @[@"orderFrontFontPanel:"],
 						 @[tnil,tnil,tnil,tnil,tnil],
@@ -73,6 +73,7 @@
 + (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select
 {
 	NSMenu *myMenu = [NSMenu new];
+	
 	for (NSUInteger i=0; i<[menutitle count]; ++i)
 	{
 		NSMenuItem *mi = [[NSMenuItem new] autorelease];
@@ -105,7 +106,7 @@
 	NSMenuItem *appMenuItem;
 	
 	appMenuItem = [NSMenuItem new];
-	bar = [self newMenu:menus keys:keys selectors:select];
+	bar = [QPDFMenu newMenu:menus keys:keys selectors:select];
 	[bar setAutoenablesItems:YES];
 	[bar setTitle:menutitle];
 	[appMenuItem setSubmenu:bar];
