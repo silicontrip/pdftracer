@@ -23,9 +23,9 @@
 		
 		// Outline View Columns
 
-		oView = [OutlineQPDF view];
-		ooView = [OutlinePDFObj view];
-		opView = [OutlinePDFPage view];
+		oView = [OutlineQPDF newView];
+		ooView = [OutlinePDFObj newView];
+		opView = [OutlinePDFPage newView];
 
 		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp doc]];
 		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp doc]];
@@ -36,17 +36,17 @@
 		[opView setDataSource:pageDS];
 		
 		// scroll view, because you can't fit it all on the screen
-		NSScrollView* scView = [[NSScrollView alloc] init];
+		NSScrollView* scView = [[[NSScrollView alloc] init] autorelease];
 		[scView setHasVerticalScroller:YES];
 		[scView setHasHorizontalScroller:YES];
 		[scView setDocumentView:oView];
 
-		NSScrollView* socView = [[NSScrollView alloc] init];
+		NSScrollView* socView = [[[NSScrollView alloc] init] autorelease];
 		[socView setHasVerticalScroller:YES];
 		[socView setHasHorizontalScroller:YES];
 		[socView setDocumentView:ooView];
 
-		NSScrollView* spcView = [[NSScrollView alloc] init];
+		NSScrollView* spcView = [[[NSScrollView alloc] init] autorelease];
 		[spcView setHasVerticalScroller:YES];
 		[spcView setHasHorizontalScroller:YES];
 		[spcView setDocumentView:opView];
@@ -73,24 +73,24 @@
 		[tView setDelegate:self];
 		tView.autoresizingMask = NSViewHeightSizable|NSViewWidthSizable;
 		
-		NSScrollView* sctView = [[NSScrollView alloc] init];
+		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
 		[sctView setHasVerticalScroller:YES];
 		[sctView setDocumentView:tView];
 
-		dView = [[PDFView alloc] init];
+		dView = [[[PDFView alloc] init] autorelease];
 		pDoc = [[self document] pdfdocument];
 		//NSLog(@"QPDFWindowController pdfdocument pdf : %@",pDoc);
 		[dView setDocument:pDoc];
 
 		
-		NSSplitView* soView=[[NSSplitView alloc] initWithFrame:vRect];
+		NSSplitView* soView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
 		[soView setVertical:NO];
 		[soView addArrangedSubview:scView];
 		[soView addArrangedSubview:socView];
 		[soView addArrangedSubview:spcView];
 		[soView setPostsFrameChangedNotifications:YES];
 
-		NSSplitView* sView=[[NSSplitView alloc] initWithFrame:vRect];
+		NSSplitView* sView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
 		[sView setVertical:YES];
 		[sView addArrangedSubview:soView];
 		[sView addArrangedSubview:sctView];
@@ -104,15 +104,13 @@
 		
 		NSWindow* w =[self window];
 		// [w setDelegate:self];
-		NSRect forceSize = NSMakeRect(100, 100, 640, 480);
+		NSRect forceSize = NSMakeRect(100, 100, 640, 480);  //make these sane starting values
 		
 		[w setFrame:forceSize display:YES];
 		
 		//NSRect rw = [w frame];
 		
 		//NSLog(@"window rect: %@)
-		
-		
 		
 		NSWindowCollectionBehavior behavior = [[self window] collectionBehavior];
 		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
@@ -220,7 +218,7 @@
 		
 	//	NSLog (@"obj selected %s",qpdf->getTypeName());
 		if ([qpdf isStream]) {
-			objText= [[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ];
+			objText= [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
 				
 			//	NSLog(@"=======: %@",objText);
 				
@@ -267,7 +265,7 @@
 			//NSLog(@"replace stream data finish");
 		} else {
 		//	try {
-				QPDFObjectHandleObjc* rePDFObj = [[QPDFObjectHandleObjc alloc] initWithString:editor];
+				QPDFObjectHandleObjc* rePDFObj = [[[QPDFObjectHandleObjc alloc] initWithString:editor] autorelease];
 				
 				// work out if rePDFObj is valid
 				QPDFObjectHandleObjc* parent = [node parent];

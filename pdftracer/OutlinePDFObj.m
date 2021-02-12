@@ -95,10 +95,10 @@
 	return nil;
 }
 
-+ (NSOutlineView*)view
++ (NSOutlineView*)newView
 {
-	NSTableColumn* pdfObjectObjRef = [[NSTableColumn alloc] initWithIdentifier:@"objref"];
-	NSTableColumn* pdfObjectObjRefType = [[NSTableColumn alloc] initWithIdentifier:@"type"];
+	NSTableColumn* pdfObjectObjRef = [[[NSTableColumn alloc] initWithIdentifier:@"objref"] autorelease];
+	NSTableColumn* pdfObjectObjRefType = [[[NSTableColumn alloc] initWithIdentifier:@"type"] autorelease];
 	
 	NSOutlineView* ooView = [[QPDFOutlineView alloc] init];
 	[ooView setIndentationPerLevel:16.0];

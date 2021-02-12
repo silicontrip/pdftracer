@@ -14,7 +14,7 @@
 	if (self)
 	{
 		qpDocument = pdf;
-		QPDFObjectHandleObjc* rootCatalog = [pdf rootCatalog];
+		QPDFObjectHandleObjc* rootCatalog = [[pdf copyRootCatalog] autorelease];
 		//NSLog(@"make catalog");
 		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
@@ -194,17 +194,18 @@
 					// who's your daddy?
 					NSLog(@"parent is not dictionary or array");  // so wtf is it?
 				}
+				[newobj autorelease];
 			}
 		}
 //	}
 	
 }
 
-+ (NSOutlineView*)view
++ (NSOutlineView*)newView
 {
-	NSTableColumn* pdfObjectName = [[NSTableColumn alloc] initWithIdentifier:@"Name"];
-	NSTableColumn* pdfObjectType = [[NSTableColumn alloc] initWithIdentifier:@"Type"];
-	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
+	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
+	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
+	NSTableColumn* pdfObjectContents = [[[NSTableColumn alloc] initWithIdentifier:@"Value"] autorelease];
 	
 	NSOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist

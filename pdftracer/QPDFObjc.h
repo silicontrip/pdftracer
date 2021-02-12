@@ -14,11 +14,13 @@
 -(instancetype)initWithURL:(NSURL*)fileURL;
 -(instancetype)initWithData:(NSData*)pdfData;
 
+-(NSURL*)fileURL;
 -(NSString*)filename;
 -(NSString*)version;
 -(NSArray<QPDFObjectHandleObjc*>*)pages;
 -(NSArray<QPDFObjectHandleObjc*>*)objects;
--(QPDFObjectHandleObjc*)rootCatalog;
+//-(QPDFObjectHandleObjc*)rootCatalog;
+-(QPDFObjectHandleObjc*)copyRootCatalog; // naming convention for alloc 
 -(NSData*)data;
 -(PDFDocument*)document;
 

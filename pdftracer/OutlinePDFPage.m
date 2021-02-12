@@ -3,10 +3,10 @@
 
 @implementation OutlinePDFPage
 
-+ (NSOutlineView*)view
++ (NSOutlineView*)newView
 {
-	NSTableColumn* pdfObjectName = [[NSTableColumn alloc] initWithIdentifier:@"Name"];
-	NSTableColumn* pdfObjectType = [[NSTableColumn alloc] initWithIdentifier:@"Type"];
+	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
+	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
 //	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
 	
 	NSOutlineView* oView=[[QPDFOutlineView alloc] init];

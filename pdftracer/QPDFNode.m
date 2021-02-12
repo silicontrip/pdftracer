@@ -4,12 +4,12 @@
 
 + (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm
 {
-	return [[QPDFNode alloc] initWithParent:pa Named:nm Handle:[QPDFObjectHandleObjc null]];
+	return [[[QPDFNode alloc] initWithParent:pa Named:nm Handle:[QPDFObjectHandleObjc newNull]] autorelease];
 }
 
 + (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp
 {
-	return [[QPDFNode alloc] initWithParent:pa Named:nm Handle:qp];
+	return [[[QPDFNode alloc] initWithParent:pa Named:nm Handle:qp] autorelease];
 }
 
 - (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(QPDFObjectHandleObjc*)qp
@@ -28,7 +28,7 @@
 		if (pa)
 			parent = [pa object];
 		else
-			parent = [QPDFObjectHandleObjc null];
+			parent = [QPDFObjectHandleObjc newNull];
     }
     return self;
 }

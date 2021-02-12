@@ -12,7 +12,7 @@
 	QPDFObjc* qpDocument;
 }
 
-+ (NSOutlineView*)view;
++ (NSOutlineView*)newView;
 - (instancetype)initWithPDF:(QPDFObjc*)pdf;
 
 
