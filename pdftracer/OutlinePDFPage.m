@@ -33,7 +33,7 @@
 		qpDocument = pdf;
 //		NSLog(@"OutlinePDFPage %@ getAllPages",self);
 
-		pageArray = [pdf pages];
+		pageArray = [[pdf pages] retain];
 		
 //		NSLog(@"Page array len: %ld",pageArray.capacity());
 		

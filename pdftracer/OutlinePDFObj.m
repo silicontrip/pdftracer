@@ -13,7 +13,7 @@
 	if (self != nil)
 	{
 		qpDocument = pdf;
-		objTable= [qpDocument objects];
+		objTable= [[qpDocument objects] retain];
 	}
 	return self;
 }

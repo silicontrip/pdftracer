@@ -23,7 +23,7 @@
 		// NSLog(@"Parent node: %@",pa);
 		[name retain];
 
-		qpdfhandle = qp;
+		qpdfhandle = [qp retain];
 		parentNode = pa;
 		if (pa)
 			parent = [pa object];
