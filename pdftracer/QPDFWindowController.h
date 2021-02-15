@@ -7,47 +7,45 @@
 @class OutlineQPDF;  // arg inconsistent names!
 @class OutlinePDFObj;
 @class OutlinePDFPage;
-
+@class QPDFWindow;
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate>
 {
 //	QPDFDocument* qDocument;  // handled by super's ivar
 // NSWindow *window; // handled by super's ivar
-	PDFView *dView;
-	PDFDocument *pDoc;
+//	PDFView *dView;
+//	PDFDocument *pDoc;
 
-	OutlineQPDF* pdfDS;
-	OutlinePDFPage* pageDS;
-	OutlinePDFObj* objDS;
+//	OutlineQPDF* pdfDS;
+//	OutlinePDFPage* pageDS;
+//	OutlinePDFObj* objDS;
 	
 	// QPDF qDocument;
 	// Buffer* rawDoc;
-	NSTextView* tView;
-	NSOutlineView* oView;
-	NSOutlineView* ooView;
-	NSOutlineView* opView;
+	//NSTextView* tView;
+	//NSOutlineView* oView;
+	//NSOutlineView* ooView;
+	//NSOutlineView* opView;
 
-	NSFont * tfont;
+	//NSFont * tfont;
 	
 	NSInteger selectedRow;
 	NSOutlineView* selectedView;
 }
 
-- (instancetype)initWithDocument:(QPDFDocument*)qp;
+- (instancetype)initWithWindow:(QPDFWindow*)nsw;
 
 //+ (Boolean)hasNoIndirect:(QPDFObjectHandle)qpdfVal;
 
--(void)updatePDF;
--(void)textDidChange:(NSNotification *)notification;
--(void)textDidEndEditing:(NSNotification*)notification;
--(void)changeNotification:(NSNotification*)nn;
--(void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
+- (void)updatePDF;
+- (void)textDidChange:(NSNotification *)notification;
+- (void)textDidEndEditing:(NSNotification*)notification;
+- (void)changeNotification:(NSNotification*)nn;
+- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
 - (void)selectChangeNotification:(NSOutlineView*)no;
--(void)selectObject:(id)sender;
+- (void)selectObject:(id)sender;
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor;
--(void)forwardInvocation:(NSInvocation*)inv;
-
--(void)changeFont:(id)sender;
-//-(BOOL)paste;
+- (void)forwardInvocation:(NSInvocation*)inv;
+- (void)changeFont:(id)sender;
 
 @end

@@ -6,7 +6,6 @@
 
 @interface QPDFWindowController()
 {
-	
 
 }
 
@@ -14,140 +13,21 @@
 
 @implementation QPDFWindowController
 
-- (instancetype)initWithDocument:(QPDFDocument*)qp
+- (instancetype)initWithWindow:(NSWindow*)nsw
 {
-	NSLog(@"QPDFWindowController initWithDocument:%@",self);
-	self = [super init];
-	if (self) {
-		[self setDocument:qp];
-		
-		// Outline View Columns
-
-		oView = [OutlineQPDF newView];
-		ooView = [OutlinePDFObj newView];
-		opView = [OutlinePDFPage newView];
-
-		pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp doc]];
-		objDS = [[OutlinePDFObj alloc] initWithPDF:[qp doc]];
-		pageDS = [[OutlinePDFPage alloc] initWithPDF:[qp doc]];
-		
-		[oView setDataSource:pdfDS];
-		[ooView setDataSource:objDS];
-		[opView setDataSource:pageDS];
-		
-		// scroll view, because you can't fit it all on the screen
-		NSScrollView* scView = [[[NSScrollView alloc] init] autorelease];
-		[scView setHasVerticalScroller:YES];
-		[scView setHasHorizontalScroller:YES];
-		[scView setDocumentView:oView];
-
-		NSScrollView* socView = [[[NSScrollView alloc] init] autorelease];
-		[socView setHasVerticalScroller:YES];
-		[socView setHasHorizontalScroller:YES];
-		[socView setDocumentView:ooView];
-
-		NSScrollView* spcView = [[[NSScrollView alloc] init] autorelease];
-		[spcView setHasVerticalScroller:YES];
-		[spcView setHasHorizontalScroller:YES];
-		[spcView setDocumentView:opView];
-
-		tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
-
-		// this should also be in a scroll
-		
-		NSRect vRect = NSMakeRect(0,0,0,0);
-		
-		// See NSRulerView
-		
-		tView = [[NSTextView alloc] initWithFrame:vRect];
-		[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
-		[tView setEditable:NO];
-		tView.richText = NO;
-		[tView setAllowsUndo:YES];
-		[tView setSelectable:YES];
-		[tView setUsesRuler:YES];
-		[tView setRulerVisible:YES];
-
-		
-		[tView setFont:tfont];  // user prefs
-		[tView setDelegate:self];
-		tView.autoresizingMask = NSViewHeightSizable|NSViewWidthSizable;
-		
-		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
-		[sctView setHasVerticalScroller:YES];
-		[sctView setDocumentView:tView];
-
-		dView = [[[PDFView alloc] init] autorelease];
-		pDoc = [[self document] pdfdocument];
-		//NSLog(@"QPDFWindowController pdfdocument pdf : %@",pDoc);
-		[dView setDocument:pDoc];
-
-		
-		NSSplitView* soView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
-		[soView setVertical:NO];
-		[soView addArrangedSubview:scView];
-		[soView addArrangedSubview:socView];
-		[soView addArrangedSubview:spcView];
-		[soView setPostsFrameChangedNotifications:YES];
-
-		NSSplitView* sView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
-		[sView setVertical:YES];
-		[sView addArrangedSubview:soView];
-		[sView addArrangedSubview:sctView];
-		[sView addArrangedSubview:dView];
-
-		NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
-		
-		[self setWindow:[[NSWindow alloc] initWithContentRect:vRect styleMask:windowStyle backing:NSBackingStoreBuffered defer:NO]];
-
-		NSLog(@"WindowController's window:%@",[self window]);
-		
-		NSWindow* w =[self window];
-		// [w setDelegate:self];
-		NSRect forceSize = NSMakeRect(100, 100, 640, 480);  //make these sane starting values
-		
-		[w setFrame:forceSize display:YES];
-		
-		//NSRect rw = [w frame];
-		
-		//NSLog(@"window rect: %@)
-		
-		NSWindowCollectionBehavior behavior = [[self window] collectionBehavior];
-		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
-		[[self window] setCollectionBehavior:behavior];
-		[[self window] setContentView:sView];
-		[[self window] orderFrontRegardless];
-		
-		
-	//	[[self window]  setTitle:documentName];
-
-		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
-		
-	//	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSViewFrameDidChangeNotification" object:oView];
-	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:ooView];
-	//	[dc addObserver:self selector:@selector(changeNotification:) name:@"NSViewFrameDidChangeNotification" object:opView];
-		
-		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:oView];
-		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:oView];
-		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:ooView];
-		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:ooView];
-		[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:opView];
-		[dc addObserver:self selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:opView];
-
-		NSString *documentName =[[self document] displayName];
-		
-		[[self window] setFrameAutosaveName:[NSString stringWithFormat:@"MainWindow-%@",documentName]];
-		[soView setAutosaveName:[NSString stringWithFormat:@"SplitOutline-%@",documentName]];
-		[sView setAutosaveName:[NSString stringWithFormat:@"SplitMain-%@",documentName]];
-		
-	}
+	self = [super initWithWindow:nsw];
+	
+	NSLog(@"window: %@",[self window]);
+	NSLog(@"document: %@",[self document]);
+	
 	return self;
 }
+
 
 -(void)updatePDF
 {
 	PDFDocument* tpDoc = [[self document] pdfdocument];
-	[dView setDocument:tpDoc];
+	[(QPDFWindow*)[self window]  setDocument:tpDoc];
 }
 
 - (NSString*)windowTitleForDocumentDisplayName:(NSString *)displayName
@@ -162,8 +42,8 @@
 	[self setDocumentEdited:YES];
 	[[self window] setDocumentEdited:YES];
 	
-	NSString *editor = [tView string];
-	[self replaceQPDFNode:node withString:editor];;
+	NSString *editor = [(QPDFWindow*)[self window] editorText];
+	[self replaceQPDFNode:node withString:editor];
 }
 
 - (void)textDidEndEditing:(NSNotification*)aNotification {
@@ -171,16 +51,12 @@
 	NSTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
 	if (fieldEditor)
 	{
-		
-		//	NSInteger srow = [oView selectedRow];
-		//	QPDFNode* node = [oView itemAtRow:srow];
-		
+
 		QPDFNode* node = [selectedView itemAtRow:selectedRow];
-		
 		//	QPDFObjectHandle* qpdf = [node object];
 		
 		NSString * theString = [[fieldEditor textStorage] string];
-		[tView setString:theString];
+		[(QPDFWindow*)[self window] setEditor:theString];
 		
 		[self replaceQPDFNode:node withString:theString];
 		[self setDocumentEdited:YES];
@@ -188,27 +64,30 @@
 
 	}
 }
+
 - (void)selectChangeNotification:(NSOutlineView*)no
 {
-//	NSLog(@" %@",nn);
+	NSLog(@"selectChangeNotification %@",no);
 
 	selectedView = no;
-	selectedRow = [selectedView selectedRow];
-	[self changeRow:selectedRow forSource:no];
-	
-}
-- (void)changeNotification:(NSNotification*)nn {
-	
-	// NSLog(@"QPDFWindowController changeNotification %@",nn);
-	//NSLog(@"FR: %@",[[self window] firstResponder]);
-	
-	selectedView = [nn object];
 	selectedRow = [selectedView selectedRow];
 	[self changeRow:selectedRow forSource:selectedView];
 }
 
+- (void)changeNotification:(NSNotification*)nn {
+	
+	NSLog(@"QPDFWindowController changeNotification %@",nn);
+	NSLog(@"FR: %@",[[self window] firstResponder]);
+	
+	selectedView = [nn object];
+	selectedRow = [selectedView selectedRow];
+	[self changeRow:selectedRow forSource:selectedView];
+	
+}
+
 - (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov { // void QPDFWindowController::changeRow (NSInteger row, NSOutlineView* ov) {
 																// for those who can't read Objective-C function definitions
+	NSLog(@"QPDFWindowController: ChangeRow:%d forSource:%@",(int)row,ov);
 	if (row >= 0)
 	{
 		NSString* objText;
@@ -222,7 +101,7 @@
 				
 			//	NSLog(@"=======: %@",objText);
 				
-				[tView setEditable:YES];
+				[(QPDFWindow*)[self window] enableEditor:YES];
 		//	} catch (QPDFExc e) {
 				; // pop up alert.
 		//	}
@@ -231,14 +110,14 @@
 			BOOL allowEdit = ![qpdf childrenContainIndirects];
 			
 			//		NSLog(@"set editable: %d",allowEdit);
-			[tView setEditable:allowEdit];
+			[(QPDFWindow*)[self window] enableEditor:allowEdit];
 			// NSString* objText = [NSString stringWithUTF8String:qpdf->unparse().c_str()];
 			objText = [qpdf unparseResolved];
 		}
-		[tView setString:objText];
+		[(QPDFWindow*)[self window] setEditor:objText];
 	} else {
-		[tView setEditable:NO];
-		[tView setString:@""];
+		[(QPDFWindow*)[self window] enableEditor:NO];
+		//[tView setString:@"can you see what I see?"];
 	}
 }
 
@@ -296,7 +175,12 @@
 
 - (void)updateOutlines:(QPDFNode*)node
 {
-	QPDFNode* nn = node;
+	//QPDFNode* nn = node;
+	
+	[(QPDFWindow*)[self window] updateAllOutlines:node];
+	
+	/*
+	[[self window] updateOutlines:node];
 	[oView reloadItem:nn];
 	while ((nn = [nn parentNode]))
 		[oView reloadItem:nn];
@@ -310,7 +194,7 @@
 	[opView reloadItem:nn];
 	while ((nn = [nn parentNode]))
 		[opView reloadItem:nn];
-	
+	*/
 	[self updatePDF];
 }
 
