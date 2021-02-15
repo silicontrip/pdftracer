@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
 #import "QPDFObjc.h"
+#import "QPDFWindow.h"
 
 @class QPDFWindowController;
 

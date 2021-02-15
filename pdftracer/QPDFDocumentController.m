@@ -74,8 +74,10 @@
 		if (result == NSModalResponseOK) {
 			NSURL* url = [[openDlg URLs] firstObject];
 			NSError* theError;
-			QPDFDocument* nd = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
-			[self addDocument:nd];
+			QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
+			[self addDocument:newDoc];
+			[newDoc makeWindowControllers];
+			[newDoc showWindows];
 
 			// Open  the document.
 		}

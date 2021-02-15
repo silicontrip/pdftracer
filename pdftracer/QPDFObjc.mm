@@ -68,9 +68,10 @@
 -(PDFDocument*)document
 {
 	NSData* qPDFData = [self data];
+	/*
 	if (pDoc)
 		[pDoc release];
-	
+	*/
 	pDoc = [[[PDFDocument alloc] initWithData:qPDFData] autorelease];
 	
 	return pDoc;

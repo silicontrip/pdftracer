@@ -161,9 +161,23 @@
 -(void)makeWindowControllers
 {
 	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
+	NSRect rr = NSMakeRect(10, 10, 640, 480);
+	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
+	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered];
+	QPDFWindowController* nwc = [[QPDFWindowController alloc] initWithWindow:w];
+	// [nwc setDocument:self];
+	[self addWindowController:nwc];
+	
+	[w setDataSource];
+	
+//	NSLog(@"NSDoc WindowController: %@",[self windowControllers]);
+//	NSLog(@"NSwinCon document: %@",[nwc document]);
+	
+	/*
 	QPDFWindowController* winCon = [[[QPDFWindowController alloc] initWithDocument:self] autorelease];
 	[self addWindowController:winCon ];
-//	[self setWindow:[winCon window]];
+	[self setWindow:[winCon window]];
+	 */
 }
 
 - (QPDFObjc*)doc
