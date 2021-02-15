@@ -111,7 +111,8 @@
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.removeKey(tempKey);
 }
--(void)replaceObject:(QPDFObjectHandleObjc*)obj forKey:(NSString*)key
+
+-(void)replaceObject:(nonnull QPDFObjectHandleObjc*)obj forKey:(NSString*)key
 {
 	std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.replaceKey(ckey, [obj qpdfobject]);

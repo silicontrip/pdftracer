@@ -18,6 +18,5 @@
 - (QPDFObjectHandleObjc*)parent;
 - (QPDFNode*)parentNode;
 - (NSString*)name;
-// - (NSString*)description;
 
 @end
