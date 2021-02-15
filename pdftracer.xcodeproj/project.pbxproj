@@ -42,6 +42,7 @@
 		4D8EE7202598A4C0008D2DA2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D163CF725987C0000C8C7D3 /* Foundation.framework */; };
 		4D8EE7212598A4C9008D2DA2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D163CF925987C0900C8C7D3 /* CoreGraphics.framework */; };
 		4D8EE7222598A51F008D2DA2 /* editor.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163D002598A0A000C8C7D3 /* editor.m */; };
+		4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -140,6 +141,9 @@
 		4D8EE6F92598A21C008D2DA2 /* parsepdf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = parsepdf; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D8EE7132598A27C008D2DA2 /* psconverter */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = psconverter; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D8EE71C2598A4A1008D2DA2 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		4D9CCA8425D969CB0003DF13 /* outline.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = outline.xib; sourceTree = "<group>"; };
+		4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFWindow.h; sourceTree = "<group>"; };
+		4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFWindow.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -238,33 +242,36 @@
 		4D163CE9259879ED00C8C7D3 /* pdftracer */ = {
 			isa = PBXGroup;
 			children = (
-				4D2BFD6625D486DA00F8128E /* QPDFObjc.hh */,
-				4D2BFD6725D486DA00F8128E /* QPDFObjectHandleObjc.hh */,
-				4D2BFD6425D3DE6000F8128E /* QPDFObjectHandleObjc.h */,
-				4D2BFD6325D3DE6000F8128E /* QPDFObjectHandleObjc.mm */,
-				4D2BFD6025D3D22700F8128E /* QPDFObjc.h */,
-				4D2BFD6125D3D22700F8128E /* QPDFObjc.mm */,
+				4D163D002598A0A000C8C7D3 /* editor.m */,
 				4D163CF425987A1F00C8C7D3 /* Arguments.h */,
 				4D163CF325987A1F00C8C7D3 /* Arguments.m */,
-				4D163D002598A0A000C8C7D3 /* editor.m */,
 				4D5BEC6225D276AD006CBE02 /* QPDFMenu.h */,
 				4D5BEC6325D276AD006CBE02 /* QPDFMenu.m */,
-				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
-				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
+				4D5450DD25C52A5600ED6F54 /* QPDFDocumentController.h */,
+				4D638AE325C2DBBB00BAB433 /* QPDFDocumentController.m */,
+				4D638AE025C2C84200BAB433 /* QPDFDocument.h */,
+				4D638AE125C2C84200BAB433 /* QPDFDocument.m */,
+				4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */,
+				4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */,
+				4D2BFD6025D3D22700F8128E /* QPDFObjc.h */,
+				4D2BFD6625D486DA00F8128E /* QPDFObjc.hh */,
+				4D2BFD6125D3D22700F8128E /* QPDFObjc.mm */,
+				4D2BFD6425D3DE6000F8128E /* QPDFObjectHandleObjc.h */,
+				4D2BFD6725D486DA00F8128E /* QPDFObjectHandleObjc.hh */,
+				4D2BFD6325D3DE6000F8128E /* QPDFObjectHandleObjc.mm */,
+				4D5450E225C535F500ED6F54 /* QPDFWindowController.h */,
+				4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */,
+				4D5450E425C5492000ED6F54 /* OutlineQPDF.h */,
+				4D5450DF25C5310700ED6F54 /* OutlineQPDF.m */,
 				4D3A6B9825BD8E0600B22499 /* OutlinePDFObj.h */,
 				4D3A6B9925BD8E0600B22499 /* OutlinePDFObj.m */,
 				4D3A6B9B25BD98DD00B22499 /* OutlinePDFPage.h */,
 				4D3A6B9C25BD98DD00B22499 /* OutlinePDFPage.m */,
-				4D5450E425C5492000ED6F54 /* OutlineQPDF.h */,
-				4D5450DF25C5310700ED6F54 /* OutlineQPDF.m */,
-				4D638AE025C2C84200BAB433 /* QPDFDocument.h */,
-				4D638AE125C2C84200BAB433 /* QPDFDocument.m */,
-				4D5450DD25C52A5600ED6F54 /* QPDFDocumentController.h */,
-				4D638AE325C2DBBB00BAB433 /* QPDFDocumentController.m */,
 				4D3A6B9225BAADB500B22499 /* QPDFNode.h */,
 				4D3A6B9325BAADB500B22499 /* QPDFNode.m */,
-				4D5450E225C535F500ED6F54 /* QPDFWindowController.h */,
-				4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */,
+				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
+				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
+				4D9CCA8425D969CB0003DF13 /* outline.xib */,
 			);
 			path = pdftracer;
 			sourceTree = "<group>";
@@ -272,7 +279,6 @@
 		4D163CF625987BFF00C8C7D3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				4D3A6B9125B444E600B22499 /* QPDF */,
 				4D147B9E25B06A04001AB1A3 /* Quartz.framework */,
 				4D147B9625AC3BD8001AB1A3 /* libqpdf.28.dylib */,
 				4D8EE71C2598A4A1008D2DA2 /* AppKit.framework */,
@@ -307,14 +313,6 @@
 			);
 			path = genpdf;
 			sourceTree = "<group>";
-		};
-		4D3A6B9125B444E600B22499 /* QPDF */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = QPDF;
-			path = /usr/local/Cellar/qpdf/10.0.4/include/qpdf;
-			sourceTree = "<absolute>";
 		};
 		4D5BEC2E25CD5870006CBE02 /* test */ = {
 			isa = PBXGroup;
@@ -546,6 +544,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */,
 				4D5BEC3E25CEB443006CBE02 /* QPDFOutlineView.m in Sources */,
 				4D3A6B9D25BD98DD00B22499 /* OutlinePDFPage.m in Sources */,
 				4D5BEC6425D276AD006CBE02 /* QPDFMenu.m in Sources */,
@@ -742,6 +741,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				STRINGS_FILE_OUTPUT_ENCODING = "UTF-8";
+				"VALID_ARCHS[sdk=*]" = "i386 x86_64";
 			};
 			name = Debug;
 		};
