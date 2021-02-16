@@ -25,8 +25,12 @@
 
 		qpdfhandle = [qp retain];
 		parentNode = pa;
+		parent = nil;
 		if (pa)
+		{
+			NSLog(@"parent node object: %x",[pa object]);
 			parent = [pa object];
+		}
 		else
 			parent = [QPDFObjectHandleObjc newNull];
     }
@@ -40,7 +44,14 @@
 - (NSString*)name { return name; }
 
 
-
-//- (NSString*)description { return [NSString stringWithFormat:@"]}
-
+/*
+- (NSString*)description {
+	
+	NSString *superString = [super description];  // All hail Trance masters Cygnus X and their track superstring
+	[NSString stringWithFormat:@"<<%@  /name %@ /Parent %@"
+	
+//	return [NSString stringWithFormat:@"]
+			
+}
+*/
 @end

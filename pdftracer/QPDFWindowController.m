@@ -17,8 +17,8 @@
 {
 	self = [super initWithWindow:nsw];
 	
-	NSLog(@"window: %@",[self window]);
-	NSLog(@"document: %@",[self document]);
+	NSLog(@"Window controller window: %@",[self window]);
+	NSLog(@"window controller document: %@",[self document]);
 	
 	return self;
 }
@@ -76,8 +76,8 @@
 
 - (void)changeNotification:(NSNotification*)nn {
 	
-	NSLog(@"QPDFWindowController changeNotification %@",nn);
-	NSLog(@"FR: %@",[[self window] firstResponder]);
+//	NSLog(@"QPDFWindowController changeNotification %@",nn);
+//	NSLog(@"FR: %@",[[self window] firstResponder]);
 	
 	selectedView = [nn object];
 	selectedRow = [selectedView selectedRow];
@@ -138,38 +138,42 @@
 	{
 		if([qpdf isStream])
 		{
-			//NSLog(@"edit stream");
+			NSLog(@"edit stream");
 			//NSData* replData = [editor dataUsingEncoding:NSMacOSRomanStringEncoding];
 			[qpdf replaceStreamData:editor];
 			//NSLog(@"replace stream data finish");
 		} else {
-		//	try {
-				QPDFObjectHandleObjc* rePDFObj = [[[QPDFObjectHandleObjc alloc] initWithString:editor] autorelease];
-				
-				// work out if rePDFObj is valid
-				QPDFObjectHandleObjc* parent = [node parent];
-				//NSLog(@"parse object: %@",editor);
-				
-				if ([parent isArray])
-				{
-					[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
-				} else if ([parent isDictionary]) {
+			//	try {
+			QPDFObjectHandleObjc* rePDFObj = [[[QPDFObjectHandleObjc alloc] initWithString:editor] autorelease];
+			
+			// work out if rePDFObj is valid
+			QPDFObjectHandleObjc* parent = [node parent];
+			//NSLog(@"parse object: %@",editor);
+			
+			if ([parent isArray])
+			{
+				NSLog(@"Edit Array");
+				[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
+			} else if ([parent isDictionary]) {
+				NSLog(@"Edit Dictionary");
 				//	std::string name = std::string([[node name] UTF8String]); // might have to change this to the correct PDF encoding
-					NSLog(@"replace dictionary key: %@",[node name]);
-			//		parent.replaceKey(name, rePDFObj);
-					
-					[parent replaceObject:rePDFObj forKey:[node name]];
-					
-				} else {
-					// oh no the dreaded child of neither a dictionary or array
-					NSLog(@"unknown parent");
-				}
-
+				NSLog(@"replace dictionary key: %@",[node name]);
+				//		parent.replaceKey(name, rePDFObj);
+				
+				[parent replaceObject:rePDFObj forKey:[node name]];
+				
+			} else {
+				// oh no the dreaded child of neither a dictionary or array
+				NSLog(@"unknown parent");
+			}
+			// no need to update if stream editing.
+			[self updateOutlines:node];
+			
 			//	NSLog(@"error parsing");
-	//		}
+			//		}
 		}
+		[self updatePDF];
 		//*  update outlines
-		[self updateOutlines:node];
 	}
 }
 
@@ -177,6 +181,7 @@
 {
 	//QPDFNode* nn = node;
 	
+	NSLog(@"WC:updateOutline %@",node);
 	[(QPDFWindow*)[self window] updateAllOutlines:node];
 	
 	/*

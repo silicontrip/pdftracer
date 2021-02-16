@@ -22,6 +22,8 @@
 		dictionaryKeys = nil;
 		objectArray = nil;
 
+		NSLog(@"NS String: <<%@>>",def);
+		
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		try {
         	qObject = QPDFObjectHandle::parse(qpdfdef);

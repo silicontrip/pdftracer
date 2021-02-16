@@ -42,10 +42,7 @@
 	// Insert code here to initialize your application
 	NSLog(@"applicationDidFinishLaunching");
 	
-	NSMenu* appMenu = [[QPDFMenu alloc] init];
-	[appMenu setDelegate:docControl];
-	// NSLog(@"menu: %@",appMenu);
-	[NSApp setMainMenu:appMenu];
+
 }
 
 
@@ -63,6 +60,10 @@ int main (int argc, char * const argv[])
 	
 	[NSApplication sharedApplication];
 	QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
+	NSMenu* appMenu = [[QPDFMenu alloc] initWithMenu];
+	[appMenu setDelegate:docControl];
+	[NSApp setMainMenu:appMenu];
+	
 	
 	pdfApp *mm = [[[pdfApp alloc] initWithController:docControl] autorelease];
 	
@@ -92,12 +93,8 @@ int main (int argc, char * const argv[])
 		// [docControl openDocument:fu];
 
 	}
-
-	// [aa autorelease];
-
 	
 	[NSApp run];
-//	[pa release];
 
 	[splash release];
 	

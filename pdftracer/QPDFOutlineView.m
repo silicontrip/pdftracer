@@ -13,7 +13,7 @@
 	NSLog(@"BECOME FR: %@",self);
 	
 	[super becomeFirstResponder];
-	
+	/*
 	NSResponder* fr = [[self window] firstResponder];
 	do {
 		NSLog(@"resp: %@",fr);
@@ -24,7 +24,7 @@
 	NSWindowController* wc = [w windowController];
 	
 	NSLog(@" window: %@ controller: %@",w,wc );
-	
+	*/
 	[[[self window] windowController] selectChangeNotification:self];
 	
 	return YES;

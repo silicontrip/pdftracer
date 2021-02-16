@@ -10,7 +10,7 @@
 
 @implementation QPDFMenu
 
-- (instancetype)init
+- (instancetype)initWithMenu
 {
 	
 	self = [super init];
@@ -71,9 +71,10 @@
 }
 
 // NSMenu* newMenu(NSArray * menutitle)
-+ (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select
++ (QPDFMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select
 {
-	NSMenu *myMenu = [NSMenu new];
+	// making this QPDFMenu causes infinite loop
+	QPDFMenu *myMenu = [QPDFMenu new];
 	
 	for (NSUInteger i=0; i<[menutitle count]; ++i)
 	{

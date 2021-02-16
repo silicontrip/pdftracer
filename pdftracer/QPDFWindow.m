@@ -26,6 +26,8 @@
 
 -(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn
 {
+	NSLog(@"PDF Node: %@",nn);
+	
 	[ov reloadItem:nn];
 	while ((nn = [nn parentNode]))
 		[ov reloadItem:nn];
@@ -33,6 +35,7 @@
 
 -(void)updateAllOutlines:(QPDFNode *)node
 {
+	NSLog(@"update all: %@",node);
 	[self updateOutline:oView withNode:node];
 	[self updateOutline:ooView withNode:node];
 	[self updateOutline:opView withNode:node];
