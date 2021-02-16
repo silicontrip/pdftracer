@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
 // I'd like to turn this into a class cluster
-@interface QPDFObjectHandleObjc : NSObject
+@interface ObjcQPDFObjectHandle : NSObject
 {
 // do not put c++ in the header
 	NSArray<NSString*>* dictionaryKeys;
-	NSArray<QPDFObjectHandleObjc*>* objectArray;
+	NSArray<ObjcQPDFObjectHandle*>* objectArray;
 }
 
 -(instancetype)initWithString:(NSString*)def;
@@ -16,11 +16,11 @@
 -(NSUInteger)count;
 
 -(NSArray<NSString*>*)keys;
--(QPDFObjectHandleObjc*)objectForKey:(NSString*)key;
--(QPDFObjectHandleObjc*)objectAtIndex:(NSUInteger)index;
+-(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key;
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
 -(void)removeObjectForKey:(NSString*)key;
--(void)replaceObject:(QPDFObjectHandleObjc*)obj forKey:(NSString*)key;
--(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj;
+-(void)replaceObject:(ObjcQPDFObjectHandle*)obj forKey:(NSString*)key;
+-(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj;
 
 -(NSData*)stream;
 -(void)replaceStreamData:(NSString*)data;
@@ -29,6 +29,6 @@
 -(NSString*)unparse;
 -(NSString*)unparseResolved;
 -(BOOL)childrenContainIndirects;
-+ (QPDFObjectHandleObjc*)newNull;
++ (ObjcQPDFObjectHandle*)newNull;
 
 @end

@@ -12,7 +12,7 @@
 #import "OutlinePDFPage.h"
 #import "OutlinePDFObj.h"
 #import "QPDFWindowController.h"
-#import "QPDFObjc.h"
+#import "ObjcQPDF.h"
 
 @implementation QPDFDocument
 
@@ -23,7 +23,7 @@
 	if (self) {
 		pDoc = nil;
 		[self setFileURL:nil];
-		qDocument = [[QPDFObjc alloc] init];
+		qDocument = [[ObjcQPDF alloc] init];
 	}
 	return self;
 }
@@ -43,7 +43,7 @@
 	//	NSLog(@"QPDFDocument %@ initForURL: %@",self,contentsURL);
 
 		pDoc = nil;
-		qDocument = [[QPDFObjc alloc] initWithURL:urlOrNil];
+		qDocument = [[ObjcQPDF alloc] initWithURL:urlOrNil];
 	}
 	return self;
 }
@@ -57,7 +57,7 @@
 	//NSData *content = [[NSData dataWithContentsOfURL:url] autorelease]; // read data from file
 	//qDocument.processMemoryFile([fn UTF8String], (char*)[content bytes], [content length]);  // initialise QPDF from memory
 	
-	qDocument = [[QPDFObjc alloc] initWithURL:url];
+	qDocument = [[ObjcQPDF alloc] initWithURL:url];
 	
 //	[self source];
 	
@@ -94,7 +94,7 @@
     // Alternatively, you could remove this method and override -readFromFileWrapper:ofType:error: or -readFromURL:ofType:error: instead.
     // If you do, you should also override -isEntireFileLoaded to return NO if the contents are lazily loaded.
 	
-	qDocument = [[QPDFObjc alloc] initWithData:data];
+	qDocument = [[ObjcQPDF alloc] initWithData:data];
 	//.processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
 	
 //	[self source];
@@ -118,8 +118,8 @@
 
 - (void)saveDocumentAs:(nullable id)sender
 {
-	NSLog(@"Jesus says you are saved as bro, ");
-	NSLog(@"Aww man you want me to open up a dialog box?");
+	// NSLog(@"Jesus says you are saved as bro, ");
+	// NSLog(@"Aww man you want me to open up a dialog box?");
 	
 	NSString * fn = [self displayName];
 
@@ -143,7 +143,6 @@
 	}];
 }
 
-
 + (BOOL)autosavesInPlace {
     return NO;
 }
@@ -160,7 +159,7 @@
 
 -(void)makeWindowControllers
 {
-	NSLog(@"QPDFDocument %@ makeWindowControllers",self);
+	// NSLog(@"QPDFDocument %@ makeWindowControllers",self);
 	NSRect rr = NSMakeRect(10, 10, 640, 480);
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
 	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered];
@@ -180,7 +179,7 @@
 	 */
 }
 
-- (QPDFObjc*)doc
+- (ObjcQPDF*)doc
 {
 	return qDocument;
 }

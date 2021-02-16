@@ -3,7 +3,7 @@
 
 @implementation OutlineQPDF
 
-- (instancetype)initWithPDF:(QPDFObjc*)pdf
+- (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
 	NSString* fn = [pdf filename];
 	NSString* vr = [pdf version];
@@ -14,7 +14,7 @@
 	if (self)
 	{
 		qpDocument = pdf;
-		QPDFObjectHandleObjc* rootCatalog = [[pdf copyRootCatalog] autorelease];
+		ObjcQPDFObjectHandle* rootCatalog = [[pdf copyRootCatalog] autorelease];
 		//NSLog(@"make catalog");
 		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
@@ -25,8 +25,6 @@
 	}
 	return self;
 }
-
-
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
@@ -44,7 +42,7 @@
 	if (item == nil)
 		item = catalog;
 
-	QPDFObjectHandleObjc*  pdfitem  = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle*  pdfitem  = [(QPDFNode*)item object];
 	
 	if ([pdfitem isArray])
 	{
@@ -72,7 +70,7 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandleObjc* pdfitem = [node object];
+		ObjcQPDFObjectHandle* pdfitem = [node object];
 
 		NSString *rs;
 		
@@ -97,11 +95,11 @@
 	if (item == nil)
 		item = catalog;
 	
-	QPDFObjectHandleObjc* pdfitem = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle* pdfitem = [(QPDFNode*)item object];
 	
 	if ([pdfitem isArray])
 	{
-		QPDFObjectHandleObjc* thisObject = [pdfitem objectAtIndex:index];
+		ObjcQPDFObjectHandle* thisObject = [pdfitem objectAtIndex:index];
 		
 	//	getStream(thisObject);
 
@@ -123,7 +121,7 @@
 		{
 			if (loopindex == index)
 			{
-				QPDFObjectHandleObjc* thisObject = [pdfitem objectForKey:iterKey];
+				ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:iterKey];
 
 				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
 				return nKey;
@@ -143,7 +141,7 @@
 	
 	QPDFNode* node = (QPDFNode*)item;  // node item for selected row
 	
-	QPDFObjectHandleObjc* parent = [node parent]; // parent object
+	ObjcQPDFObjectHandle* parent = [node parent]; // parent object
 //	if ([tableColumn isKindOfClass:[NSOutlineView class ]])
 //	{
 	NSString* col = [tableColumn identifier]; // which column was edited.
@@ -174,7 +172,7 @@
 		else
 		{// if (pdfitem->isScalar())
 			// rs= [NSString stringWithFormat:@"%s",pdfitem->unparse().c_str()];
-			QPDFObjectHandleObjc* newobj = [[QPDFObjectHandleObjc alloc] initWithString:newValue];
+			ObjcQPDFObjectHandle* newobj = [[ObjcQPDFObjectHandle alloc] initWithString:newValue];
 			if (newobj) {	
 				if ([parent isArray])
 				{
@@ -201,6 +199,9 @@
 	
 }
 
+// - (BOOL)addType:
+
+
 + (NSOutlineView*)newView
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
@@ -220,6 +221,5 @@
 	[oView setUsesAlternatingRowBackgroundColors:YES];
 	return oView;
 }
-
 
 @end

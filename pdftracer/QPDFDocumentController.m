@@ -60,10 +60,9 @@
 	return [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
 }
 
-
 - (void)openDocument:(id)sender
 {
-	NSLog(@"QPDFDocumentController openDocument");
+//	NSLog(@"QPDFDocumentController openDocument");
 
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
 	[openDlg setCanChooseFiles:YES];
@@ -101,16 +100,15 @@
 
 - (void)newDocument:(id)sender
 {
-	NSLog(@"QPDFDocumentController newDocument:sender");
+//	NSLog(@"QPDFDocumentController newDocument:sender");
 
 	NSError* theError;
 	[self openUntitledDocumentAndDisplay:YES error:&theError];
 }
 
-
 - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError
 {
-	NSLog(@"QPDFDocumentController openUntitledDocumentAndDisplay : %d",dd);
+//	NSLog(@"QPDFDocumentController openUntitledDocumentAndDisplay : %d",dd);
 
 	QPDFDocument* newDoc = [self makeUntitledDocumentOfType:@"PDF" error:outError];
 	[self addDocument:newDoc];
@@ -121,16 +119,13 @@
 	return newDoc;
 }
 
-
 - (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)pdf error:(NSError **)outError
 {
-	NSLog(@"QPDFDocumentController makeUntitledDocumentOfType");
+//	NSLog(@"QPDFDocumentController makeUntitledDocumentOfType");
 	// we only ever deal with PDF
 	return [[[QPDFDocument alloc] init] autorelease];
 
 }
-
-
 
 - (void)openPDF:(NSString*)filename
 {
@@ -139,12 +134,10 @@
 	NSError* theError;
 	QPDFDocument* nd = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
 	
-	NSLog(@"QPDFDocumentController openPDF: open document: %@",nd);
+	//NSLog(@"QPDFDocumentController openPDF: open document: %@",nd);
 	
 	[self addDocument:nd];
 	
 }
-
-
 
 @end

@@ -4,22 +4,21 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 #import "QPDFNode.h"
-#import "QPDFObjc.h"
+#import "ObjcQPDF.h"
 #import "QPDFOutlineView.h"
-
 
 @interface OutlineQPDF : NSObject <NSOutlineViewDataSource>
 {
 	@private
 	//CGPDFDocumentRef  myDocument;
-	QPDFObjc* qpDocument;
+	ObjcQPDF* qpDocument;
 	QPDFNode *catalog;
 	
 	//NSMutableDictionary<NSValue*,QPDFNode*>* pdfObjectCache;
 	// NSValue* pdfNull;
 }
 
-- (instancetype)initWithPDF:(QPDFObjc*)pdf;
+- (instancetype)initWithPDF:(ObjcQPDF*)pdf;
 + (NSOutlineView*)newView;
 
 // protocol overrides

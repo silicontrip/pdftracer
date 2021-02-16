@@ -2,7 +2,6 @@
 #import "QPDFDocument.h"
 #import "QPDFNode.h"
 
-
 @class QPDFDocument;
 @class OutlineQPDF;  // arg inconsistent names!
 @class OutlinePDFObj;
@@ -10,25 +9,7 @@
 @class QPDFWindow;
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate>
-{
-//	QPDFDocument* qDocument;  // handled by super's ivar
-// NSWindow *window; // handled by super's ivar
-//	PDFView *dView;
-//	PDFDocument *pDoc;
-
-//	OutlineQPDF* pdfDS;
-//	OutlinePDFPage* pageDS;
-//	OutlinePDFObj* objDS;
-	
-	// QPDF qDocument;
-	// Buffer* rawDoc;
-	//NSTextView* tView;
-	//NSOutlineView* oView;
-	//NSOutlineView* ooView;
-	//NSOutlineView* opView;
-
-	//NSFont * tfont;
-	
+{	
 	NSInteger selectedRow;
 	NSOutlineView* selectedView;
 }

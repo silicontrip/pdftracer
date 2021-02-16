@@ -23,7 +23,6 @@
 	return self;
 }
 
-
 -(void)updatePDF
 {
 	PDFDocument* tpDoc = [[self document] pdfdocument];
@@ -93,7 +92,7 @@
 		NSString* objText;
 		
 		QPDFNode* node = [ov itemAtRow:row];  // QPDFNode* node = ov->itemAtRow(row);
-		QPDFObjectHandleObjc* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
+		ObjcQPDFObjectHandle* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
 		
 	//	NSLog (@"obj selected %s",qpdf->getTypeName());
 		if ([qpdf isStream]) {
@@ -131,7 +130,7 @@
 
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
 {
-	QPDFObjectHandleObjc* qpdf = [node object];
+	ObjcQPDFObjectHandle* qpdf = [node object];
 	if ([qpdf isNull])
 		return;
 	if ([editor length]>0)
@@ -144,10 +143,10 @@
 			//NSLog(@"replace stream data finish");
 		} else {
 			//	try {
-			QPDFObjectHandleObjc* rePDFObj = [[[QPDFObjectHandleObjc alloc] initWithString:editor] autorelease];
+			ObjcQPDFObjectHandle* rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:editor] autorelease];
 			
 			// work out if rePDFObj is valid
-			QPDFObjectHandleObjc* parent = [node parent];
+			ObjcQPDFObjectHandle* parent = [node parent];
 			//NSLog(@"parse object: %@",editor);
 			
 			if ([parent isArray])
@@ -165,6 +164,13 @@
 			} else {
 				// oh no the dreaded child of neither a dictionary or array
 				NSLog(@"unknown parent");
+				// err that's because I have an object array view, of course they don't have parents
+				/*
+				QPDF_DLL
+				void replaceObject(QPDFObjGen const& og, QPDFObjectHandle);
+				QPDF_DLL
+				void replaceObject(int objid, int generation, QPDFObjectHandle);
+				 */
 			}
 			// no need to update if stream editing.
 			[self updateOutlines:node];
@@ -181,25 +187,8 @@
 {
 	//QPDFNode* nn = node;
 	
-	NSLog(@"WC:updateOutline %@",node);
+	//NSLog(@"WC:updateOutline %@",node);
 	[(QPDFWindow*)[self window] updateAllOutlines:node];
-	
-	/*
-	[[self window] updateOutlines:node];
-	[oView reloadItem:nn];
-	while ((nn = [nn parentNode]))
-		[oView reloadItem:nn];
-	
-	nn = node;
-	[ooView reloadItem:nn];
-	while ((nn = [nn parentNode]))
-		[ooView reloadItem:nn];
-	
-	nn = node;
-	[opView reloadItem:nn];
-	while ((nn = [nn parentNode]))
-		[opView reloadItem:nn];
-	*/
 	[self updatePDF];
 }
 
@@ -211,6 +200,51 @@
 -(void)forwardInvocation:(NSInvocation*)inv
 {
 	NSLog(@"window Controller: %@",inv);
+}
+
+-(void)exportText:(id)sender
+{
+	// get from QPDF
+	
+	NSData * fileData;
+	QPDFNode* node = [selectedView itemAtRow:selectedRow];  // QPDFNode* node = ov->itemAtRow(row);
+	ObjcQPDFObjectHandle* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
+		
+		//	NSLog (@"obj selected %s",qpdf->getTypeName());
+	if ([qpdf isStream]) {
+		fileData = [qpdf stream];
+	} else {
+		fileData= [[qpdf unparseResolved] dataUsingEncoding:NSMacOSRomanStringEncoding];
+	}
+	
+	NSString * fn = [[[self document] displayName] stringByDeletingPathExtension];
+	NSWindow* w = [self window];
+	
+	NSSavePanel* p = [NSSavePanel savePanel];
+	[p retain];
+	[p setNameFieldStringValue:fn];
+	[p beginSheetModalForWindow:w completionHandler:^(NSInteger result){
+		if (result == NSModalResponseOK)
+		{
+			NSURL*  theFile = [p URL];
+			NSError *theError = nil;
+			// I checked the documentation the Options values are only available in big sur.
+			// this is stupid.
+			BOOL success = [fileData writeToURL:theFile options:0 error:&theError];
+//			BOOL success = [tstr writeToURL:theFile atomically:NO encoding:NSMacOSRomanStringEncoding error:&theError];
+			// Write the contents in the new format.
+			//[[[self windowControllers] firstObject] setDocumentEdited:NO];
+			NSLog(@"error: %x %@",success,theError);
+		}
+	}];
+	[p autorelease];
+
+	/*
+	NSError* err;
+	NSURL* urlFile = [NSURL fileURLWithPath:@"/Users/mark/Documents/20200605-pdftext/export_test.txt"];
+	
+	[tstr writeToURL:urlFile atomically:NO encoding:NSMacOSRomanStringEncoding error:&err];
+	*/
 }
 
 /*

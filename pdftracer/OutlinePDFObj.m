@@ -3,7 +3,7 @@
 
 @implementation OutlinePDFObj
 
-- (instancetype)initWithPDF:(QPDFObjc*)pdf
+- (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
 	NSString* fn = [pdf filename];
 	NSString* vr = [pdf version];
@@ -17,8 +17,6 @@
 	}
 	return self;
 }
-
-
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
@@ -51,7 +49,7 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandleObjc* pdfitem = [node object];
+		ObjcQPDFObjectHandle* pdfitem = [node object];
 
 		NSString *rs;
 		
@@ -60,7 +58,7 @@
 		else
 			if ([pdfitem isDictionary])
 			{
-				QPDFObjectHandleObjc* type = [pdfitem objectForKey:@"/Type"];
+				ObjcQPDFObjectHandle* type = [pdfitem objectForKey:@"/Type"];
 				if ([type isNull]) {
 					rs = @"dictionary";
 				} else {
@@ -85,7 +83,7 @@
 	
 	if (item == nil)
 	{
-		QPDFObjectHandleObjc* pdfitem = [objTable objectAtIndex:index];
+		ObjcQPDFObjectHandle* pdfitem = [objTable objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d 0 R",(int)index+1];
 
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];

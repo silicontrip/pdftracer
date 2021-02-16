@@ -45,13 +45,10 @@
 
 }
 
-
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 	// Insert code here to tear down your application
 	NSLog(@"applicationWillTerminate");
 }
-
-
 
 int main (int argc, char * const argv[])
 {
@@ -103,7 +100,6 @@ int main (int argc, char * const argv[])
 
 	[nts setImportsGraphics:NO];
 	 */
-
 
 }
 

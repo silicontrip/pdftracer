@@ -1,10 +1,10 @@
 #import <Foundation/Foundation.h>
-#import "QPDFObjectHandleObjc.h"
+#import "ObjcQPDFObjectHandle.h"
 #import <Quartz/Quartz.h>
 
 // C only stuff here
 
-@interface QPDFObjc : NSObject
+@interface ObjcQPDF : NSObject
 {
 // QPDF qDocument; // not here
 	PDFDocument *pDoc;
@@ -17,10 +17,10 @@
 -(NSURL*)fileURL;
 -(NSString*)filename;
 -(NSString*)version;
--(NSArray<QPDFObjectHandleObjc*>*)pages;
--(NSArray<QPDFObjectHandleObjc*>*)objects;
+-(NSArray<ObjcQPDFObjectHandle*>*)pages;
+-(NSArray<ObjcQPDFObjectHandle*>*)objects;
 //-(QPDFObjectHandleObjc*)rootCatalog;
--(QPDFObjectHandleObjc*)copyRootCatalog; // naming convention for alloc 
+-(ObjcQPDFObjectHandle*)copyRootCatalog; // naming convention for alloc 
 -(NSData*)data;
 -(PDFDocument*)document;
 

@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
-#import "QPDFObjc.h"
+#import "ObjcQPDF.h"
 #import "QPDFWindow.h"
 
 @class QPDFWindowController;
@@ -20,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 	@private
 	PDFDocument* pDoc;
 	// NSData *contentData;
-	QPDFObjc* qDocument;
+	ObjcQPDF* qDocument;
 	// QPDFWindowController* winCon;  // yet another instance variable handled by super
 }
 
@@ -32,7 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
-- (QPDFObjc*)doc;
+- (ObjcQPDF*)doc;
 - (NSString*)displayName;
 + (BOOL)autosavesInPlace;
 

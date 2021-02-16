@@ -1,10 +1,11 @@
-#import "QPDFObjectHandleObjc.hh"
+#import "ObjcQPDFObjectHandle.hh"
 
-@implementation QPDFObjectHandleObjc
+@implementation ObjcQPDFObjectHandle
 
 // C++ data type
 -(instancetype)initWithObject:(QPDFObjectHandle)obj
 {
+	NSLog(@"ObjcObjectHandle initWithObject");
     self = [super init];
     if (self)
     {
@@ -16,6 +17,8 @@
 }
 -(instancetype)initWithString:(NSString*)def
 {
+	NSLog(@"ObjcObjectHandle initWithString");
+
     self = [super init];
     if (self)
     {
@@ -50,7 +53,7 @@
 	return 0;
 }
 
--(NSArray<QPDFObjectHandleObjc*>*)array
+-(NSArray<ObjcQPDFObjectHandle*>*)array
 {
 	if (objectArray)
 		return objectArray;
@@ -97,37 +100,51 @@
 	 */
 	return [[[NSArray alloc] initWithArray:tempKeyArray] autorelease];
 }
--(QPDFObjectHandleObjc*)objectForKey:(NSString*)key
+-(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	QPDFObjectHandle tempObj  =  qObject.getKey(tempKey);
-	return [[[QPDFObjectHandleObjc alloc] initWithObject:tempObj] autorelease];
+	return [[[ObjcQPDFObjectHandle alloc] initWithObject:tempObj] autorelease];
 }
--(QPDFObjectHandleObjc*)objectAtIndex:(NSUInteger)index
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
 {
 	QPDFObjectHandle thisObject = qObject.getArrayItem((int)index);
-	return [[[QPDFObjectHandleObjc alloc] initWithObject:thisObject] autorelease];
+	return [[[ObjcQPDFObjectHandle alloc] initWithObject:thisObject] autorelease];
 }
+
 -(void)removeObjectForKey:(NSString*)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.removeKey(tempKey);
 }
 
--(void)replaceObject:(nonnull QPDFObjectHandleObjc*)obj forKey:(NSString*)key
+-(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
-	std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
-	qObject.replaceKey(ckey, [obj qpdfobject]);
+	if (obj != nil)
+	{
+		std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
+		QPDFObjectHandle rObject = [obj qpdfobject];
+
+		qObject.replaceKey(ckey, rObject);
+	} else {
+		NSLog(@"Warning danger Will Robinson replacement object is nil");
+	}
 }
--(void)replaceObjectAtIndex:(NSUInteger)index withObject:(QPDFObjectHandleObjc*)obj
+
+-(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj
 {
-	qObject.setArrayItem((int)index, [obj qpdfobject]);
+	if (obj != nil)
+	{
+		qObject.setArrayItem((int)index, [obj qpdfobject]);
+	}
 }
+
 -(void)replaceStreamData:(NSString*)data
 {
 	std::string replacement = std::string([data cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	qObject.replaceStreamData(replacement,QPDFObjectHandle::newNull(),QPDFObjectHandle::newNull());
 }
+
 -(NSString*)name
 {
 	return [NSString stringWithCString:qObject.getName().c_str() encoding:NSMacOSRomanStringEncoding];
@@ -149,13 +166,17 @@
 }
 -(BOOL)childrenContainIndirects
 {
+	// remember not to follow /Parent names
 	if ([self isDictionary]) {
 		for (NSString* keyname in [self keys])
 		{
-			QPDFObjectHandleObjc* child = [self objectForKey:keyname];
-			if([child childrenContainIndirects])
-				return YES;
-			
+			NSLog(@"children of %@",keyname);  // don't follow parent.
+			if ([keyname caseInsensitiveCompare:@"/parent"] != NSOrderedSame)
+			{
+				ObjcQPDFObjectHandle* child = [self objectForKey:keyname];
+				if([child childrenContainIndirects])
+					return YES;
+			}
 			return NO;
 		}
 	} else if ([self isArray]) {
@@ -175,21 +196,21 @@
 	return qObject;
 }
 
-+ (NSArray<QPDFObjectHandleObjc*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec
++ (NSArray<ObjcQPDFObjectHandle*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec
 {
 	NSUInteger veclen = vec.size();
 	NSMutableArray* tempObjectArray = [NSMutableArray arrayWithCapacity:veclen];
 	for (int index = 0; index < veclen; ++index)
 	{
 		QPDFObjectHandle elem = vec[index];
-		QPDFObjectHandleObjc* tempElem = [[[QPDFObjectHandleObjc alloc] initWithObject:elem] autorelease];
+		ObjcQPDFObjectHandle* tempElem = [[[ObjcQPDFObjectHandle alloc] initWithObject:elem] autorelease];
 		[tempObjectArray addObject:tempElem];
 	}
 	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
 }
-+ (QPDFObjectHandleObjc*)newNull
++ (ObjcQPDFObjectHandle*)newNull
 {
-	return [[QPDFObjectHandleObjc alloc] initWithObject:QPDFObjectHandle::newNull()];
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newNull()];
 }
 
 @end

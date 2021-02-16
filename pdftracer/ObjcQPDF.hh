@@ -1,12 +1,12 @@
-#import "QPDFObjc.h"
+#import "ObjcQPDF.h"
 
-#import "QPDFObjectHandleObjc.hh"
+#import "ObjcQPDFObjectHandle.hh"
 
 #include <iostream>
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFWriter.hh>
 
-@interface QPDFObjc ()
+@interface ObjcQPDF ()
 {
 	@private
 	QPDF qDocument;   // but we hide it from all the other

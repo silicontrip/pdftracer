@@ -23,7 +23,7 @@
 	return oView;
 }
 
-- (instancetype)initWithPDF:(QPDFObjc*)pdf
+- (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
 	NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf version]);
 	self = [super init];
@@ -79,7 +79,7 @@
 		// block cyclic tree branches here?
 		
 		QPDFNode* node = (QPDFNode*)item;
-		QPDFObjectHandleObjc* pdfitem = [node object];
+		ObjcQPDFObjectHandle* pdfitem = [node object];
 		
 		NSString *rs;
 		
@@ -97,27 +97,25 @@
 	//	return @"Internal Error";
 }
 
-
-
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
 {
 	
 	if (item == nil)
 	{
-		QPDFObjectHandleObjc* pdfitem = [pageArray objectAtIndex:index];
+		ObjcQPDFObjectHandle* pdfitem = [pageArray objectAtIndex:index];
 		//QPDFObjectHandle pdfitem =  QPDFObjectHandle(pageArray[index]);
 		NSString* lindex = [NSString stringWithFormat:@"Page %d",(int)index+1];
 
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
 		return sindex;
 	}
-	QPDFObjectHandleObjc* pdfitem = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle* pdfitem = [(QPDFNode*)item object];
 	
 	if ([pdfitem isArray])
 	{
 		
 		//QPDFObjectHandle thisObject =  QPDFObjectHandle( pdfitem.getArrayItem((int)index));
-		QPDFObjectHandleObjc* thisObject =  [pdfitem objectAtIndex:index];
+		ObjcQPDFObjectHandle* thisObject =  [pdfitem objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
 		QPDFNode* sindex = [QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
 		

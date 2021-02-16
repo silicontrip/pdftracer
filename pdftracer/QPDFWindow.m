@@ -1,7 +1,5 @@
 #import "QPDFWindow.h"
 
-
-
 @implementation QPDFWindow
 
 -(NSString*)editorText
@@ -26,11 +24,20 @@
 
 -(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn
 {
-	NSLog(@"PDF Node: %@",nn);
+	NSLog(@"this Node: %@",nn);
+	QPDFNode * pp =[nn parentNode];
+	NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 	
 	[ov reloadItem:nn];
-	while ((nn = [nn parentNode]))
+	
+	while (nn != nil)
+	{
+		pp =[nn parentNode];
+		NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 		[ov reloadItem:nn];
+		
+		nn = [nn parentNode];
+	}
 }
 
 -(void)updateAllOutlines:(QPDFNode *)node
@@ -67,7 +74,6 @@
 		[spcView setHasVerticalScroller:YES];
 		[spcView setHasHorizontalScroller:YES];
 		[spcView setDocumentView:opView];
-
 
 		tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 

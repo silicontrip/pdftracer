@@ -1,10 +1,10 @@
-#import "QPDFObjectHandleObjc.h"
-#import "QPDFObjc.hh"
+#import "ObjcQPDFObjectHandle.h"
+#import "ObjcQPDF.hh"
 // they all go in the other one
 #include <qpdf/QPDF.hh>
 #include <qpdf/QPDFWriter.hh>
 // put c++ here in the extension interface.
-@interface QPDFObjectHandleObjc()
+@interface ObjcQPDFObjectHandle()
 {
 	@private
     QPDFObjectHandle qObject;
@@ -12,6 +12,6 @@
 
 -(instancetype)initWithObject:(QPDFObjectHandle)obj;
 -(QPDFObjectHandle)qpdfobject;  // where is this needed ?
-+(NSArray<QPDFObjectHandleObjc*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec;
++(NSArray<ObjcQPDFObjectHandle*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec;
 
 @end

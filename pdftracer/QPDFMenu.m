@@ -20,7 +20,7 @@
 		
 		NSArray* menuItems = @[
 							   @[@"About",@"Quit PDFTracer"],
-							   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved"],
+							   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved",@"Export Text"],
 							   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste"],
 							   @[@"Font"],
 							   @[@"Actual Size",@"Zoom to Fit",@"Zoom In",@"Zoom Out",@"Zoom to Selection"],
@@ -33,7 +33,7 @@
 		
 		NSArray* keyEquivalents = @[
 									@[tnil,@"q"],
-									@[@"n", @"o",tnil,@"w",@"s",@"S",@"r"],
+									@[@"n", @"o",tnil,@"w",@"s",@"S",@"r",tnil],
 									@[@"z",@"Z",tnil,@"x",@"c",@"v"],
 									@[tnil],
 									@[@"0",@"9",@"+",@"-",@"*"],
@@ -44,7 +44,7 @@
 		
 		NSArray* targets = @[
 							 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
-							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:"],
+							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:",@"exportText:"],
 							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:"],
 							 @[@"orderFrontFontPanel:"],
 							 @[tnil,tnil,tnil,tnil,tnil],

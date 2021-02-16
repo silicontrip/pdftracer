@@ -88,5 +88,4 @@
 
 - (NSUInteger)count { return [self countOptions] + [self countPositionalArguments]; }
 
-
 @end

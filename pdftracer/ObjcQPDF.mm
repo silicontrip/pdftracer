@@ -1,10 +1,8 @@
 // put these in the implementation file so other parts of OBJC don't see the C++
 
-#import "QPDFObjc.hh"
+#import "ObjcQPDF.hh"
 
-
-
-@implementation QPDFObjc
+@implementation ObjcQPDF
 
 -(instancetype)init
 {
@@ -51,18 +49,18 @@
 	return [NSString stringWithUTF8String:qDocument.getPDFVersion().c_str()];
 
 }
--(NSArray<QPDFObjectHandleObjc*>*)pages
+-(NSArray<ObjcQPDFObjectHandle*>*)pages
 {
-	return [QPDFObjectHandleObjc arrayWithVector:qDocument.getAllPages()];
+	return [ObjcQPDFObjectHandle arrayWithVector:qDocument.getAllPages()];
 }
--(NSArray<QPDFObjectHandleObjc*>*)objects
+-(NSArray<ObjcQPDFObjectHandle*>*)objects
 {
-	return [QPDFObjectHandleObjc arrayWithVector:qDocument.getAllObjects()];
+	return [ObjcQPDFObjectHandle arrayWithVector:qDocument.getAllObjects()];
 }
--(QPDFObjectHandleObjc*)copyRootCatalog
+-(ObjcQPDFObjectHandle*)copyRootCatalog
 {
-	QPDFObjectHandle root = qDocument.getRoot();
-	QPDFObjectHandleObjc * rootObjc = [[QPDFObjectHandleObjc alloc] initWithObject:root];
+	QPDFObjectHandle root = qDocument.getTrailer();
+	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
 	return rootObjc;
 }
 -(PDFDocument*)document
