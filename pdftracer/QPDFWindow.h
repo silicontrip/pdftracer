@@ -2,12 +2,12 @@
 #import <Quartz/Quartz.h>
 
 #import "OutlineQPDF.h"
-#import "OutlinePDFObj.h"
-#import "OutlinePDFPage.h" 
+#import "OutlineQPDFObj.h"
+#import "OutlineQPDFPage.h" 
 
 @class OutlineQPDF;
-@class OutlinePDFObj;
-@class OutlinePDFPage;
+@class OutlineQPDFObj;
+@class OutlineQPDFPage;
 
 @interface QPDFWindow : NSWindow
 {
@@ -16,8 +16,8 @@
 	PDFDocument *pDoc;
 
 	OutlineQPDF* pdfDS;
-	OutlinePDFPage* pageDS;
-	OutlinePDFObj* objDS;
+	OutlineQPDFPage* pageDS;
+	OutlineQPDFObj* objDS;
 	
 	// QPDF qDocument;
 	// Buffer* rawDoc;
@@ -26,6 +26,10 @@
 	NSOutlineView* ooView;
 	NSOutlineView* opView;
 
+	NSSegmentedControl* oSegment;
+	NSSegmentedControl* ooSegment;
+	NSSegmentedControl* opSegment;
+	
 	NSFont * tfont;
 	
 	NSSplitView* soView;
@@ -41,5 +45,6 @@
 -(void)enableEditor:(BOOL)ena;
 -(void)updateAllOutlines:(QPDFNode*)node;
 -(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn;
+-(void)invalidateAll;
 
 @end

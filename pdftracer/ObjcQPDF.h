@@ -20,8 +20,13 @@
 -(NSArray<ObjcQPDFObjectHandle*>*)pages;
 -(NSArray<ObjcQPDFObjectHandle*>*)objects;
 //-(QPDFObjectHandleObjc*)rootCatalog;
--(ObjcQPDFObjectHandle*)copyRootCatalog; // naming convention for alloc 
+-(ObjcQPDFObjectHandle*)copyRootCatalog; // naming convention for alloc
+
+-(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj;
+-(void)removeID:(NSString*)objGen;
+
 -(NSData*)data;
 -(PDFDocument*)document;
+-(NSData*)qdf;
 
 @end

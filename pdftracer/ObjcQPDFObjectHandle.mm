@@ -2,10 +2,12 @@
 
 @implementation ObjcQPDFObjectHandle
 
-// C++ data type
+// C++ data type, so cannot expose this interface to the rest of the classes
 -(instancetype)initWithObject:(QPDFObjectHandle)obj
 {
-	NSLog(@"ObjcObjectHandle initWithObject");
+//	NSLog(@"ObjcObjectHandle initWithObject %@",
+//	[NSString stringWithFormat:@"%s",obj.unparse().c_str()]);
+	
     self = [super init];
     if (self)
     {
@@ -15,17 +17,16 @@
     }
     return self;
 }
+
 -(instancetype)initWithString:(NSString*)def
 {
-	NSLog(@"ObjcObjectHandle initWithString");
+	//NSLog(@"ObjcObjectHandle initWithString %@",def);
 
     self = [super init];
     if (self)
     {
 		dictionaryKeys = nil;
 		objectArray = nil;
-
-		NSLog(@"NS String: <<%@>>",def);
 		
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		try {
@@ -36,12 +37,19 @@
     }
     return self;
 }
+
+-(ObjcQPDF*)owner
+{
+	return [[ObjcQPDF alloc] initWithQPDF:qObject.getOwningQPDF()];
+}
+
 -(BOOL)isNull { return qObject.isNull(); }
 -(BOOL)isStream { return qObject.isStream(); }
 -(BOOL)isArray { return qObject.isArray(); }
 -(BOOL)isIndirect { return qObject.isIndirect(); }
 -(BOOL)isDictionary { return qObject.isDictionary(); }
 -(BOOL)isExpandable { return qObject.isArray() || qObject.isDictionary(); }
+
 
 -(NSUInteger)count
 {
@@ -55,9 +63,7 @@
 
 -(NSArray<ObjcQPDFObjectHandle*>*)array
 {
-	if (objectArray)
-		return objectArray;
-	
+ 
 	NSMutableArray* tempObjectArray = [NSMutableArray arrayWithCapacity:[self count]];
 	for (int index = 0; index <[self count]; ++index)
 		[tempObjectArray addObject:[self objectAtIndex:index]];
@@ -66,6 +72,11 @@
 	return objectArray;
  */
 	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
+}
+
+-(ObjcQPDFObjectHandle*)streamDictionary
+{
+	return [[[ObjcQPDFObjectHandle alloc] initWithObject:qObject.getDict() ] autorelease];
 }
 
 -(NSData*)stream
@@ -80,8 +91,8 @@
 
 -(NSArray<NSString*>*)keys
 {
-	if (dictionaryKeys)
-		return dictionaryKeys;
+//	if (dictionaryKeys)
+	//	return dictionaryKeys;
 	
 	NSMutableArray* tempKeyArray = [NSMutableArray arrayWithCapacity:[self count]];
 
@@ -100,14 +111,17 @@
 	 */
 	return [[[NSArray alloc] initWithArray:tempKeyArray] autorelease];
 }
+
 -(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	QPDFObjectHandle tempObj  =  qObject.getKey(tempKey);
 	return [[[ObjcQPDFObjectHandle alloc] initWithObject:tempObj] autorelease];
 }
+
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
 {
+	// should I check that this is an array?
 	QPDFObjectHandle thisObject = qObject.getArrayItem((int)index);
 	return [[[ObjcQPDFObjectHandle alloc] initWithObject:thisObject] autorelease];
 }
@@ -127,6 +141,7 @@
 
 		qObject.replaceKey(ckey, rObject);
 	} else {
+		// I doubt that this should ever be called.
 		NSLog(@"Warning danger Will Robinson replacement object is nil");
 	}
 }
@@ -149,6 +164,7 @@
 {
 	return [NSString stringWithCString:qObject.getName().c_str() encoding:NSMacOSRomanStringEncoding];
 }
+
 -(NSString*)typeName
 {
 	return [NSString stringWithCString:qObject.getTypeName() encoding:NSMacOSRomanStringEncoding];
@@ -157,20 +173,25 @@
 -(NSString*)unparse
 {
 	return [NSString stringWithCString:qObject.unparse().c_str() encoding:NSMacOSRomanStringEncoding];
-
 }
+
 -(NSString*)unparseResolved
 {
 	return [NSString stringWithCString:qObject.unparseResolved().c_str() encoding:NSMacOSRomanStringEncoding];
-
 }
+
+-(NSString*)objectGenerationID
+{
+	return [NSString stringWithFormat:@"%d %d R",qObject.getObjectID(),qObject.getGeneration()];
+}
+
 -(BOOL)childrenContainIndirects
 {
 	// remember not to follow /Parent names
 	if ([self isDictionary]) {
 		for (NSString* keyname in [self keys])
 		{
-			NSLog(@"children of %@",keyname);  // don't follow parent.
+			// NSLog(@"children of %@",keyname);  // don't follow parent.
 			if ([keyname caseInsensitiveCompare:@"/parent"] != NSOrderedSame)
 			{
 				ObjcQPDFObjectHandle* child = [self objectForKey:keyname];
@@ -180,15 +201,15 @@
 			return NO;
 		}
 	} else if ([self isArray]) {
-			for (int index=0; index<[self count];++index)
-			{
-				if ([[self objectAtIndex:index] childrenContainIndirects])
-					return YES;
-			}
+		for (int index=0; index<[self count];++index)
+		{
+			if ([[self objectAtIndex:index] childrenContainIndirects])
+				return YES;
+		}
 	} else if ([self isIndirect]) {
 		return YES;
 	}
-		return NO;
+	return NO;
 }
 
 -(QPDFObjectHandle)qpdfobject
@@ -208,9 +229,21 @@
 	}
 	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
 }
+
+- (NSString*)description
+{
+	NSString* nn = [super description];
+	NSString* tn = [self typeName];
+	NSString* up = [self unparse];
+	
+	return [NSString stringWithFormat:@"%@ %@ %@",nn,tn,up];
+}
+
 + (ObjcQPDFObjectHandle*)newNull
 {
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newNull()];
 }
+
+
 
 @end

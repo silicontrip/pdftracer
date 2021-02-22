@@ -35,6 +35,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (ObjcQPDF*)doc;
 - (NSString*)displayName;
 + (BOOL)autosavesInPlace;
+// All Document modifying methods should be here
+- (void)deleteNode:(QPDFNode*)nd;
+- (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor;
+
 
 @end
 
