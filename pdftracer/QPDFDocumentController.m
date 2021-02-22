@@ -2,14 +2,6 @@
 
 @implementation QPDFDocumentController
 
-/*
-//+ (void) load
-{
-	NSLog(@"QPDFDocumentController load");
-	[QPDFDocumentController new];
-}
-*/
- 
 - (NSArray<NSString*>*) documentClassNames
 {
 	return @[@"PDF"];
@@ -25,35 +17,6 @@
 	return [QPDFDocument class];
 }
 
-/*
-//- (QPDFDocument*)documentForURL:(NSURL*)uel
-{
-	NSLog(@"QPDFDocumentController documentForURL");
-	//QPDFDocument* fd = nil;
-	for (QPDFDocument* qp in [self documents])
-	{
-		if ([uel isEqualTo:[qp fileURL]])
-		{
-			return qp;
-		}
-	}
-	return nil;
-}
-*/
-/*
-//- (nullable __kindof NSDocument *)documentForWindow:(NSWindow *)window
-{
-	NSLog(@"QPDFDocumentController documentForWindow");
-
-	for (QPDFDocument* qp in [self documents])
-	{
-		if ([window isEqualTo:[qp window]])
-			return qp;
-	}
-	return nil;
-}
-*/
-
 - (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError
 {
 	NSError* theError;
@@ -62,7 +25,6 @@
 
 - (void)openDocument:(id)sender
 {
-//	NSLog(@"QPDFDocumentController openDocument");
 
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
 	[openDlg setCanChooseFiles:YES];
@@ -100,16 +62,14 @@
 
 - (void)newDocument:(id)sender
 {
-//	NSLog(@"QPDFDocumentController newDocument:sender");
-
 	NSError* theError;
 	[self openUntitledDocumentAndDisplay:YES error:&theError];
+	// why is there even an error return here?
+	// cannot create new document... file not found, file corrupt, permission denied?
 }
 
 - (QPDFDocument*) openUntitledDocumentAndDisplay:(BOOL)dd error:(NSError **)outError
 {
-//	NSLog(@"QPDFDocumentController openUntitledDocumentAndDisplay : %d",dd);
-
 	QPDFDocument* newDoc = [self makeUntitledDocumentOfType:@"PDF" error:outError];
 	[self addDocument:newDoc];
 	if (dd) {
@@ -121,23 +81,17 @@
 
 - (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)pdf error:(NSError **)outError
 {
-//	NSLog(@"QPDFDocumentController makeUntitledDocumentOfType");
 	// we only ever deal with PDF
 	return [[[QPDFDocument alloc] init] autorelease];
-
 }
 
 - (void)openPDF:(NSString*)filename
 {
-	
 	NSURL* url = [NSURL fileURLWithPath:filename];
 	NSError* theError;
 	QPDFDocument* nd = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
-	
-	//NSLog(@"QPDFDocumentController openPDF: open document: %@",nd);
-	
+	// do want to check this error
 	[self addDocument:nd];
-	
 }
 
 @end

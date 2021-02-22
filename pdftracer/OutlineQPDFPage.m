@@ -1,7 +1,7 @@
 
-#import "OutlinePDFPage.h"
+#import "OutlineQPDFPage.h"
 
-@implementation OutlinePDFPage
+@implementation OutlineQPDFPage
 
 + (NSOutlineView*)newView
 {
@@ -25,27 +25,21 @@
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
-	NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf version]);
+	// NSLog(@"OutlinePDFPage initWithPDF: %@_%@",[pdf filename],[pdf version]);
 	self = [super init];
 	if (self != nil)
 	{
-//		NSLog(@"OutlinePDFPage %@ set qpdf",self);
 		qpDocument = pdf;
-//		NSLog(@"OutlinePDFPage %@ getAllPages",self);
-
-		pageArray = [[pdf pages] retain];
-		
-//		NSLog(@"Page array len: %ld",pageArray.capacity());
-		
-//		QPDFObjectHandleObjc* p1 = [pageArray firstObject];
-		
-//		NSLog(@"page Array %s",[[pageArray firstObject] unparse]);
-
-		
-		//pageArray = [[QPDFNode alloc] initWithParent:nil Named:@"" Handle:root];
+		pageArray = [[qpDocument pages] retain];
 	}
 //	NSLog(@"returning self");
 	return self;
+}
+
+-(void)invalidate
+{
+	[pageArray release];
+	pageArray = [[qpDocument pages] retain];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
@@ -86,15 +80,12 @@
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
 			rs = [node name];
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
-			rs = [pdfitem typeName]; // [NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
+			rs = [pdfitem typeName];
 		else
-			rs = [pdfitem unparse]; // rs= [NSString stringWithFormat:@"%s",pdfitem.unparse().c_str()];
+			rs = [pdfitem unparse];
 		
 		return rs;
-		
 	}
-	// we shouldn't get here (but it is possible if I missed something in the if's above.
-	//	return @"Internal Error";
 }
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
@@ -147,6 +138,11 @@
 		
 	}
 	return nil;
+}
+
+- (NSString*)description
+{
+	return [NSString stringWithFormat:@"OutlineQPDFPage: %@",[super description]];
 }
 
 @end

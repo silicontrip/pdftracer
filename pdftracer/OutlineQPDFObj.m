@@ -1,14 +1,11 @@
 
-#import "OutlinePDFObj.h"
+#import "OutlineQPDFObj.h"
 
-@implementation OutlinePDFObj
+@implementation OutlineQPDFObj
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
-	NSString* fn = [pdf filename];
-	NSString* vr = [pdf version];
-	NSLog(@"OutlinePDFObj initWithPDF: %@_%@",fn,vr);
-	
+
 	self = [super init];
 	if (self != nil)
 	{
@@ -16,6 +13,15 @@
 		objTable= [[qpDocument objects] retain];
 	}
 	return self;
+}
+
+- (void)invalidate
+{
+	// this is needed if an indirect object is replaced
+	[objTable release];
+	objTable= [[qpDocument objects] retain];
+	NSLog(@"Invalidate object table -- %ld",[objTable count]);
+
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
@@ -41,7 +47,10 @@
 }
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-	// NSLog(@"- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item");
+	//NSLog(@"- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item");
+	
+	//NSLog(@"Object outline looking for: %@",[tableColumn identifier]);
+	
 	if (item == nil)
 	{
 		return @"Document";
@@ -53,9 +62,11 @@
 
 		NSString *rs;
 		
-		if ([[tableColumn identifier] isEqualToString:@"objref"])
+		NSString* colid = [tableColumn identifier];
+		
+		if ([colid isEqualToString:@"objref"]) {
 			rs = [node name];
-		else
+		} else if ([colid isEqualToString:@"type"]) {
 			if ([pdfitem isDictionary])
 			{
 				ObjcQPDFObjectHandle* type = [pdfitem objectForKey:@"/Type"];
@@ -70,6 +81,11 @@
 				rs = [pdfitem typeName];
 				//[NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 			}
+		} else {
+			rs = [pdfitem unparseResolved];
+		}
+			
+			
 		return rs;
 		
 	}
@@ -95,20 +111,54 @@
 
 + (NSOutlineView*)newView
 {
+	/*
+	NSStackView* ovc = [[NSStackView alloc] init];
+	
+	NSRect segRect = NSMakeRect(0,64,480,23);
+	NSSegmentedControl* modify = [[NSSegmentedControl alloc] initWithFrame:segRect];
+	[modify setSegmentStyle:NSSegmentStyleSmallSquare];
+	[modify setSegmentCount:2];
+	[modify setImage:[NSImage imageNamed:NSImageNameAddTemplate] forSegment:0];
+	[modify setImage:[NSImage imageNamed:NSImageNameRemoveTemplate] forSegment:1];
+	[modify setTrackingMode:NSSegmentSwitchTrackingMomentary];
+	[modify setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
+
+	
+	[[[modify subviews] objectAtIndex:0] setAutoresizingMask:NSViewNotSizable];
+	[[[modify subviews] objectAtIndex:1] setAutoresizingMask:NSViewNotSizable];
+*/
+	
 	NSTableColumn* pdfObjectObjRef = [[[NSTableColumn alloc] initWithIdentifier:@"objref"] autorelease];
+	[pdfObjectObjRef setTitle:@"Object ID"];
 	NSTableColumn* pdfObjectObjRefType = [[[NSTableColumn alloc] initWithIdentifier:@"type"] autorelease];
+	[pdfObjectObjRefType setTitle:@"Type"];
+
+	NSTableColumn* pdfObjectObjRefVal = [[[NSTableColumn alloc] initWithIdentifier:@"value"] autorelease];
+	[pdfObjectObjRefVal setTitle:@"Value"];
+
 	
 	NSOutlineView* ooView = [[QPDFOutlineView alloc] init];
 	[ooView setIndentationPerLevel:16.0];
 	[ooView setIndentationMarkerFollowsCell:YES];
 	[ooView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
-	[ooView setHeaderView:nil];
+	//[ooView setHeaderView:nil];
 	[ooView addTableColumn:pdfObjectObjRef];
 	[ooView addTableColumn:pdfObjectObjRefType];
+	[ooView addTableColumn:pdfObjectObjRefVal];
 	[ooView setOutlineTableColumn:pdfObjectObjRef];
 	[ooView setUsesAlternatingRowBackgroundColors:YES];
 	
+//	[ovc addView:ooView inGravity:NSStackViewGravityTop];
+//	[ovc addView:modify inGravity:NSStackViewGravityBottom];
+
+	//[ooView addSubview:modify];
+	
 	return ooView;
+}
+
+- (NSString*)description
+{
+	return [NSString stringWithFormat:@"OutlineQPDFObj: %@",[super description]];
 }
 
 @end

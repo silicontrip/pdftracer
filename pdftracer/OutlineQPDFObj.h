@@ -8,7 +8,7 @@
 #import "ObjcQPDF.h"
 #import "ObjcQPDFObjectHandle.h"
 
-@interface OutlinePDFObj : NSObject <NSOutlineViewDataSource>
+@interface OutlineQPDFObj : NSObject <NSOutlineViewDataSource>
 {
 	NSArray<ObjcQPDFObjectHandle*>* objTable;
 	ObjcQPDF* qpDocument;
@@ -16,6 +16,8 @@
 }
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf;
+- (void)invalidate;
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;

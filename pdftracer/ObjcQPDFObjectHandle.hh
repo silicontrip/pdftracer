@@ -11,7 +11,7 @@
 }
 
 -(instancetype)initWithObject:(QPDFObjectHandle)obj;
--(QPDFObjectHandle)qpdfobject;  // where is this needed ?
+-(QPDFObjectHandle)qpdfobject;  
 +(NSArray<ObjcQPDFObjectHandle*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec;
 
 @end

@@ -57,13 +57,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "pdftracer/QPDFNode.m"
-            timestampString = "635169583.5104001"
+            filePath = "pdftracer/ObjcQPDF.mm"
+            timestampString = "635644988.624783"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "39"
-            endingLineNumber = "39"
-            landmarkName = "-initWithParent:Named:Handle:"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "-replaceID:with:"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "pdftracer/QPDFWindow.m"
+            timestampString = "635644988.624859"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "47"
+            endingLineNumber = "47"
+            landmarkName = "-updateAllOutlines:"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

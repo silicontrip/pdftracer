@@ -5,16 +5,17 @@
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf
 {
+	/*
 	NSString* fn = [pdf filename];
 	NSString* vr = [pdf version];
 	
 	NSLog(@"OutlineQPDF initWithPDF: %@_%@",fn,vr);
-	
+	*/
 	self = [super init];
 	if (self)
 	{
 		qpDocument = pdf;
-		ObjcQPDFObjectHandle* rootCatalog = [[pdf copyRootCatalog] autorelease];
+		ObjcQPDFObjectHandle* rootCatalog = [[qpDocument copyRootCatalog] autorelease];
 		//NSLog(@"make catalog");
 		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
@@ -26,9 +27,16 @@
 	return self;
 }
 
+- (void)invalidate
+{
+	[catalog release];
+	ObjcQPDFObjectHandle* rootCatalog = [[qpDocument copyRootCatalog] autorelease];
+	catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
+
+}
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
-//	NSLog(@"outlineView:isItemExpandable: %@",item);
 	if (item == nil) // NULL means Root node
 		return YES;
 	
@@ -62,7 +70,6 @@
 
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
 {
-	//NSLog(@"- (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item");
 	if (item == nil)
 	{
 		return @"Document";
@@ -75,12 +82,20 @@
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
+		{
 			rs = [node name];
-		else if ([[tableColumn identifier] isEqualToString:@"Type"])
+		}
+		else if ([[tableColumn identifier] isEqualToString:@"Type"]) {
 			rs = [pdfitem typeName];
-		else
-			rs = [pdfitem unparse];
-
+		} else{
+			if ([pdfitem isStream])
+			{
+				ObjcQPDFObjectHandle* streamDict = [pdfitem streamDictionary];
+				rs = [streamDict unparse];
+			} else {
+				rs = [pdfitem unparse];
+			}
+		}
 		return rs;
 		
 	}
@@ -170,8 +185,7 @@
 			// can't do much about changing the type
 		}
 		else
-		{// if (pdfitem->isScalar())
-			// rs= [NSString stringWithFormat:@"%s",pdfitem->unparse().c_str()];
+		{
 			ObjcQPDFObjectHandle* newobj = [[ObjcQPDFObjectHandle alloc] initWithString:newValue];
 			if (newobj) {	
 				if ([parent isArray])
@@ -205,21 +219,30 @@
 + (NSOutlineView*)newView
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
+	[pdfObjectName setTitle:@"Name"];
 	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
+	[pdfObjectType setTitle:@"Type"];
 	NSTableColumn* pdfObjectContents = [[[NSTableColumn alloc] initWithIdentifier:@"Value"] autorelease];
+	[pdfObjectContents setTitle:@"Value"];
+
 	
 	NSOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];
 	[oView setIndentationMarkerFollowsCell:YES];
 	[oView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
-	[oView setHeaderView:nil];
+	// [oView setHeaderView:nil];
 	[oView addTableColumn:pdfObjectName];
 	[oView addTableColumn:pdfObjectType];
 	[oView addTableColumn:pdfObjectContents];
 	[oView setOutlineTableColumn:pdfObjectName];
 	[oView setUsesAlternatingRowBackgroundColors:YES];
 	return oView;
+}
+
+- (NSString*)description
+{
+	return [NSString stringWithFormat:@"OutlineQPDF: %@",[super description]];
 }
 
 @end

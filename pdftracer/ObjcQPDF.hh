@@ -9,7 +9,10 @@
 @interface ObjcQPDF ()
 {
 	@private
-	QPDF qDocument;   // but we hide it from all the other
+	QPDF* qDocument;   // but we hide it from all the other
 }
+
+-(instancetype)initWithQPDF:(QPDF*)qpdf;
+
 
 @end

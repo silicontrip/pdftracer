@@ -19,6 +19,8 @@
 }
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf;
+- (void)invalidate;
+
 + (NSOutlineView*)newView;
 
 // protocol overrides

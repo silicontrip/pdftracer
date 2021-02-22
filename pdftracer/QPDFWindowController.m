@@ -1,8 +1,8 @@
 #import "QPDFWindowController.h"
 
 #import "OutlineQPDF.h"
-#import "OutlinePDFObj.h"
-#import "OutlinePDFPage.h"
+#import "OutlineQPDFObj.h"
+#import "OutlineQPDFPage.h"
 
 @interface QPDFWindowController()
 {
@@ -15,10 +15,7 @@
 
 - (instancetype)initWithWindow:(NSWindow*)nsw
 {
-	self = [super initWithWindow:nsw];
-	
-	NSLog(@"Window controller window: %@",[self window]);
-	NSLog(@"window controller document: %@",[self document]);
+	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW, although I'm from Victoria
 	
 	return self;
 }
@@ -26,7 +23,7 @@
 -(void)updatePDF
 {
 	PDFDocument* tpDoc = [[self document] pdfdocument];
-	[(QPDFWindow*)[self window]  setDocument:tpDoc];
+	[(QPDFWindow*)[self window] setDocument:tpDoc];
 }
 
 - (NSString*)windowTitleForDocumentDisplayName:(NSString *)displayName
@@ -34,59 +31,74 @@
 	return displayName;
 }
 
+/* editing events */
 - (void)textDidChange:(NSNotification *)notification
 {
+	NSLog(@"textDidChange"); // from textview
 	QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
-	[self setDocumentEdited:YES];
-	[[self window] setDocumentEdited:YES];
+	[self setDocumentEdited:[[self document] isDocumentEdited]];
+	[[self window] setDocumentEdited:[[self document] isDocumentEdited]];
 	
 	NSString *editor = [(QPDFWindow*)[self window] editorText];
-	[self replaceQPDFNode:node withString:editor];
+	
+	// NSLog(@"[%@]",editor);
+	[[self document] replaceQPDFNode:node withString:editor];
+	[self updateOutlines:node];  // are we coming from NSTextView or NSOutlineView
+	[self updatePDF];
+	[[self document] updateChangeCount:NSChangeDone];
+
 }
 
 - (void)textDidEndEditing:(NSNotification*)aNotification {
 	
+	// NSLog(@"textDidEndEditing");  // from outline
+
 	NSTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
+	NSString * editor = [[fieldEditor textStorage] string];
+	NSLog(@"textDidEndEditing: %@",editor);
 	if (fieldEditor)
 	{
 
 		QPDFNode* node = [selectedView itemAtRow:selectedRow];
 		//	QPDFObjectHandle* qpdf = [node object];
 		
-		NSString * theString = [[fieldEditor textStorage] string];
-		[(QPDFWindow*)[self window] setEditor:theString];
+		// NSString * editor = [[fieldEditor textStorage] string];
+		[(QPDFWindow*)[self window] setEditor:editor];
+		[[self document] replaceQPDFNode:node withString:editor];
+
+		[self invalidateAll];  // this changes nodes... 
+
+	//	[self updateOutlines:node];  // are we coming from NSTextView or NSOutlineView
 		
-		[self replaceQPDFNode:node withString:theString];
-		[self setDocumentEdited:YES];
-		[[self window] setDocumentEdited:YES];
+		[self updatePDF];
+		// [ invalidate
+		// [self setDocumentEdited:[[self document] isDocumentEdited]];
+		[[self document] updateChangeCount:NSChangeDone];
+	//	[[self window] setDocumentEdited:[[self document] isDocumentEdited]];
 
 	}
 }
 
 - (void)selectChangeNotification:(NSOutlineView*)no
 {
-	NSLog(@"selectChangeNotification %@",no);
+	//NSLog(@"QPDFWindowController selectChangeNotification %@",no);
 
 	selectedView = no;
 	selectedRow = [selectedView selectedRow];
 	[self changeRow:selectedRow forSource:selectedView];
 }
 
-- (void)changeNotification:(NSNotification*)nn {
-	
-//	NSLog(@"QPDFWindowController changeNotification %@",nn);
-//	NSLog(@"FR: %@",[[self window] firstResponder]);
-	
+- (void)changeNotification:(NSNotification*)nn
+{
 	selectedView = [nn object];
 	selectedRow = [selectedView selectedRow];
 	[self changeRow:selectedRow forSource:selectedView];
-	
 }
 
 - (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov { // void QPDFWindowController::changeRow (NSInteger row, NSOutlineView* ov) {
 																// for those who can't read Objective-C function definitions
-	NSLog(@"QPDFWindowController: ChangeRow:%d forSource:%@",(int)row,ov);
+	//NSLog(@"QPDFWindowController: ChangeRow:%d forSource:%@",(int)row,ov);
 	if (row >= 0)
 	{
 		NSString* objText;
@@ -97,25 +109,21 @@
 	//	NSLog (@"obj selected %s",qpdf->getTypeName());
 		if ([qpdf isStream]) {
 			objText= [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
-				
-			//	NSLog(@"=======: %@",objText);
-				
-				[(QPDFWindow*)[self window] enableEditor:YES];
-		//	} catch (QPDFExc e) {
-				; // pop up alert.
-		//	}
-			
+			[(QPDFWindow*)[self window] enableEditor:YES];
 		} else {
-			BOOL allowEdit = ![qpdf childrenContainIndirects];
+			// BOOL allowEdit = ![qpdf childrenContainIndirects];
 			
-			//		NSLog(@"set editable: %d",allowEdit);
-			[(QPDFWindow*)[self window] enableEditor:allowEdit];
+			//NSLog(@"set editable: %d",allowEdit);
+			[(QPDFWindow*)[self window] enableEditor:NO];
 			// NSString* objText = [NSString stringWithUTF8String:qpdf->unparse().c_str()];
 			objText = [qpdf unparseResolved];
 		}
 		[(QPDFWindow*)[self window] setEditor:objText];
 	} else {
 		[(QPDFWindow*)[self window] enableEditor:NO];
+		NSError* err;
+		[(QPDFWindow*)[self window] setEditor:[[NSString alloc] initWithData:[[self document] dataOfType:@"QDF" error:&err] encoding:NSMacOSRomanStringEncoding]];
+
 		//[tView setString:@"can you see what I see?"];
 	}
 }
@@ -128,59 +136,9 @@
 	[self changeRow:selectedRow forSource:selectedView];
 }
 
-- (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
+-(void)invalidateAll
 {
-	ObjcQPDFObjectHandle* qpdf = [node object];
-	if ([qpdf isNull])
-		return;
-	if ([editor length]>0)
-	{
-		if([qpdf isStream])
-		{
-			NSLog(@"edit stream");
-			//NSData* replData = [editor dataUsingEncoding:NSMacOSRomanStringEncoding];
-			[qpdf replaceStreamData:editor];
-			//NSLog(@"replace stream data finish");
-		} else {
-			//	try {
-			ObjcQPDFObjectHandle* rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:editor] autorelease];
-			
-			// work out if rePDFObj is valid
-			ObjcQPDFObjectHandle* parent = [node parent];
-			//NSLog(@"parse object: %@",editor);
-			
-			if ([parent isArray])
-			{
-				NSLog(@"Edit Array");
-				[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
-			} else if ([parent isDictionary]) {
-				NSLog(@"Edit Dictionary");
-				//	std::string name = std::string([[node name] UTF8String]); // might have to change this to the correct PDF encoding
-				NSLog(@"replace dictionary key: %@",[node name]);
-				//		parent.replaceKey(name, rePDFObj);
-				
-				[parent replaceObject:rePDFObj forKey:[node name]];
-				
-			} else {
-				// oh no the dreaded child of neither a dictionary or array
-				NSLog(@"unknown parent");
-				// err that's because I have an object array view, of course they don't have parents
-				/*
-				QPDF_DLL
-				void replaceObject(QPDFObjGen const& og, QPDFObjectHandle);
-				QPDF_DLL
-				void replaceObject(int objid, int generation, QPDFObjectHandle);
-				 */
-			}
-			// no need to update if stream editing.
-			[self updateOutlines:node];
-			
-			//	NSLog(@"error parsing");
-			//		}
-		}
-		[self updatePDF];
-		//*  update outlines
-	}
+	[(QPDFWindow*)[self window] invalidateAll];
 }
 
 - (void)updateOutlines:(QPDFNode*)node
@@ -197,10 +155,7 @@
 	NSLog(@"changing font: %@",sender);
 }
 
--(void)forwardInvocation:(NSInvocation*)inv
-{
-	NSLog(@"window Controller: %@",inv);
-}
+
 
 -(void)exportText:(id)sender
 {
@@ -210,7 +165,6 @@
 	QPDFNode* node = [selectedView itemAtRow:selectedRow];  // QPDFNode* node = ov->itemAtRow(row);
 	ObjcQPDFObjectHandle* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
 		
-		//	NSLog (@"obj selected %s",qpdf->getTypeName());
 	if ([qpdf isStream]) {
 		fileData = [qpdf stream];
 	} else {
@@ -231,34 +185,39 @@
 			// I checked the documentation the Options values are only available in big sur.
 			// this is stupid.
 			BOOL success = [fileData writeToURL:theFile options:0 error:&theError];
-//			BOOL success = [tstr writeToURL:theFile atomically:NO encoding:NSMacOSRomanStringEncoding error:&theError];
-			// Write the contents in the new format.
-			//[[[self windowControllers] firstObject] setDocumentEdited:NO];
-			NSLog(@"error: %x %@",success,theError);
+
+			// should look at what NSData may return in error
+			if (!success)
+					NSLog(@"error: %x %@",success,theError);
 		}
 	}];
 	[p autorelease];
 
-	/*
-	NSError* err;
-	NSURL* urlFile = [NSURL fileURLWithPath:@"/Users/mark/Documents/20200605-pdftext/export_test.txt"];
-	
-	[tstr writeToURL:urlFile atomically:NO encoding:NSMacOSRomanStringEncoding error:&err];
-	*/
 }
 
-/*
--(BOOL)paste
+- (void)delete:(id)sender
 {
-	NSLog(@"paste ->");
+	NSLog(@"DELETE: %@",sender);
+	// QPDFNode* deleteThisNode = [selectedView itemAtRow:selectedRow];
+	[[self document] deleteNode:[selectedView itemAtRow:selectedRow]];
+		
+}
+
+- (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)anItem
+{
+	SEL theAction = [anItem action];
+	//NSLog(@"VALIDATE: %@",NSStringFromSelector(theAction));
+	NSLog(@"current %@ %d",selectedView,selectedRow);
+
+	if (theAction == @selector(delete:)) {
+		if (selectedView == nil || selectedRow == 0)
+			return NO;
+		// NSLog(@"delete... %@ %d",selectedView,selectedRow);
+		return YES;
+	}
+	// return [super validateUserInterfaceItem:anItem];
 	return YES;
 }
-
--(void)paste:(id)sender
-{
-	NSLog(@"pasted: %@",sender);
-}
-*/
 /*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {

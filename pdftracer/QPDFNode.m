@@ -14,13 +14,13 @@
 
 - (instancetype)initWithParent:(nullable QPDFNode*)pa Named:(nonnull NSString *)nm Handle:(nonnull ObjcQPDFObjectHandle*)qp
 {
-	// NSLog(@"QPDFNode initWithParent: %@ %@ ",pa,nm);
+	//NSLog(@"QPDFNode initWithParent: %@ Named: %@ ",pa,nm);
     self = [super init];
     if(self){
 		
 		name = [NSString stringWithString:nm];
-		NSLog(@"New node: '%@' created",name);
-		NSLog(@"Parent node: %@",pa);
+	//	NSLog(@"New node: '%@' created",name);
+	//	NSLog(@"Parent node: %@",pa);
 		[name retain];
 
 		qpdfhandle = [qp retain];
@@ -28,7 +28,7 @@
 		parent = nil;
 		if (pa != nil)
 		{
-			NSLog(@"Node named: %@ parent: %@ obHandle: %@",name,[pa object],qp);
+			//NSLog(@"Node named: %@ parent: %@ obHandle: %@",name,[pa object],qp);
 			parent = [pa object];
 		}
 		else
@@ -49,18 +49,24 @@
 		return nil;
 	return [qn object];
 }
+- (BOOL)hasParent
+{
+	return ([self parentNode] != nil);
+}
 - (QPDFNode*)parentNode { return parentNode; }
 
 - (NSString*)name { return name; }
 
-/*
+
 - (NSString*)description {
 	
-	NSString *superString = [super description];  // All hail Trance masters Cygnus X and their track superstring
-	[NSString stringWithFormat:@"<<%@  /name %@ /Parent %@"
+//	NSString *superString = [super description];  // All hail Trance masters Cygnus X and their track superstring
+//	[NSString stringWithFormat:@"<<%@  /name %@ /Parent %@"
+	
+	return [NSString stringWithFormat:@"%@ - %@ ^ %@",[self name],[self object],[[self parentNode]object]];
 	
 //	return [NSString stringWithFormat:@"]
 			
 }
-*/
+
 @end
