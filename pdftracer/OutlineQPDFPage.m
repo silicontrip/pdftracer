@@ -3,13 +3,13 @@
 
 @implementation OutlineQPDFPage
 
-+ (NSOutlineView*)newView
++ (QPDFOutlineView*)newView
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
 	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
 //	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
 	
-	NSOutlineView* oView=[[QPDFOutlineView alloc] init];
+	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];
 	[oView setIndentationMarkerFollowsCell:YES];

@@ -109,24 +109,8 @@
 	return nil;
 }
 
-+ (NSOutlineView*)newView
++ (QPDFOutlineView*)newView
 {
-	/*
-	NSStackView* ovc = [[NSStackView alloc] init];
-	
-	NSRect segRect = NSMakeRect(0,64,480,23);
-	NSSegmentedControl* modify = [[NSSegmentedControl alloc] initWithFrame:segRect];
-	[modify setSegmentStyle:NSSegmentStyleSmallSquare];
-	[modify setSegmentCount:2];
-	[modify setImage:[NSImage imageNamed:NSImageNameAddTemplate] forSegment:0];
-	[modify setImage:[NSImage imageNamed:NSImageNameRemoveTemplate] forSegment:1];
-	[modify setTrackingMode:NSSegmentSwitchTrackingMomentary];
-	[modify setAutoresizingMask:NSViewWidthSizable|NSViewMinYMargin];
-
-	
-	[[[modify subviews] objectAtIndex:0] setAutoresizingMask:NSViewNotSizable];
-	[[[modify subviews] objectAtIndex:1] setAutoresizingMask:NSViewNotSizable];
-*/
 	
 	NSTableColumn* pdfObjectObjRef = [[[NSTableColumn alloc] initWithIdentifier:@"objref"] autorelease];
 	[pdfObjectObjRef setTitle:@"Object ID"];
@@ -136,8 +120,7 @@
 	NSTableColumn* pdfObjectObjRefVal = [[[NSTableColumn alloc] initWithIdentifier:@"value"] autorelease];
 	[pdfObjectObjRefVal setTitle:@"Value"];
 
-	
-	NSOutlineView* ooView = [[QPDFOutlineView alloc] init];
+	QPDFOutlineView* ooView = [[QPDFOutlineView alloc] init];
 	[ooView setIndentationPerLevel:16.0];
 	[ooView setIndentationMarkerFollowsCell:YES];
 	[ooView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];
@@ -147,11 +130,6 @@
 	[ooView addTableColumn:pdfObjectObjRefVal];
 	[ooView setOutlineTableColumn:pdfObjectObjRef];
 	[ooView setUsesAlternatingRowBackgroundColors:YES];
-	
-//	[ovc addView:ooView inGravity:NSStackViewGravityTop];
-//	[ovc addView:modify inGravity:NSStackViewGravityBottom];
-
-	//[ooView addSubview:modify];
 	
 	return ooView;
 }

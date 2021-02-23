@@ -21,7 +21,7 @@
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf;
 - (void)invalidate;
 
-+ (NSOutlineView*)newView;
++ (QPDFOutlineView*)newView;
 
 // protocol overrides
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;

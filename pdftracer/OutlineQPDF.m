@@ -216,7 +216,7 @@
 // - (BOOL)addType:
 
 
-+ (NSOutlineView*)newView
++ (QPDFOutlineView*)newView
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
 	[pdfObjectName setTitle:@"Name"];
@@ -226,7 +226,7 @@
 	[pdfObjectContents setTitle:@"Value"];
 
 	
-	NSOutlineView* oView=[[QPDFOutlineView alloc] init];
+	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];
 	[oView setIndentationMarkerFollowsCell:YES];
