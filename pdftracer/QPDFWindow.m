@@ -2,24 +2,56 @@
 
 @implementation QPDFWindow
 
--(NSString*)editorText
-{
-	return [tView string];
-}
 
--(void)enableEditor:(BOOL)ena
+
+-(void)editorEnabled:(BOOL)ena
 {
 	[tView setEditable:ena];
 }
 
--(void)setDocument:(PDFDocument*)pd
+-(void)setDocument:(PDFDocument*)pdf
 {
-	[dView setDocument:pd];
+	[dView setDocument:pdf];
 }
 
--(void)setEditor:(NSString*)text
+-(void)setText:(NSString*)text
 {
 	[tView setString:text];
+}
+
+-(NSTextView*)textView
+{
+	return tView;
+}
+
+-(NSString*)text
+{
+	return [tView string];
+}
+
+-(void)addEnabled:(BOOL)ena forIndex:(int)index
+{
+	[segments[index] setEnabled:ena forSegment:0];
+}
+
+-(void)removeEnabled:(BOOL)ena forIndex:(int)index
+{
+	[segments[index] setEnabled:ena forSegment:1];
+}
+
+-(QPDFOutlineView*)outlineAtIndex:(NSInteger)index
+{
+	if (index>=0 && index<=2)
+		return outlines[index];
+	return nil;
+}
+
+-(NSSplitView*)splitAtIndex:(int)index
+{
+	if (index==0 || index==1)
+		return sView[index];
+	
+	return nil;
 }
 
 -(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn
@@ -44,33 +76,21 @@
 
 -(void)updateAllOutlines:(QPDFNode *)node
 {
-	NSLog(@"update all: %@",node);
-//	[self updateOutline:oView withNode:node];
-	
-	// [self updateOutline:ooView withNode:node];
-//	[ooView reloadItem:node];
+//	NSLog(@"update all: %@",node);
 
-//	[self updateOutline:opView withNode:node];
-
-	[oView reloadItem:nil reloadChildren:YES];
-	[ooView reloadItem:nil reloadChildren:YES];
-	[opView reloadItem:nil reloadChildren:YES];
+	[outlines[0] reloadItem:nil reloadChildren:YES];
+	[outlines[1] reloadItem:nil reloadChildren:YES];
+	[outlines[2] reloadItem:nil reloadChildren:YES];
 
 }
 
 -(void)invalidateAll
 {
-	NSLog(@"QPDFWindow Invalidate All");
+	// NSLog(@"QPDFWindow Invalidate All");
 
-	[(OutlineQPDF*)[oView dataSource] invalidate]; [oView reloadData];
-
-	[(OutlineQPDFPage*)[opView dataSource] invalidate]; [opView reloadData];
-
-	[(OutlineQPDFObj*)[ooView dataSource] invalidate]; [ooView reloadData];
-
-//	[oView reloadItem:nil reloadChildren:YES];
-//	[ooView reloadItem:nil reloadChildren:YES];
-//	[opView reloadItem:nil reloadChildren:YES];
+	[(OutlineQPDF*)[outlines[0] dataSource] invalidate]; [outlines[0] reloadData];
+	[(OutlineQPDFPage*)[outlines[2] dataSource] invalidate]; [outlines[2] reloadData];
+	[(OutlineQPDFObj*)[outlines[1] dataSource] invalidate]; [outlines[1] reloadData];
 	
 }
 
@@ -84,7 +104,10 @@
 	[oSegment setTrackingMode:NSSegmentSwitchTrackingMomentary];
 	[oSegment setWidth:32 forSegment:0];
 	[oSegment setWidth:32 forSegment:1];
+	[oSegment setEnabled:NO forSegment:1];
 	[oSegment setEnabled:NO forSegment:2];
+	[oSegment setTarget:nil];
+	[oSegment setAction:@selector(addRemove:)];
 	return oSegment;
 }
 
@@ -97,6 +120,7 @@
 	
 	return scView;
 }
+
 +(NSStackView*)stackScroll:(NSView*)scroll andSegment:(NSView*)seg
 {
 	NSStackView* scsView = [[NSStackView alloc] init];
@@ -107,6 +131,30 @@
 	return scsView;
 }
 
++(NSTextView*)textEditorView
+{
+	
+	NSFont* tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+	
+	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
+	
+	// See NSRulerView
+	
+	NSTextView *tView = [[NSTextView alloc] initWithFrame:vRect];
+	[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
+	[tView setEditable:NO];
+	[tView setRichText:NO];
+	[tView setAllowsUndo:YES];
+	[tView setSelectable:YES];
+	[tView setUsesRuler:YES];
+	[tView setRulerVisible:YES];
+	
+	[tView setFont:tfont];  // user prefs
+	[tView setAutoresizingMask:NSViewHeightSizable|NSViewWidthSizable];
+	
+	return tView;
+}
+
 -(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing
 {
 	self = [super initWithContentRect:rect styleMask:style backing:backing defer:NO];
@@ -115,129 +163,74 @@
 	{
 		// Outline View Columns
 
-		oView = [OutlineQPDF newView];
-		ooView = [OutlineQPDFObj newView];
-		opView = [OutlineQPDFPage newView];
+		outlines[0] = [OutlineQPDF newView];
+		outlines[1] = [OutlineQPDFObj newView];
+		outlines[2] = [OutlineQPDFPage newView];
 	
-		oSegment = [QPDFWindow addRemoveSegment];
-		NSScrollView* scView = [QPDFWindow hvScrollView:oView];
-		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:oSegment];
+		segments[0] = [QPDFWindow addRemoveSegment];
+		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
+		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
 		
+		segments[1] = [QPDFWindow addRemoveSegment];
+		NSScrollView* socView = [QPDFWindow hvScrollView:outlines[1]];
+		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:segments[1]];
 
-		
-		ooSegment = [QPDFWindow addRemoveSegment];
-		NSScrollView* socView = [QPDFWindow hvScrollView:ooView];
-		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:ooSegment];
-
-		opSegment = [QPDFWindow addRemoveSegment];
-		NSScrollView* spcView = [QPDFWindow hvScrollView:opView];
-		NSStackView* spcsView = [QPDFWindow stackScroll:spcView andSegment:opSegment];
+		segments[2] = [QPDFWindow addRemoveSegment];
+		NSScrollView* spcView = [QPDFWindow hvScrollView:outlines[2]];
+		NSStackView* spcsView = [QPDFWindow stackScroll:spcView andSegment:segments[2]];
 
 		// unused constraints, maybe
 		// [[oSegment widthAnchor] constraintEqualToAnchor:[scView widthAnchor]],
 		// [[oSegment leadingAnchor] constraintEqualToAnchor:[scView leadingAnchor]],
 		
 		[NSLayoutConstraint activateConstraints:@[
-												  [[oSegment topAnchor] constraintEqualToAnchor:[scView bottomAnchor]],
-												  [[oSegment trailingAnchor] constraintEqualToAnchor:[scsView trailingAnchor]],
+												  [[segments[0] topAnchor] constraintEqualToAnchor:[scView bottomAnchor]],
+												  [[segments[0] trailingAnchor] constraintEqualToAnchor:[scsView trailingAnchor]],
 												  [[scView widthAnchor] constraintEqualToAnchor:[scsView widthAnchor]],
-												  [[ooSegment topAnchor] constraintEqualToAnchor:[socView bottomAnchor]],
-												  [[ooSegment trailingAnchor] constraintEqualToAnchor:[socsView trailingAnchor]],
+												  [[segments[1] topAnchor] constraintEqualToAnchor:[socView bottomAnchor]],
+												  [[segments[1] trailingAnchor] constraintEqualToAnchor:[socsView trailingAnchor]],
 												  [[socView widthAnchor] constraintEqualToAnchor:[socsView widthAnchor]],
-												  [[opSegment topAnchor] constraintEqualToAnchor:[spcView bottomAnchor]],
-												  [[opSegment trailingAnchor] constraintEqualToAnchor:[spcsView trailingAnchor]],
+												  [[segments[2] topAnchor] constraintEqualToAnchor:[spcView bottomAnchor]],
+												  [[segments[2] trailingAnchor] constraintEqualToAnchor:[spcsView trailingAnchor]],
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]],
 												  ]];
 		
-		tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
-
-		NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
-		
-		// See NSRulerView
-		
-		tView = [[NSTextView alloc] initWithFrame:vRect];
-		[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
-		[tView setEditable:NO];
-		[tView setRichText:NO];
-		[tView setAllowsUndo:YES];
-		[tView setSelectable:YES];
-		[tView setUsesRuler:YES];
-		[tView setRulerVisible:YES];
-
 
 		
-		[tView setFont:tfont];  // user prefs
-	//	[tView setDelegate:self];
-		tView.autoresizingMask = NSViewHeightSizable|NSViewWidthSizable;
+		tView = [QPDFWindow textEditorView];
 
 		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
 		[sctView setHasVerticalScroller:YES];
 		[sctView setDocumentView:tView];
 		
 		dView = [[[PDFView alloc] init] autorelease];
+		[dView setDisplayMode:kPDFDisplaySinglePage];
 
-		soView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
-		[soView setVertical:NO];
-		[soView addArrangedSubview:scsView];
-		[soView addArrangedSubview:socsView];
-		[soView addArrangedSubview:spcsView];
-		[soView setPostsFrameChangedNotifications:YES];
+		NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
+
+		sView[1]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		[sView[1] setVertical:NO];
+		[sView[1] addArrangedSubview:scsView];
+		[sView[1] addArrangedSubview:socsView];
+		[sView[1] addArrangedSubview:spcsView];
+		[sView[1] setPostsFrameChangedNotifications:YES];
 
 		// and the windows windows
-		sView=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
-		[sView setVertical:YES];
-		[sView addArrangedSubview:soView];
-		[sView addArrangedSubview:sctView];
-		[sView addArrangedSubview:dView];
+		sView[0]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		[sView[0] setVertical:YES];
+		[sView[0] addArrangedSubview:sView[1]];
+		[sView[0] addArrangedSubview:sctView];
+		[sView[0] addArrangedSubview:dView];
 
 		NSWindowCollectionBehavior behavior = [self collectionBehavior];
 		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
 		[self setCollectionBehavior:behavior];
-		[self setContentView:sView];
+		[self setContentView:sView[0]];
 		[self orderFrontRegardless];
 	}
 	return self;
 }
 
--(void)setDataSource
-{
-	QPDFWindowController* nwc = [self windowController];
-	QPDFDocument* qp = [nwc document];
-	
-	pdfDS = [[OutlineQPDF alloc] initWithPDF:[qp doc]];
-	objDS = [[OutlineQPDFObj alloc] initWithPDF:[qp doc]];
-	pageDS = [[OutlineQPDFPage alloc] initWithPDF:[qp doc]];
-	
-	
-	[oView setDataSource:pdfDS];
-	[ooView setDataSource:objDS];
-	[opView setDataSource:pageDS];
-	
-	[tView setDelegate:nwc];
 
-	pDoc = [qp pdfdocument];
-	[dView setDocument:pDoc];
-	[dView setDisplayMode:kPDFDisplaySinglePage];
-	
-	NSString* documentName = [qp displayName];
-	
-	[soView setAutosaveName:[NSString stringWithFormat:@"SplitOutline-%@",documentName]];
-	[sView setAutosaveName:[NSString stringWithFormat:@"SplitMain-%@",documentName]];
-	
-	[self setFrameAutosaveName:[NSString stringWithFormat:@"MainWindow-%@",documentName]];
-
-	
-	NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
-
-	[dc addObserver:nwc selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:oView];
-	[dc addObserver:nwc selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:ooView];
-	[dc addObserver:nwc selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:opView];
-	
-	// [dc addObserver:nwc selector:@selector(changeNotification:) name:NSOutlineViewSelectionDidChangeNotification object:oView];
-	
-	[dc addObserver:nwc selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:oView];
-	[dc addObserver:nwc selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:ooView];
-	[dc addObserver:nwc selector:@selector(changeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:opView];
-}
 
 @end

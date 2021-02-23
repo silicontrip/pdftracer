@@ -1,50 +1,56 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
 
+#import "QPDFNode.h"
+#import "QPDFOutlineView.h"
+#import "QPDFWindowController.h"
+
+@class QPDFOutlineView;
+
+
 #import "OutlineQPDF.h"
 #import "OutlineQPDFObj.h"
-#import "OutlineQPDFPage.h" 
+#import "OutlineQPDFPage.h"
 
+/*
 @class OutlineQPDF;
 @class OutlineQPDFObj;
 @class OutlineQPDFPage;
+*/
 
 @interface QPDFWindow : NSWindow
 {
 
-	PDFView *dView;
-	PDFDocument *pDoc;
-
-	OutlineQPDF* pdfDS;
-	OutlineQPDFPage* pageDS;
-	OutlineQPDFObj* objDS;
-	
-	// QPDF qDocument;
-	// Buffer* rawDoc;
 	NSTextView* tView;
-	NSOutlineView* oView;
-	NSOutlineView* ooView;
-	NSOutlineView* opView;
+	PDFView *dView;
 
-	NSSegmentedControl* oSegment;
-	NSSegmentedControl* ooSegment;
-	NSSegmentedControl* opSegment;
+	QPDFOutlineView* outlines[3];
+	NSSegmentedControl* segments[3];
 	
 	NSFont * tfont;
 	
-	NSSplitView* soView;
-	NSSplitView* sView;
+	//NSSplitView* soView;
+	NSSplitView* sView[2];
 }
 
 -(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing;
--(void)setDataSource;
 
--(void)setDocument:(PDFDocument*)pd;
--(NSString*)editorText;
--(void)setEditor:(NSString*)text;
--(void)enableEditor:(BOOL)ena;
+-(void)setDocument:(PDFDocument*)pdf;
+
+-(NSTextView*)textView;
+-(NSString*)text;
+-(void)setText:(NSString*)text;
+
+-(void)removeEnabled:(BOOL)ena forIndex:(int)index;
+-(void)addEnabled:(BOOL)ena forIndex:(int)index;
+
+-(void)editorEnabled:(BOOL)ena;
+
 -(void)updateAllOutlines:(QPDFNode*)node;
 -(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn;
 -(void)invalidateAll;
+
+-(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
+-(NSSplitView*)splitAtIndex:(int)index;
 
 @end

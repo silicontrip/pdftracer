@@ -9,7 +9,11 @@
 @class QPDFWindow;
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate, NSUserInterfaceValidations>
-{	
+{
+	OutlineQPDF* pdfDS;
+	OutlineQPDFPage* pageDS;
+	OutlineQPDFObj* objDS;
+	
 	NSInteger selectedRow;
 	NSOutlineView* selectedView;
 }
@@ -17,16 +21,22 @@
 - (instancetype)initWithWindow:(QPDFWindow*)nsw;
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)anItem;
 
--(void)invalidateAll;
+- (void)invalidateAll;
 
 - (void)updatePDF;
 - (void)updateOutlines:(QPDFNode*)node;
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
-- (void)changeNotification:(NSNotification*)nn;
+- (void)changeNotification0:(NSNotification*)nn;
+- (void)changeNotification1:(NSNotification*)nn;
+- (void)changeNotification2:(NSNotification*)nn;
+- (void)changeNotification:(NSNotification*)nn index:(int)outl;
+- (void)addRemove:(id)sender;
+
 - (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
 - (void)selectChangeNotification:(NSOutlineView*)no;
 - (void)selectObject:(id)sender;
 - (void)changeFont:(id)sender;
+- (void)initDataSource;
 
 @end
