@@ -137,7 +137,7 @@
 
 	[self addWindowController:nwc];
 	
-	[w setDataSource];
+	[nwc initDataSource];
 }
 
 - (ObjcQPDF*)doc
@@ -175,7 +175,7 @@
 																  options:0
 																	range:NSMakeRange(0, [editor length])];
 			
-			NSLog(@" number of indirects: %lu",indirects);
+			NSLog(@"number of indirects: %lu",indirects);
 			
 			ObjcQPDFObjectHandle* rePDFObj;
 			if (indirects == 0) {

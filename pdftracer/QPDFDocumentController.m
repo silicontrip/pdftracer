@@ -44,19 +44,6 @@
 		}
 	}];
 
-	
-	/*
-	if ( [openDlg runModal] == NSModalResponseOK )
-	{
-		// Get an array containing the full filenames of all
-		// files and directories selected.
-		NSURL* url = [[openDlg URLs] firstObject];
-		NSError* theError;
-		QPDFDocument* nd = [[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError];
-
-		[self addDocument:nd];
-	}
-	 */
 }
  
 

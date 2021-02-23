@@ -75,18 +75,21 @@
 
 -(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj
 {
-	NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
-	int objid = [[objElem objectAtIndex:0] intValue];
-	int genid = [[objElem objectAtIndex:1] intValue];
+	if (obj != nil)
+	{
+		NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
+		int objid = [[objElem objectAtIndex:0] intValue];
+		int genid = [[objElem objectAtIndex:1] intValue];
 
-	NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,obj);
+		NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,obj);
 		
-	QPDFObjectHandle qoh = [obj qpdfobject];
-	
-	qDocument->replaceObject(objid,genid,qoh);
-	
-	NSString* doctex = [[[NSString alloc] initWithData:[self data] encoding:NSMacOSRomanStringEncoding] autorelease];
-	NSLog(@"replaceID: %@",doctex);
+		QPDFObjectHandle qoh = [obj qpdfobject];
+		
+		qDocument->replaceObject(objid,genid,qoh);
+		
+		NSString* doctex = [[[NSString alloc] initWithData:[self data] encoding:NSMacOSRomanStringEncoding] autorelease];
+		NSLog(@"replaceID: %@",doctex);
+	}
 }
 
 -(void)removeID:(NSString*)objGen
