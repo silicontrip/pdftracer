@@ -5,6 +5,7 @@
 // #import "QPDFEditor.hh"
 #import "QPDFDocumentController.h"
 #import "QPDFMenu.h"
+#import "QPDFHelp.h"
 
 // load background PDF
 // report mouse pos
@@ -63,6 +64,9 @@ int main (int argc, char * const argv[])
 	
 	
 	pdfApp *mm = [[[pdfApp alloc] initWithController:docControl] autorelease];
+
+	QPDFHelp* hh = [[QPDFHelp alloc] init];
+	[NSApp registerUserInterfaceItemSearchHandler:hh];
 	
 	[NSApp setDelegate:mm];
 	

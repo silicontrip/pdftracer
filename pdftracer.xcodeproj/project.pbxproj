@@ -42,6 +42,7 @@
 		4D8EE7222598A51F008D2DA2 /* editor.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163D002598A0A000C8C7D3 /* editor.m */; };
 		4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */; };
 		4D9CCA8925DFD5340003DF13 /* libqpdf.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D9CCA8825DFD5340003DF13 /* libqpdf.28.dylib */; };
+		4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -142,6 +143,9 @@
 		4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFWindow.h; sourceTree = "<group>"; };
 		4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFWindow.m; sourceTree = "<group>"; };
 		4D9CCA8825DFD5340003DF13 /* libqpdf.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libqpdf.28.dylib; path = ../../../../../usr/local/Cellar/qpdf/10.1.0/lib/libqpdf.28.dylib; sourceTree = "<group>"; };
+		4D9CCA8B25E45AB10003DF13 /* View.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = View.xib; sourceTree = "<group>"; };
+		4D9CCA8C25E51ADA0003DF13 /* QPDFHelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFHelp.h; sourceTree = "<group>"; };
+		4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFHelp.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -239,6 +243,8 @@
 		4D163CE9259879ED00C8C7D3 /* pdftracer */ = {
 			isa = PBXGroup;
 			children = (
+				4D9CCA8C25E51ADA0003DF13 /* QPDFHelp.h */,
+				4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */,
 				4D163D002598A0A000C8C7D3 /* editor.m */,
 				4D163CF425987A1F00C8C7D3 /* Arguments.h */,
 				4D163CF325987A1F00C8C7D3 /* Arguments.m */,
@@ -250,6 +256,7 @@
 				4D638AE125C2C84200BAB433 /* QPDFDocument.m */,
 				4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */,
 				4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */,
+				4D9CCA8B25E45AB10003DF13 /* View.xib */,
 				4D2BFD6025D3D22700F8128E /* ObjcQPDF.h */,
 				4D2BFD6625D486DA00F8128E /* ObjcQPDF.hh */,
 				4D2BFD6125D3D22700F8128E /* ObjcQPDF.mm */,
@@ -544,6 +551,7 @@
 				4D5BEC3E25CEB443006CBE02 /* QPDFOutlineView.m in Sources */,
 				4D3A6B9D25BD98DD00B22499 /* OutlineQPDFPage.m in Sources */,
 				4D5BEC6425D276AD006CBE02 /* QPDFMenu.m in Sources */,
+				4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */,
 				4D5BEC2825C58A96006CBE02 /* QPDFWindowController.m in Sources */,
 				4D638AE225C2C84200BAB433 /* QPDFDocument.m in Sources */,
 				4D5450E025C5310800ED6F54 /* OutlineQPDF.m in Sources */,
