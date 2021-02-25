@@ -2,11 +2,12 @@
 #import "ObjcQPDFObjectHandle.h"
 #import <Quartz/Quartz.h>
 
+#import "ObjcPDFDocument.h"
+
 // C only stuff here
 
-@interface ObjcQPDF : NSObject
+@interface ObjcQPDF : NSObject<ObjcPDFDocument>
 {
-// QPDF qDocument; // not here
 	PDFDocument *pDoc;
 }
 
@@ -19,10 +20,9 @@
 -(NSString*)version;
 -(NSArray<ObjcQPDFObjectHandle*>*)pages;
 -(NSArray<ObjcQPDFObjectHandle*>*)objects;
-//-(QPDFObjectHandleObjc*)rootCatalog;
--(ObjcQPDFObjectHandle*)copyRootCatalog; // naming convention for alloc
+-(id<ObjcPDFObject>)copyRootCatalog; // naming convention for alloc
 
--(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj;
+-(void)replaceID:(NSString*)objGen with:(id<ObjcPDFObject>)obj;
 -(void)removeID:(NSString*)objGen;
 
 -(NSData*)data;

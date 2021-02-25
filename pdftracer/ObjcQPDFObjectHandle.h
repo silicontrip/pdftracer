@@ -1,9 +1,11 @@
 #import <Foundation/Foundation.h>
+#import "ObjcPDFObject.h"
+
 // I'd like to turn this into a class cluster
 
 @class ObjcQPDF;
 
-@interface ObjcQPDFObjectHandle : NSObject
+@interface ObjcQPDFObjectHandle : NSObject<ObjcPDFObject>
 {
 // do not put c++ in the header
 	NSArray<NSString*>* dictionaryKeys;
@@ -27,8 +29,10 @@
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
 -(ObjcQPDFObjectHandle*)streamDictionary;
 -(void)removeObjectForKey:(NSString*)key;
+-(void)removeObjectAtIndex:(int)index;
 -(void)replaceObject:(ObjcQPDFObjectHandle*)obj forKey:(NSString*)key;
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj;
+-(void)addObject:(ObjcQPDFObjectHandle*)obj;
 //-(void)removeID:(NSString*)objGen;
 
 -(NSData*)stream;
