@@ -164,7 +164,9 @@
 		if([qpdf isStream])
 		{
 			[qpdf replaceStreamData:editor];
-		} else {
+		}
+		else
+		{
 			
 			NSError* err = NULL;
 			NSRegularExpression *indirectRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d+ \\d+ R"
@@ -210,6 +212,7 @@
 					[parent replaceObject:rePDFObj forKey:[node name]];
 				} else  {
 					// oh no the dreaded child of neither a dictionary or array and isn't an indirect object either
+					NSLog(@"case on: %@",parent);
 					NSLog(@"where are we?");
 				}
 			}

@@ -132,6 +132,11 @@
 	qObject.removeKey(tempKey);
 }
 
+-(void)removeObjectAtIndex:(int)index;
+{
+	qObject.eraseItem(index);
+}
+
 -(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
 	if (obj != nil)
@@ -151,6 +156,15 @@
 	if (obj != nil)
 	{
 		qObject.setArrayItem((int)index, [obj qpdfobject]);
+	}
+}
+
+-(void)addObject:(ObjcQPDFObjectHandle *)obj
+{
+	if (obj != nil)
+	{
+		// shouldn't I also check that this is the correct object type
+		qObject.appendItem([obj qpdfobject]);
 	}
 }
 

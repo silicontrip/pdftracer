@@ -10,6 +10,7 @@
 {
 	@private
 	QPDF* qDocument;   // but we hide it from all the other
+	QPDFWriter* qpdfWriter;
 }
 
 -(instancetype)initWithQPDF:(QPDF*)qpdf;

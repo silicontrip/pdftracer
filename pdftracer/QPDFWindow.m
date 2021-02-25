@@ -78,9 +78,9 @@
 {
 //	NSLog(@"update all: %@",node);
 
-	[outlines[0] reloadItem:nil reloadChildren:YES];
-	[outlines[1] reloadItem:nil reloadChildren:YES];
-	[outlines[2] reloadItem:nil reloadChildren:YES];
+	[outlines[0] reloadItem:node reloadChildren:YES];
+	[outlines[1] reloadItem:node reloadChildren:YES];
+	[outlines[2] reloadItem:node reloadChildren:YES];
 
 }
 

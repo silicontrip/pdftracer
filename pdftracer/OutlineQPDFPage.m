@@ -7,7 +7,7 @@
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
 	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
-//	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
+	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
 	
 	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
@@ -17,6 +17,8 @@
 	[oView setHeaderView:nil];
 	[oView addTableColumn:pdfObjectName];
 	[oView addTableColumn:pdfObjectType];
+	[oView addTableColumn:pdfObjectContents];
+	
 	[oView setOutlineTableColumn:pdfObjectName];
 	[oView setUsesAlternatingRowBackgroundColors:YES];
 	
@@ -44,11 +46,8 @@
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
-	//	NSLog(@"outlineView:isItemExpandable: %@",item);
 	if (item == nil) // NULL means Root node
-	{
 		return YES;
-	}
 	
 	return [[(QPDFNode*)item object] isExpandable];
 	
@@ -70,8 +69,6 @@
 	{
 		return @"Document";
 	} else {
-		// block cyclic tree branches here?
-		
 		QPDFNode* node = (QPDFNode*)item;
 		ObjcQPDFObjectHandle* pdfitem = [node object];
 		
@@ -82,7 +79,7 @@
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
 			rs = [pdfitem typeName];
 		else
-			rs = [pdfitem unparse];
+			rs = [pdfitem unparseResolved];
 		
 		return rs;
 	}
@@ -118,24 +115,7 @@
 		NSString* keyIndex = [[pdfitem keys] objectAtIndex:index];
 		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:[pdfitem objectForKey:keyIndex]];
 		return nKey;
-		/*
-		std::set<std::string> keys = pdfitem.getKeys();  // I need this to be order preserving.
-		std::vector<std::string> ord(keys.begin(), keys.end());
-		std::set<std::string>::iterator iterKey;
-		int loopindex=0;
-		for(iterKey = keys.begin(); iterKey != keys.end(); ++iterKey)
-		{
-			if (loopindex == index)
-			{
-				QPDFObjectHandle thisObject =  QPDFObjectHandle(pdfitem.getKey(*iterKey));
-				NSString* sKey = [NSString stringWithUTF8String:iterKey->c_str()];
-				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:sKey Handle:thisObject];
-				return nKey;
-			}
-			++loopindex;
-		}
-	*/	
-		
+
 	}
 	return nil;
 }

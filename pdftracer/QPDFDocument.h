@@ -19,7 +19,6 @@ NS_ASSUME_NONNULL_BEGIN
 {
 	@private
 	PDFDocument* pDoc;
-	// NSData *contentData;
 	ObjcQPDF* qDocument;
 	// QPDFWindowController* winCon;  // yet another instance variable handled by super
 }

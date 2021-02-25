@@ -87,13 +87,13 @@
 		}
 		else if ([[tableColumn identifier] isEqualToString:@"Type"]) {
 			rs = [pdfitem typeName];
-		} else{
+		} else {
 			if ([pdfitem isStream])
 			{
 				ObjcQPDFObjectHandle* streamDict = [pdfitem streamDictionary];
 				rs = [streamDict unparse];
 			} else {
-				rs = [pdfitem unparse];
+				rs = [pdfitem unparseResolved];
 			}
 		}
 		return rs;

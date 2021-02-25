@@ -38,6 +38,7 @@
 	return self;
 }
 
+// obj-c++ only method
 -(instancetype)initWithQPDF:(QPDF*)qpdf
 {
 	self = [super init];
@@ -75,9 +76,9 @@
 
 -(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj
 {
-	if (obj != nil)
+	if (obj != nil && objGen != nil)
 	{
-		NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
+		NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "]; 
 		int objid = [[objElem objectAtIndex:0] intValue];
 		int genid = [[objElem objectAtIndex:1] intValue];
 
@@ -119,17 +120,61 @@
 
 -(NSData*)data
 {
-	QPDFWriter qpdfWriter(*qDocument);
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
+	NSLog(@">>> ObjcQPDF data");
 	
-	Buffer* qBuf = qpdfWriter.getBuffer();
+	QPDFWriter qwriter(*qDocument);
+	qwriter.setOutputMemory();
+	qwriter.write();
+	
+	Buffer* qBuf = qwriter.getBuffer();
 	unsigned char const* qBytes = qBuf->getBuffer();
 	
 	NSData* pdfData = [[[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()] autorelease];
 	delete(qBuf);
+	// #507 https://github.com/qpdf/qpdf/discussions/507
+//	delete(qDocument);
+//	qDocument = new QPDF();
+//	qDocument->processMemoryFile("NSData", (char*)[pdfData bytes], [pdfData length]);
+	NSLog(@"<<< ObjcQPDF data");
+
 	return pdfData;
 }
+
+
+
+
+-(NSData*)data_507
+{
+	NSLog(@"getData");
+	qDocument->setImmediateCopyFrom(TRUE);
+	QPDF* tempQ = new QPDF(*qDocument);
+	
+	NSLog(@"init Qwriter");
+
+	QPDFWriter w(*tempQ);
+	NSLog(@"output memory");
+
+	w.setOutputMemory();
+	NSLog(@"write");
+
+	w.write();
+	
+	NSLog(@"getBuffer");
+
+	
+	Buffer* qBuf = qpdfWriter->getBuffer();
+	unsigned char const* qBytes = qBuf->getBuffer();
+	
+	NSLog(@"init NSData");
+
+	NSData* pdfData = [[[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()] autorelease];
+	qDocument->setImmediateCopyFrom(FALSE);
+	
+	delete(qBuf);
+	delete (tempQ);
+	return pdfData;
+}
+
 
 -(NSData*)qdf
 {

@@ -33,7 +33,7 @@
 /* editing events */
 - (void)textDidChange:(NSNotification *)notification
 {
-	NSLog(@"textDidChange %@",notification); // from textview
+	// NSLog(@"textDidChange %@",notification); // from textview
 	QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	[[self document] updateChangeCount:NSChangeDone];
@@ -61,13 +61,16 @@
 	if (fieldEditor)
 	{
 		QPDFNode* node = [selectedView itemAtRow:selectedRow];
+		NSLog(@"fieldEditor... %@",node);
+
 		//	QPDFObjectHandle* qpdf = [node object];
 		
 		// NSString * editor = [[fieldEditor textStorage] string];
 		[(QPDFWindow*)[self window] setText:editor];
 		[[self document] replaceQPDFNode:node withString:editor];
 
-		[self invalidateAll];  // this changes nodes...
+		[self updateOutlines:node];
+		// [self invalidateAll];  // this changes nodes...
 		[self updatePDF];
 		// [ invalidate
 		// [self setDocumentEdited:[[self document] isDocumentEdited]];
@@ -75,6 +78,8 @@
 	//	[[self window] setDocumentEdited:[[self document] isDocumentEdited]];
 
 	}
+	
+	NSLog(@"<<< textDidEndEditing");
 }
 
 - (void)changeNotificationTest:(NSNotification*)nn
@@ -185,9 +190,7 @@
 
 - (void)updateOutlines:(QPDFNode*)node
 {
-	//QPDFNode* nn = node;
 	
-	//NSLog(@"WC:updateOutline %@",node);
 	[(QPDFWindow*)[self window] updateAllOutlines:node];
 	[self updatePDF];
 }
@@ -196,8 +199,6 @@
 {
 	NSLog(@"changing font: %@",sender);
 }
-
-
 
 -(void)exportText:(id)sender
 {
@@ -243,6 +244,44 @@
 	NSLog(@"sender class %@",[sender className]);
 	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
 	NSLog(@"selected: %ld",(long)[sc selectedSegment]);
+
+	NSInteger selectedSeg = [sc selectedSegment];
+	if (selectedSeg == 0 ) { // add
+		QPDFNode* selNode = [selectedView itemAtRow:selectedRow];
+
+		ObjcQPDFObjectHandle* target = [selNode object];
+		if ([target isArray])
+		{
+			ObjcQPDFObjectHandle* placeHolder = [[[ObjcQPDFObjectHandle alloc] initWithString:@"()"] autorelease];
+			[target addObject:placeHolder];
+		} else if ([target isDictionary]) {
+			// come up with unique name
+			ObjcQPDFObjectHandle* placeHolder = [[[ObjcQPDFObjectHandle alloc] initWithString:@"()"] autorelease];
+			[target replaceObject:placeHolder forKey:@"/new"];
+		}
+		[self updateOutlines:[selNode parentNode]];
+		[(QPDFWindow*)[self window] setText:[[selNode object] unparse]];
+
+	}
+	if (selectedSeg==1)
+	{
+		QPDFNode* selNode = [selectedView itemAtRow:selectedRow];
+		QPDFNode* parentNode = [selNode parentNode];
+		ObjcQPDFObjectHandle* target = [selNode parent];
+		if (target != nil) {
+			if ([target isArray])
+			{
+			//	NSLog(@"remove array: %@",[selNode name]);
+				int ix = [[selNode name] intValue];
+				[target removeObjectAtIndex:ix];
+			} else if ([target isDictionary]) {
+				NSLog(@"remove dictionary: %@",[selNode name]);
+				[target removeObjectForKey:[selNode name]];
+			}
+			[self updateOutlines:parentNode];
+		}
+	}
+
 }
 
 - (void)delete:(id)sender
@@ -304,7 +343,7 @@
 	
 	[dc addObserver:self selector:@selector(changeNotification0:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(changeNotification1:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:1]];
-	[dc addObserver:self selector:@selector(changeNotification2:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
+	[dc addObserver:self selector:@selector(changeNotification2:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
 }
 
 

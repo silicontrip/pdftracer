@@ -32,7 +32,7 @@
 							@"EX  : end compatibility section",
 							@"f   : fill : CGContextFillPath",
 							@"F   : fill : deprecated",
-							@"f*  : eorill : CGContextEOFillPath",
+							@"f*  : eofill : CGContextEOFillPath",
 							@"G   : setgray : CGContextSetGrayStrokeColor",
 							@"g   : setgray (non-stroke) : CGContextSetGrayFillColor",
 							@"gs  : set graphic state parameters /resource",
@@ -116,6 +116,7 @@
 - (void)performActionForItem:(id)item
 {
 	// templates
+	
     // Open your custom url assuming item is actually searchString
 }
 
