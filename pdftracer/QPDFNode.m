@@ -57,14 +57,26 @@
 
 - (NSString*)name { return name; }
 
+- (NSString*)unparse
+{
+	return [qpdfhandle unparse];
+}
+
+- (NSString*)unparseResolved
+{
+	return [qpdfhandle unparseResolved];
+}
+
 
 - (NSString*)description {
 	
 //	NSString *superString = [super description];  // All hail Trance masters Cygnus X and their track superstring
 //	[NSString stringWithFormat:@"<<%@  /name %@ /Parent %@"
-	
-	return [NSString stringWithFormat:@"%@ - %@ ^ %@",[self name],[self object],[[self parentNode]object]];
-	
+	if ([self parentNode] != nil)
+		return [NSString stringWithFormat:@"%@ - %@ ^ %@",[self name],[self object],[[self parentNode]object]];
+	else
+		return [NSString stringWithFormat:@"%@ - %@ ^ nil",[self name],[self object]];
+
 //	return [NSString stringWithFormat:@"]
 			
 }

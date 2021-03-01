@@ -93,7 +93,7 @@
 				ObjcQPDFObjectHandle* streamDict = [pdfitem streamDictionary];
 				rs = [streamDict unparse];
 			} else {
-				rs = [pdfitem unparseResolved];
+				rs = [pdfitem unparse];
 			}
 		}
 		return rs;

@@ -15,6 +15,8 @@
 + (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(ObjcQPDFObjectHandle*)qp;
 - (instancetype)initWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(ObjcQPDFObjectHandle*)qp;
 - (ObjcQPDFObjectHandle*)object;
+- (NSString*)unparse;
+- (NSString*)unparseResolved;
 - (BOOL)hasParent;
 - (ObjcQPDFObjectHandle*)parent;
 - (QPDFNode*)parentNode;
