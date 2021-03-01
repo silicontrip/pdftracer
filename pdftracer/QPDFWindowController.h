@@ -1,12 +1,14 @@
 #import <Cocoa/Cocoa.h>
 #import "QPDFDocument.h"
 #import "QPDFNode.h"
+#import "QPDFOutlineView.h"
 
 @class QPDFDocument;
 @class OutlineQPDF;  // arg inconsistent names!
 @class OutlineQPDFObj;
 @class OutlineQPDFPage;
 @class QPDFWindow;
+@class QPDFOutlineView;
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate, NSUserInterfaceValidations>
 {
@@ -15,7 +17,7 @@
 	OutlineQPDFObj* objDS;
 	
 	NSInteger selectedRow;
-	NSOutlineView* selectedView;
+	QPDFOutlineView* selectedView;
 }
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw;
@@ -25,6 +27,8 @@
 
 - (void)updatePDF;
 - (void)updateOutlines:(QPDFNode*)node;
+- (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
+
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
 - (void)changeNotification0:(NSNotification*)nn;

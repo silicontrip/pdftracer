@@ -133,7 +133,7 @@
 	NSRect rr = NSMakeRect(10, 10, 640, 480);  // want better defaults
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
 	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered];
-	QPDFWindowController* nwc = [[QPDFWindowController alloc] initWithWindow:w];
+	QPDFWindowController* nwc = [[[QPDFWindowController alloc] initWithWindow:w] autorelease];
 
 	[self addWindowController:nwc];
 	
@@ -154,6 +154,31 @@
 	return [fn lastPathComponent];
 }
 
+- (ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search
+{
+	
+	if ([search isArray])
+	{
+		for (int w = 0 ; w < [search count]; w++)
+		{
+			ObjcQPDFObjectHandle* thisObj = [search objectAtIndex:w];
+			NSLog(@"%d . %@",w,[thisObj typeName]);
+		}
+		return nil;
+
+	} else if ([search isDictionary]) {
+		int w = 0;
+		for (NSString* kk in [search keys])
+		{
+			ObjcQPDFObjectHandle* thisObj = [search objectForKey:kk];
+			NSLog(@"%d . %@",++w,[thisObj typeName]);
+		}
+		return nil;
+	}
+	return nil;
+
+}
+
 // this is purely document changing code
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
 {
@@ -172,10 +197,10 @@
 			NSRegularExpression *indirectRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d+ \\d+ R"
 																						   options:0
 																							 error:&err];
-			
+			NSRange editRange = NSMakeRange(0, [editor length]);
 			NSUInteger indirects = [indirectRegex numberOfMatchesInString:editor
 																  options:0
-																	range:NSMakeRange(0, [editor length])];
+																	range:editRange];
 			
 			NSLog(@"number of indirects: %lu",indirects);
 			
@@ -184,7 +209,25 @@
 				rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:editor] autorelease];
 			} else {
 				// safe init
-				rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:@"()"] autorelease];
+				// turn all indirects into strings
+				/*  SO - 9661690
+				 NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:@"&[^;]*;" options:NSRegularExpressionCaseInsensitive error:&error];
+				 NSString *modifiedString = [regex stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:@""];
+				*/
+				NSString* safeUnparse = [indirectRegex stringByReplacingMatchesInString:editor options:0 range:editRange withTemplate:@"($0)"];
+				// rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
+				NSLog(@"indirect Replace ##########");
+				NSLog(@"%@",safeUnparse);
+				
+				rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
+				// walk the object and turn back into indirects
+				NSLog(@"type %@",[rePDFObj typeName]);
+				[self replaceIndirect:rePDFObj];
+				/*
+				 QPDFObjectHandle font = doSomethingToGetFont();
+				 auto resources = QPDFObjectHandle::parse("<< /Font << >> >>");
+				 resources.getKey("/Font").replaceKey("/F1", font);
+				 */
 				
 			}
 			// work out if rePDFObj is valid
@@ -201,7 +244,7 @@
 				
 				NSArray<ObjcQPDFObjectHandle*>* objTable= [qDocument objects];
 				for (ObjcQPDFObjectHandle* obj in objTable)
-					NSLog(@"Object: %@: %@",[obj name],[obj unparseResolved]);
+					NSLog(@"Object: %@: %@",[obj name],[obj unparse]);
 			} else {
 				ObjcQPDFObjectHandle* parent = [node parent];
 
