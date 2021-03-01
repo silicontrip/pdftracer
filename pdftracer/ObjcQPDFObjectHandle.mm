@@ -40,7 +40,7 @@
 
 -(ObjcQPDF*)owner
 {
-	return [[ObjcQPDF alloc] initWithQPDF:qObject.getOwningQPDF()];
+	return [[[ObjcQPDF alloc] initWithQPDF:qObject.getOwningQPDF()] autorelease];
 }
 
 -(BOOL)isNull { return qObject.isNull(); }
@@ -186,6 +186,8 @@
 
 -(NSString*)unparse
 {
+	std::string type =qObject.getTypeName();
+//	NSLog(@"qObject type:%s", type.c_str() );
 	return [NSString stringWithCString:qObject.unparse().c_str() encoding:NSMacOSRomanStringEncoding];
 }
 

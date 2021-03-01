@@ -7,7 +7,7 @@
 {
 	NSTableColumn* pdfObjectName = [[[NSTableColumn alloc] initWithIdentifier:@"Name"] autorelease];
 	NSTableColumn* pdfObjectType = [[[NSTableColumn alloc] initWithIdentifier:@"Type"] autorelease];
-	NSTableColumn* pdfObjectContents = [[NSTableColumn alloc] initWithIdentifier:@"Value"];
+	NSTableColumn* pdfObjectContents = [[[NSTableColumn alloc] initWithIdentifier:@"Value"] autorelease];
 	
 	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
 	// All the settings .plist
@@ -79,7 +79,7 @@
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
 			rs = [pdfitem typeName];
 		else
-			rs = [pdfitem unparseResolved];
+			rs = [pdfitem unparse];
 		
 		return rs;
 	}
