@@ -17,6 +17,16 @@
 -(void)setText:(NSString*)text
 {
 	[tView setString:text];
+
+}
+
+-(void)setFont:(NSFont*)font
+{
+	
+	tfont = font;
+	[tView setFont:tfont];  // user prefs
+
+	// [tfont retain];  // but how does it release
 }
 
 -(NSTextView*)textView
@@ -54,36 +64,49 @@
 	return nil;
 }
 
--(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn
+-(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn
 {
 	
 	NSLog(@"this Node: %@",nn);
-	QPDFNode * pp =[nn parentNode];
+	QPDFNode * pp = [nn parentNode];
 	NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 	
 	[ov reloadItem:nn];
-	
-	while (nn != nil)
-	{
-		NSLog(@"getting parent of %@",nn);
-		pp =[nn parentNode];
-		NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
-		[ov reloadItem:nn];
-		
-		nn = [nn parentNode];
-	}
-}
 
+//	while (nn != nil)
+//	{
+//		NSLog(@"getting parent of %@",nn);
+//		pp =[nn parentNode];
+//		NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
+//		[ov reloadItem:nn];
+//
+//		nn = [nn parentNode];
+//	}
+ 
+}
+/*
 -(void)updateAllOutlines:(QPDFNode *)node
 {
-//	NSLog(@"update all: %@",node);
+	NSLog(@"update all: %@",node);
 
-	[outlines[0] reloadItem:node reloadChildren:YES];
-	[outlines[1] reloadItem:node reloadChildren:YES];
-	[outlines[2] reloadItem:node reloadChildren:YES];
+	if (node != nil)
+	{
+		[outlines[0] reloadItem:node reloadChildren:NO];
+	//	if ([node parentNode] != nil)
+	//		[outlines[0] reloadItem:[node parentNode] reloadChildren:NO];
 
+		[outlines[1] reloadItem:nil reloadChildren:NO];
+		// object view doesn't have the parent you're looking for
+	//	if ([node parentNode] != nil)
+	//		[outlines[1] reloadItem:[node parentNode] reloadChildren:NO];
+
+		[outlines[2] reloadItem:node reloadChildren:NO];
+		if ([node parentNode] != nil)
+			[outlines[1] reloadItem:[node parentNode] reloadChildren:NO];
+
+	}
 }
-
+*/
 -(void)invalidateAll
 {
 	// NSLog(@"QPDFWindow Invalidate All");

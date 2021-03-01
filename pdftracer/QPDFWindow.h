@@ -40,14 +40,15 @@
 -(NSTextView*)textView;
 -(NSString*)text;
 -(void)setText:(NSString*)text;
+-(void)setFont:(NSFont*)font;
 
 -(void)removeEnabled:(BOOL)ena forIndex:(int)index;
 -(void)addEnabled:(BOOL)ena forIndex:(int)index;
 
 -(void)editorEnabled:(BOOL)ena;
 
--(void)updateAllOutlines:(QPDFNode*)node;
--(void)updateOutline:(NSOutlineView*)ov withNode:(QPDFNode*)nn;
+//-(void)updateAllOutlines:(QPDFNode*)node;
+-(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
 -(void)invalidateAll;
 
 -(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
