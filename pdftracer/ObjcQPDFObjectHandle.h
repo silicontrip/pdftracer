@@ -5,6 +5,36 @@
 
 @class ObjcQPDF;
 
+enum object_type_e {
+	// Object types internal to qpdf
+	ot_uninitialized,
+	ot_reserved,
+	// Object types that can occur in the main document
+	ot_null,
+	ot_boolean,
+	ot_integer,
+	ot_real,
+	ot_string,
+	ot_name,
+	ot_array,
+	ot_dictionary,
+	ot_stream,
+	// Additional object types that can occur in content streams
+	ot_operator,
+	ot_inlineimage,
+};
+
+typedef enum object_type_e object_type_e;
+
+// The Foundation way...
+
+/*
+typedef NS_ENUM(NSInteger, QPDFObjectType) {
+	...
+};
+*/
+// err but not right now
+
 @interface ObjcQPDFObjectHandle : NSObject<ObjcPDFObject>
 {
 // do not put c++ in the header
@@ -20,6 +50,7 @@
 -(BOOL)isExpandable;
 -(BOOL)isIndirect;
 -(NSUInteger)count;
+-(object_type_e)type;
 
 -(ObjcQPDF*)owner;
 
@@ -45,7 +76,24 @@
 
 -(BOOL)childrenContainIndirects;
 
+
 + (ObjcQPDFObjectHandle*)newNull;
++ (ObjcQPDFObjectHandle*)newBool:(BOOL)b;
++ (ObjcQPDFObjectHandle*)newInteger:(NSInteger)i;
++ (ObjcQPDFObjectHandle*)newReal:(double)n;
++ (ObjcQPDFObjectHandle*)newString:(NSString*)s;
++ (ObjcQPDFObjectHandle*)newName:(NSString*)s;
++ (ObjcQPDFObjectHandle*)newArray;
++ (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array;
++ (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect;
++ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(id)matrix;
++ (ObjcQPDFObjectHandle*)newDictionary;
++ (ObjcQPDFObjectHandle*)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict;
+
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf;
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withData:(NSData*)data;
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withString:(NSString*)data;
+
 
 
 @end

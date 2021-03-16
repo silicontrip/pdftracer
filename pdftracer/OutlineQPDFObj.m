@@ -120,7 +120,10 @@
 	NSTableColumn* pdfObjectObjRefVal = [[[NSTableColumn alloc] initWithIdentifier:@"value"] autorelease];
 	[pdfObjectObjRefVal setTitle:@"Value"];
 
+	// Autoresize
 	QPDFOutlineView* ooView = [[QPDFOutlineView alloc] init];
+	[ooView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
 	[ooView setIndentationPerLevel:16.0];
 	[ooView setIndentationMarkerFollowsCell:YES];
 	[ooView setSelectionHighlightStyle:NSTableViewSelectionHighlightStyleRegular];

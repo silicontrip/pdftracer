@@ -240,7 +240,7 @@
 
 				[qDocument replaceID:ogi with:rePDFObj];
 				
-				[(QPDFWindowController*)[[self windowControllers] firstObject] invalidateAll];
+	//			[(QPDFWindowController*)[[self windowControllers] firstObject] invalidateAll];
 				
 				NSArray<ObjcQPDFObjectHandle*>* objTable= [qDocument objects];
 				for (ObjcQPDFObjectHandle* obj in objTable)

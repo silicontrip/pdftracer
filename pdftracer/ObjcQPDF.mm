@@ -49,6 +49,12 @@
 	return self;
 }
 
+ // only for the other objc++ class
+-(QPDF*)qpdf
+{
+	return qDocument;
+}
+
 -(NSURL*)fileURL
 {
 	return [NSURL fileURLWithPath:[NSString stringWithUTF8String:qDocument->getFilename().c_str()]];
@@ -120,7 +126,7 @@
 
 -(NSData*)data
 {
-	NSLog(@">>> ObjcQPDF data");
+//	NSLog(@">>> ObjcQPDF data");
 	
 	QPDFWriter qwriter(*qDocument);
 	qwriter.setOutputMemory();
@@ -135,7 +141,7 @@
 //	delete(qDocument);
 //	qDocument = new QPDF();
 //	qDocument->processMemoryFile("NSData", (char*)[pdfData bytes], [pdfData length]);
-	NSLog(@"<<< ObjcQPDF data");
+//	NSLog(@"<<< ObjcQPDF data");
 
 	return pdfData;
 }

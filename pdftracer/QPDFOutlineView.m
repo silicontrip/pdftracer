@@ -2,6 +2,8 @@
 
 @implementation QPDFOutlineView
 
+@synthesize relatedSegment;
+
 - (BOOL)acceptsFirstResponder
 {
 	[super acceptsFirstResponder];
@@ -22,25 +24,11 @@
 	//NSWindowController* wc = [w windowController];
 	
 
-	[[[self window] windowController] selectChangeNotification:self];
+	// [[[self window] windowController] selectChangeNotification:self];
 	
 	return YES;
 }
-/*
-- (BOOL)validateMenuItem:(NSMenuItem*)anItem
-{
-	SEL theAction = [anItem action];
-	NSLog(@"VALIDATE: %@",NSStringFromSelector(theAction));
-	NSLog(@"current %@ %d",self, [self selectedRow]);
-	
-	if (theAction == @selector(delete:)) {
-		NSLog(@"delete... %@ %d",self,[self selectedRow]);
-		return NO;
-	}
-	// return [super validateUserInterfaceItem:anItem];
-	return YES;
-}
-*/
+
 /*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {

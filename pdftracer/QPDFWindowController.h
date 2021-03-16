@@ -4,7 +4,7 @@
 #import "QPDFOutlineView.h"
 
 @class QPDFDocument;
-@class OutlineQPDF;  // arg inconsistent names!
+@class OutlineQPDF;
 @class OutlineQPDFObj;
 @class OutlineQPDFPage;
 @class QPDFWindow;
@@ -15,15 +15,17 @@
 	OutlineQPDF* pdfDS;
 	OutlineQPDFPage* pageDS;
 	OutlineQPDFObj* objDS;
-	
-	NSInteger selectedRow;
-	QPDFOutlineView* selectedView;
 }
+@property (assign) NSInteger selectedRow;
+@property (weak,nonatomic) QPDFOutlineView* selectedView;
+@property (weak,nonatomic) QPDFNode* selectedNode;
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw;
+- (void)initDataSource;
+
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)anItem;
 
-- (void)invalidateAll;
+// - (void)invalidateAll;
 
 - (void)updatePDF;
 - (void)updateOutlines:(QPDFNode*)node;
@@ -31,16 +33,21 @@
 
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
-- (void)changeNotification0:(NSNotification*)nn;
-- (void)changeNotification1:(NSNotification*)nn;
-- (void)changeNotification2:(NSNotification*)nn;
-- (void)changeNotification:(NSNotification*)nn index:(int)outl;
-- (void)addRemove:(id)sender;
 
-- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
+
+- (void)selectRow:(NSInteger)sr forSource:qov;
+- (NSString*)getText;
+- (BOOL)isEditable;
+
+
+- (void)setText:(NSString*)s;
+
+//- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
 - (void)selectChangeNotification:(NSOutlineView*)no;
 - (void)selectObject:(id)sender;
 - (void)changeFont:(id)sender;
-- (void)initDataSource;
+- (void)addRemove:(id)sender;
+- (void)addType:(id)sender;
+
 
 @end

@@ -14,6 +14,6 @@
 }
 
 -(instancetype)initWithQPDF:(QPDF*)qpdf;
-
+-(QPDF*)qpdf;  // only for the other objc++ class
 
 @end

@@ -16,7 +16,9 @@
 	{
 		qpDocument = pdf;
 		ObjcQPDFObjectHandle* rootCatalog = [[qpDocument copyRootCatalog] autorelease];
-		//NSLog(@"make catalog");
+		
+		// NSLog(@"catalog type: %d",(int)[rootCatalog type]);
+		
 		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 		
 		//CGPDFDocumentRetain(myDocument);
@@ -225,8 +227,10 @@
 	NSTableColumn* pdfObjectContents = [[[NSTableColumn alloc] initWithIdentifier:@"Value"] autorelease];
 	[pdfObjectContents setTitle:@"Value"];
 
-	
+	// Autoresize
 	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
+	[oView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];
 	[oView setIndentationMarkerFollowsCell:YES];

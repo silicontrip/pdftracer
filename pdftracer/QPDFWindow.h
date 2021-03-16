@@ -7,7 +7,7 @@
 
 @class QPDFOutlineView;
 
-
+#import "QPDFSegmentedCell.h"
 #import "OutlineQPDF.h"
 #import "OutlineQPDFObj.h"
 #import "OutlineQPDFPage.h"
@@ -21,17 +21,21 @@
 @interface QPDFWindow : NSWindow
 {
 
-	NSTextView* tView;
-	PDFView *dView;
+//	NSTextView* textView;
+//	PDFView *documentView;
 
 	QPDFOutlineView* outlines[3];
 	NSSegmentedControl* segments[3];
 	
-	NSFont * tfont;
+//	NSFont * textFont;
 	
 	//NSSplitView* soView;
 	NSSplitView* sView[2];
 }
+
+@property (nonatomic,strong) NSTextView* textView;
+@property (nonatomic,strong) PDFView* documentView;
+@property (nonatomic,strong) NSFont* textFont;
 
 -(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing;
 

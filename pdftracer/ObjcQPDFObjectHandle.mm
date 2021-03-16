@@ -50,6 +50,7 @@
 -(BOOL)isDictionary { return qObject.isDictionary(); }
 -(BOOL)isExpandable { return qObject.isArray() || qObject.isDictionary(); }
 
+-(object_type_e)type { return (object_type_e)qObject.getTypeCode(); }
 
 -(NSUInteger)count
 {
@@ -139,6 +140,7 @@
 
 -(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
+	//NSLog(@"Replace object");
 	if (obj != nil)
 	{
 		std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
@@ -149,6 +151,7 @@
 		// I doubt that this should ever be called.
 		NSLog(@"Warning danger Will Robinson replacement object is nil");
 	}
+	
 }
 
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj
@@ -259,7 +262,69 @@
 {
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newNull()];
 }
++ (ObjcQPDFObjectHandle*)newBool:(BOOL)b
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newBool(b)];
+}
 
++ (ObjcQPDFObjectHandle*)newInteger:(NSInteger)i
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newInteger(i)];
+}
++ (ObjcQPDFObjectHandle*)newReal:(double)n
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newReal(n)];
+}
+
++ (ObjcQPDFObjectHandle*)newString:(NSString*)s
+{
+	const char* cs = [s cStringUsingEncoding:NSMacOSRomanStringEncoding];
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newString(std::string(cs))];
+}
++ (ObjcQPDFObjectHandle*)newName:(NSString*)s
+{
+	const char* cs = [s cStringUsingEncoding:NSMacOSRomanStringEncoding];
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newName(std::string(cs))];
+}
++ (ObjcQPDFObjectHandle*)newArray
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()];
+}
++ (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array
+{
+	// std::vector<QPDFObjectHandle> const& items);
+
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()];
+}
++ (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect
+{
+	return [ObjcQPDFObjectHandle newArrayWithArray:@[]];
+}
++ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(id)matrix
+{
+	return [ObjcQPDFObjectHandle newArrayWithArray:@[]];
+}
++ (ObjcQPDFObjectHandle*)newDictionary
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newDictionary()];
+}
++ (ObjcQPDFObjectHandle*)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newDictionary()];
+}
+
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
+}
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf withData:(NSData*)data
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
+}
++ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf withString:(NSString*)data
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
+}
 
 
 @end

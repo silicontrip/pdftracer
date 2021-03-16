@@ -2,41 +2,41 @@
 
 @implementation QPDFWindow
 
-
-
 -(void)editorEnabled:(BOOL)ena
 {
-	[tView setEditable:ena];
+	[self.textView setEditable:ena];
 }
 
 -(void)setDocument:(PDFDocument*)pdf
 {
-	[dView setDocument:pdf];
+	[self.documentView setDocument:pdf];
 }
 
 -(void)setText:(NSString*)text
 {
-	[tView setString:text];
-
+	if (text)
+		[self.textView setString:text];
 }
 
 -(void)setFont:(NSFont*)font
 {
 	
-	tfont = font;
-	[tView setFont:tfont];  // user prefs
+	self.textFont = font;
+	[self.textView setFont:self.textFont];  // user prefs
 
 	// [tfont retain];  // but how does it release
 }
 
--(NSTextView*)textView
+/*
+-(NSTextView*)self.textView
 {
-	return tView;
+	return textView;
 }
+*/
 
 -(NSString*)text
 {
-	return [tView string];
+	return [self.textView string];
 }
 
 -(void)addEnabled:(BOOL)ena forIndex:(int)index
@@ -120,6 +120,16 @@
 +(NSSegmentedControl*)addRemoveSegment
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];
+	[oSegment setTranslatesAutoresizingMaskIntoConstraints:NO];
+	QPDFSegmentedCell* csell = [[QPDFSegmentedCell alloc] init];
+	oSegment.cell = csell;
+	
+//	oSegment.cellClass = [QPDFSegmentedCell class];
+
+	NSArray* newTypes = @[@"Null",@"Bool",@"Integer",
+						  @"Real",@"String",@"Name",
+						  @"Array",@"Dictionary"];
+	
 	[oSegment setSegmentStyle:NSSegmentStyleSmallSquare];
 	[oSegment setSegmentCount:3];
 	[oSegment setImage:[NSImage imageNamed:NSImageNameAddTemplate] forSegment:0];
@@ -131,12 +141,50 @@
 	[oSegment setEnabled:NO forSegment:2];
 	[oSegment setTarget:nil];
 	[oSegment setAction:@selector(addRemove:)];
+	
+	// TEST CODE
+	NSMenu *myMenu = [NSMenu new];
+
+	//[NSUserDefault setConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints];
+	
+	// NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:]
+	
+	NSMenuItem *mi;
+	//loop item
+	NSInteger tagNo = 2;
+	for (NSString* menuString in newTypes)
+	{
+		mi = [[NSMenuItem new] autorelease];
+		[mi setTitle:menuString];
+		[mi setEnabled:YES];
+		[mi setTarget:nil];
+		[mi setAction:@selector(addType:)];
+		[mi setTag:tagNo++];
+		[myMenu addItem:mi];
+	}
+	
+	
+	[myMenu setAutoenablesItems:YES];
+
+	[oSegment setMenu:myMenu forSegment:0];
+	[oSegment setShowsMenuIndicator:YES forSegment:0];
+	[oSegment setAutoresizesSubviews:YES];
+	
+
+	// Class=[QPDFSegmentedCell class];
+	
+	
+	
+//	[oSegment setCell];
+	
 	return oSegment;
 }
 
 +(NSScrollView*)hvScrollView:(NSView*)doc
 {
 	NSScrollView* scView = [[[NSScrollView alloc] init] autorelease];
+	[scView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
 	[scView setHasVerticalScroller:YES];
 	[scView setHasHorizontalScroller:YES];
 	[scView setDocumentView:doc];
@@ -147,6 +195,9 @@
 +(NSStackView*)stackScroll:(NSView*)scroll andSegment:(NSView*)seg
 {
 	NSStackView* scsView = [[NSStackView alloc] init];
+	scsView.translatesAutoresizingMaskIntoConstraints = NO;
+	scsView.spacing = 0.0;
+	
 	[scsView setOrientation:NSUserInterfaceLayoutOrientationVertical];
 	[scsView setAlignment:NSLayoutAttributeLeading];
 	[scsView addView:scroll inGravity:NSStackViewGravityLeading];
@@ -164,6 +215,8 @@
 	// See NSRulerView
 	
 	NSTextView *tView = [[NSTextView alloc] initWithFrame:vRect];
+	//[tView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
 	[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
 	[tView setEditable:NO];
 	[tView setRichText:NO];
@@ -191,20 +244,47 @@
 		outlines[2] = [OutlineQPDFPage newView];
 	
 		segments[0] = [QPDFWindow addRemoveSegment];
-		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
-		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
+		outlines[0].relatedSegment = segments[0];
 		
+		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
+		//scView.translatesAutoresizingMaskIntoConstraints = NO;
+		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
+		// scsView.translatesAutoresizingMaskIntoConstraints = NO;
+
 		segments[1] = [QPDFWindow addRemoveSegment];
+		outlines[1].relatedSegment = segments[1];
+
 		NSScrollView* socView = [QPDFWindow hvScrollView:outlines[1]];
+		//socView.translatesAutoresizingMaskIntoConstraints = NO;
+
 		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:segments[1]];
+		// socsView.translatesAutoresizingMaskIntoConstraints = NO;
 
 		segments[2] = [QPDFWindow addRemoveSegment];
+		outlines[2].relatedSegment = segments[2];
+
 		NSScrollView* spcView = [QPDFWindow hvScrollView:outlines[2]];
+		// spcView.translatesAutoresizingMaskIntoConstraints = NO;
+
 		NSStackView* spcsView = [QPDFWindow stackScroll:spcView andSegment:segments[2]];
+		// spcsView.translatesAutoresizingMaskIntoConstraints = NO;
 
 		// unused constraints, maybe
 		// [[oSegment widthAnchor] constraintEqualToAnchor:[scView widthAnchor]],
 		// [[oSegment leadingAnchor] constraintEqualToAnchor:[scView leadingAnchor]],
+	
+
+		// scsView : Outline StackView
+		// scView : Outline ScrollView
+		// outlines[0] : Outline OutlineView
+		
+		// outlines[1] : Object OutlineView
+		// socView : Object Scroll
+		// socsView : object Stack
+		
+		// outlines[2] : Page Outline
+		// spcView : Page Scroll
+		// spcsView : Page Stack
 		
 		[NSLayoutConstraint activateConstraints:@[
 												  [[segments[0] topAnchor] constraintEqualToAnchor:[scView bottomAnchor]],
@@ -215,23 +295,26 @@
 												  [[socView widthAnchor] constraintEqualToAnchor:[socsView widthAnchor]],
 												  [[segments[2] topAnchor] constraintEqualToAnchor:[spcView bottomAnchor]],
 												  [[segments[2] trailingAnchor] constraintEqualToAnchor:[spcsView trailingAnchor]],
-												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]],
+												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
-		
 
-		
-		tView = [QPDFWindow textEditorView];
+		self.textView = [QPDFWindow textEditorView];
 
 		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
+		sctView.translatesAutoresizingMaskIntoConstraints = NO;
+
 		[sctView setHasVerticalScroller:YES];
-		[sctView setDocumentView:tView];
+		[sctView setDocumentView:self.textView];
 		
-		dView = [[[PDFView alloc] init] autorelease];
-		[dView setDisplayMode:kPDFDisplaySinglePage];
+		self.documentView = [[[PDFView alloc] init] autorelease];
+		[self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+
+		[self.documentView setDisplayMode:kPDFDisplaySinglePage];
 
 		NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
 
 		sView[1]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		[sView[1] setTranslatesAutoresizingMaskIntoConstraints:NO];
 		[sView[1] setVertical:NO];
 		[sView[1] addArrangedSubview:scsView];
 		[sView[1] addArrangedSubview:socsView];
@@ -240,10 +323,12 @@
 
 		// and the windows windows
 		sView[0]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		[sView[0] setTranslatesAutoresizingMaskIntoConstraints:NO];
+
 		[sView[0] setVertical:YES];
 		[sView[0] addArrangedSubview:sView[1]];
 		[sView[0] addArrangedSubview:sctView];
-		[sView[0] addArrangedSubview:dView];
+		[sView[0] addArrangedSubview:self.documentView];
 
 		NSWindowCollectionBehavior behavior = [self collectionBehavior];
 		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
@@ -251,6 +336,7 @@
 		[self setContentView:sView[0]];
 		[self orderFrontRegardless];
 	}
+	
 	return self;
 }
 
