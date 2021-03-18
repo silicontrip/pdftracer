@@ -168,13 +168,13 @@
 
 - (BOOL)addEnabled
 {
-	NSLog(@"addEnabled? %@",[selectedNode object]);
+	//NSLog(@"addEnabled? %@",[selectedNode object]);
 	return [[selectedNode object] isExpandable];
 }
 
 - (BOOL)removeEnabled
 {
-	NSLog(@"removeEnabled? %@",[selectedNode object]);
+//	NSLog(@"removeEnabled? %@",[selectedNode object]);
 	return [self isSelected];
 }
 
@@ -188,55 +188,38 @@
 	[[selectedView relatedSegment] setEnabled:ena forSegment:1];
 }
 
-
-/*
-- (void)enableAddRemove:(NSSegmentedControl*)ctrl forRow:(NSInteger)row outline:(QPDFOutlineView*)qov
-{
-	NSSegmentedControl* related = [qov relatedSegment];
-	if (row >= 0 )
-	{
-		[[qov relatedSegment] setEnabled:YES forSegment:0];
-		[[qov relatedSegment] setEnabled:YES forSegment:1];
-
-		QPDFNode* selNode = [selectedView itemAtRow:selectedRow];
-		
-		if ([[selNode object] isExpandable])
-			[[qov relatedSegment] setEnabled:YES forSegment:0];
-		else
-			[[qov relatedSegment] setEnabled:NO forSegment:0];
-	}
-	else
-		[[qov relatedSegment] setEnabled:NO forSegment:0];
-
-	//	[(QPDFWindow*)[self window] removeEnabled:NO forIndex:outl];
-}
-*/
-
 // changeText -> refreshOutline, setText, refreshPDF, documentChanged
 
 - (void)changeText:(NSInteger)row forSource:(QPDFOutlineView*)qov with:(NSString*)es
 {
+	NSLog(@"changeText: %ld for:%@ with:%@",(long int)row,qov,es);
 	
 }
 
-// addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 
 - (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
 {
 	if ([container isArray])
 	{
+	
 		//NSLog(@"Parent is array");
 		[container addObject:obj];
 	} else if ([container isDictionary]) {
 		// find unique name
-		// NSString* uniqueName = @"/Untitled";
-		// NSLog(@"Parent is Dictionary");
+		NSString* uniqueName = @"/Untitled";
+		int version=1;
+		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
+		while (found) {
+			uniqueName = [NSString stringWithFormat:@"/Untitled-%d",version++];
+			found = [container objectForKey:uniqueName];
+		}
+	// NSLog(@"Parent is Dictionary");
 		
-		[container replaceObject:obj forKey:@"/New"];
+		[container replaceObject:obj forKey:uniqueName];
 	} else {
 		NSLog(@"Adding to unknown type");
 	}
-
+	
 }
 
 /*
@@ -267,27 +250,7 @@
 }
 */
 
-//deleteRow -> deleteRow, refreshOutline, setRow, setText, enaAddRemove, refreshPDF, documentChanged
 
-- (void)deleteRow:(NSInteger)row forSource:(QPDFOutlineView*)qov
-{
-	QPDFNode *item = [qov itemAtRow:row];
-	QPDFNode *parent = [item parentNode];
-	QPDFWindow *win = (QPDFWindow*)[self window];
-	
-	[[self document] deleteNode:item];  // the document should record that it's changed.
-	// what about deleting from the view, rather than
-	// refresh outline
-	[qov reloadItem:parent];
-	
-	PDFDocument* doc = [[self document] pdfdocument];
-	[win.documentView setDocument:doc];
-	
-	//[self setSelectedRow:[qov selectedRow]];
-	[self selectRow:[qov selectedRow] forSource:qov];
-	
-
-}
 
 // selectRow -> #setOV, #setRow, #setText, enaEdit, #enaAddRemove;
 
@@ -313,17 +276,17 @@
 // MARK: interface events
 
 
-
+// this happens after each keypres..?
 - (void)textDidChange:(NSNotification *)notification
 {
-	// NSLog(@"textDidChange %@",notification); // from textview
-	QPDFNode* node = [selectedView itemAtRow:selectedRow];
+	 NSLog(@"textDidChange %@",notification); // from textview
+	//QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	
 	NSString *editor = [(QPDFWindow*)[self window] text];
 	
-	[[self document] replaceQPDFNode:node withString:editor];
+	[[self document] replaceQPDFNode:selectedNode withString:editor];
 
 }
 
@@ -333,9 +296,9 @@
 	// NSLog(@"textDidEndEditing %@ UI:%@",aNotification,[aNotification userInfo]);  // from outline
 
 	//which column is being edited...
-	QPDFOutlineView* ov = [aNotification object];
+//	QPDFOutlineView* ov = [aNotification object];
 	
-	 NSLog(@"textDidEndEditing %@",ov);  // from outline
+//	 NSLog(@"textDidEndEditing %@",ov);  // from outline
 
 	
 	NSTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
@@ -343,11 +306,12 @@
 	if (fieldEditor)
 	{
 		NSString * editor = [[fieldEditor textStorage] string];
-
 		[self changeText:selectedRow forSource:selectedView with:editor];
 		
+		// refresh outline, refreshPDF, documentChange
+		
 	}
-	NSLog(@"<<< textDidEndEditing %@",ov);  // from outline
+//	NSLog(@"<<< textDidEndEditing %@",ov);  // from outline
 
 }
 
@@ -411,19 +375,8 @@
 	}];
 	[p autorelease];
 }
-/*
-- (BOOL)canAdd
-{
-	NSLog(@"canadd? %@",[selectedNode parentNode]);
-	return [[selectedNode parent] isExpandable];
-}
 
-- (BOOL)canDelete
-{
-	return (selectedRow != -1);
-
-}
- */
+// addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 
 - (void)addType:(id)sender;
 {
@@ -431,11 +384,14 @@
 	QPDFOutlineView* ov = self.selectedView;
 	QPDFNode *item = [ov itemAtRow:osr];
 	ObjcQPDFObjectHandle *toObj = [item object];
+//	ObjcQPDF* toQPDF = [toObj owner];
 	
 	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
 	
-	NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
+//	NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 	ObjcQPDFObjectHandle* newobj = nil;
+// if adding to dictionary auto highlight edit /Name
+	// if adding to array auto highlight edit value
 	switch (type) {
 		case ot_null:
 			newobj = [ObjcQPDFObjectHandle newNull];
@@ -453,7 +409,7 @@
 			newobj=[ObjcQPDFObjectHandle newString:@""];
 			break;;
 		case ot_name:
-			newobj=[ObjcQPDFObjectHandle newName:@""];
+			newobj=[ObjcQPDFObjectHandle newName:@"/Name"];
 			break;;
 		case ot_array:
 			newobj=[ObjcQPDFObjectHandle newArray];
@@ -462,7 +418,8 @@
 			newobj=[ObjcQPDFObjectHandle newDictionary];
 			break;;
 		case ot_stream:
-			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[toObj owner]];
+			NSLog(@"creating stream");
+			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[item owner] withString:@" "];
 			break;
 		default:
 			NSLog(@"You're creating a wha-?");
@@ -472,42 +429,78 @@
 	{
 		QPDFWindow *win = (QPDFWindow*)[self window];
 	
-		[self addObject:newobj to:toObj];
+		// addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
+
+		[ov beginUpdates];
+		
+		[self addObject:newobj to:toObj];  // Add Row
+		[ov reloadItem:item reloadChildren:YES]; // refresh Outline
+		[self selectRow:[ov selectedRow] forSource:ov]; // setRow
+
+		[ov expandItem:item];
 	
-		[ov reloadItem:item reloadChildren:YES];
-	
+		
+		// set Text
+		// set the textView with text for the current selected object or stream
+		[self setEditText:[self editText]];  // seems kind of superfluous, there must be some better named logical expression for this.
+
+		// ena A R
+		// enable the add/Remove buttons depending on what's selected.
+		[self setAddEnabled:[self addEnabled]]; // i'm seeing a pattern here
+		[self setRemoveEnabled:[self removeEnabled]]; 
+		
+		// refresh PDF
 		PDFDocument* doc = [[self document] pdfdocument];
 		[win.documentView setDocument:doc];
-	
-		[self selectRow:[ov selectedRow] forSource:ov];
+
+		//documentChanged
+		[[self document] updateChangeCount:NSChangeDone];
+		[ov endUpdates];
+
 	}
 	
-//	[self addRow:osr forSource:ov ofType:type];
+}
 
+//deleteRow -> deleteRow, refreshOutline, setRow, setText, enaAddRemove, refreshPDF, documentChanged
+
+- (void)deleteRow:(NSInteger)row forSource:(QPDFOutlineView*)qov
+{
+	QPDFNode *item = [qov itemAtRow:row];
+	QPDFNode *parent = [item parentNode];
+	QPDFWindow *win = (QPDFWindow*)[self window];
+	
+	[[self document] deleteNode:item];  // the document should record that it's changed.
+	// what about deleting from the view, rather than
+	
+	
+	// refresh outline
+	[qov reloadItem:parent reloadChildren:YES];
+	[self selectRow:[qov selectedRow] forSource:qov];
+
+	[self setAddEnabled:[self addEnabled]]; // i'm seeing a pattern here
+	[self setRemoveEnabled:[self removeEnabled]];
+	
+	[self setEditText:[self editText]];
+	
+	PDFDocument* doc = [[self document] pdfdocument];
+	[win.documentView setDocument:doc];
+	
+	//[self setSelectedRow:[qov selectedRow]];
+	
+	[[self document] updateChangeCount:NSChangeDone];
+
+	
 }
 
 - (void)addRemove:(id)sender
 {
-	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
+//	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
 		// NSLog(@"selected: %ld",(long)[sc selectedSegment]);
 	NSInteger osr = self.selectedRow;
 	QPDFOutlineView* ov = self.selectedView;
-	
-	NSInteger selectedSeg = [sc selectedSegment];
-	// this should never be true
-//	if (selectedSeg == 0 ) { // add
-		// QPDFNode* selNode = [selectedView itemAtRow:selectedRow];
-		// NSLog(@"### add ###");
 
-		//[self addRow:osr forSource:ov];
-		
-//	}
-	if (selectedSeg==1)
-	{
 		NSLog(@"### delete ###");
 		[self deleteRow:osr forSource:ov];
-
-	}
 	
 }
 

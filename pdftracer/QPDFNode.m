@@ -40,6 +40,16 @@
 }
 	
 - (ObjcQPDFObjectHandle*)object { return qpdfhandle; }
+
+- (ObjcQPDF*)owner
+{
+	ObjcQPDF* own = [qpdfhandle owner];
+	if (own == nil)
+		own = [parentNode owner];  // it is possible to hit the top of the tree.
+	
+	return own;
+}
+
 // - (QPDFObjectHandleObjc*)parent { return parent; }
 
 - (ObjcQPDFObjectHandle*)parent

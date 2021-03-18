@@ -95,7 +95,7 @@ int main (int argc, char * const argv[])
 
 	}
 	
-	[NSApp run];
+[NSApp run];
 
 	[splash release];
 	

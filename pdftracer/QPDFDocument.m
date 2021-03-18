@@ -50,7 +50,7 @@
 {
 	[self setFileURL:url];
 	qDocument = [[ObjcQPDF alloc] initWithURL:url];
-	
+	[self setDisplayName:[url description]];
 	return YES;
 }
 
@@ -89,6 +89,7 @@
 	NSURL * fn = [NSURL fileURLWithPath:[qDocument filename]];
 
 	[self writeToURL:fn ofType:@"PDF" error:&theError];
+	[self updateChangeCount:NSChangeCleared];
 	
 }
 
@@ -112,6 +113,8 @@
 		}
 		[p autorelease];
 	}];
+	[self updateChangeCount:NSChangeCleared];
+
 }
 
 + (BOOL)autosavesInPlace {
@@ -265,26 +268,52 @@
 
 - (void)deleteNode:(QPDFNode*)nd
 {
-	QPDFNode* pa = [nd parentNode];
-	if (pa != nil)
+	QPDFNode* paNode = [nd parentNode];
+	
+	//NSLog(@"deletenode:\n %@\nfrom %@",nd,paNode);
+	
+	if (paNode != nil)
 	{
-		ObjcQPDFObjectHandle* parentNode = [pa object];
+		ObjcQPDFObjectHandle* parent = [paNode object];
+		
+	//	NSLog(@"delete from type:: %@",[parent typeName]);
+
+	//	NSLog(@"isArray: %d",[parent isArray]);
+	//	NSLog(@"isDictionary: %d",[parent isDictionary]);
+
 		// delet from parent
-		if ([parentNode isArray])
+		if ([parent isArray])
 		{
+			NSLog(@"delete from Array");
+			NSLog(@"node name: %@",[nd name]);
+
+			NSInteger element = [[nd name] intValue];
+			[parent removeObjectAtIndex:element];
+			[self updateChangeCount:NSChangeDone];
+
 			// delete from array
-		} else if ([parentNode isDictionary]) {
+		} else if ([parent isDictionary]) {
+			NSLog(@"delete from Dictionary");
+
+			NSLog(@"node name: %@",[nd name]);
+			[parent removeObjectForKey:[nd name]];
+
+			[self updateChangeCount:NSChangeDone];
 			// delete from Dictionary
 		} else {
 			// yet another unknown parent type
-			NSLog(@"I didn't expect to get here: %@",[parentNode typeName]);
+			NSLog(@"delete from wha-?");
+
+			NSLog(@"I didn't expect to get here: %@",[parent typeName]);
 		}
 	} else {
 		// top level item.
 		ObjcQPDFObjectHandle* tn = [nd object];
 		if ([tn isIndirect]) {
 			NSString* gen = [tn objectGenerationID];
-			
+			[qDocument removeID:gen];
+			[self updateChangeCount:NSChangeDone];
+
 		}
 
 	}

@@ -28,12 +28,14 @@ typedef enum object_type_e object_type_e;
 
 // The Foundation way...
 
-/*
+
 typedef NS_ENUM(NSInteger, QPDFObjectType) {
-	...
+ 	QPDFObjectTypeUninitialized = 0,
+ 	QPDFObjectTypeReserved = 1,
+ 	QPDFObjectTypeNull = 2
 };
-*/
-// err but not right now
+
+// err but not right now, but wait there's more
 
 @interface ObjcQPDFObjectHandle : NSObject<ObjcPDFObject>
 {

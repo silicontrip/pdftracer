@@ -11,6 +11,8 @@
 	{
 		qDocument = new QPDF();
 		qDocument->emptyPDF();
+		
+		NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
 	}
 	return self;
 }
@@ -23,6 +25,8 @@
 		NSString *fn = [fileURL path];
 		qDocument = new QPDF();
 		qDocument->processFile([fn UTF8String]);
+		NSLog(@"initWithURL QPDF %@ - %lx",self,(unsigned long)qDocument);
+
 	}
 	return self;
 }
@@ -34,6 +38,9 @@
 	{
 		qDocument = new QPDF();
 		qDocument->processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
+		
+		NSLog(@"initWithData QPDF %@ - %lx",self,(unsigned long)qDocument);
+
 	}
 	return self;
 }
@@ -45,6 +52,9 @@
 	if (self)
 	{
 		qDocument = qpdf;
+		
+		NSLog(@"(objc++) initWith QPDF %@ - %lx",self,(unsigned long)qDocument);
+
 	}
 	return self;
 }
@@ -52,6 +62,8 @@
  // only for the other objc++ class
 -(QPDF*)qpdf
 {
+	NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
+
 	return qDocument;
 }
 
@@ -145,9 +157,6 @@
 
 	return pdfData;
 }
-
-
-
 
 -(NSData*)data_507
 {

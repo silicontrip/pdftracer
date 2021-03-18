@@ -38,9 +38,17 @@
     return self;
 }
 
+// returns
 -(ObjcQPDF*)owner
 {
-	return [[[ObjcQPDF alloc] initWithQPDF:qObject.getOwningQPDF()] autorelease];
+	QPDF* owner = qObject.getOwningQPDF();
+	
+//	NSLog(@"from object: %@",self);
+//	NSLog(@"Owner .. %lx",(unsigned long)owner);
+	if (owner)
+		return [[[ObjcQPDF alloc] initWithQPDF:owner] autorelease];
+	else
+		return nil;
 }
 
 -(BOOL)isNull { return qObject.isNull(); }
@@ -116,9 +124,17 @@
 -(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
-	QPDFObjectHandle tempObj  =  qObject.getKey(tempKey);
-	return [[[ObjcQPDFObjectHandle alloc] initWithObject:tempObj] autorelease];
+	BOOL hasKey = qObject.hasKey(tempKey);
+	if (hasKey) {
+		QPDFObjectHandle tempObj  =  qObject.getKey(tempKey);
+	
+	//NSLog(@"object for key: is initialised: %d",tempObj.isInitialized());
+	
+		return [[[ObjcQPDFObjectHandle alloc] initWithObject:tempObj] autorelease];
+	}
+	return nil;
 }
+
 
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
 {
@@ -315,15 +331,26 @@
 
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf
 {
+	// NSLog(@"new Stream");
+	
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
 }
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf withData:(NSData*)data
 {
-	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
+	
+	unsigned char* bd =(unsigned char*) [data bytes];
+	size_t noBytes = [data length];
+	
+	Buffer* buf = new Buffer(bd,noBytes);
+	
+	PointerHolder<Buffer> phb(buf);
+	
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf],phb)];
 }
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf withString:(NSString*)data
 {
-	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
+	std::string stringData([data cStringUsingEncoding:NSMacOSRomanStringEncoding]);
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf],stringData)];
 }
 
 

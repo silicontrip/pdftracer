@@ -38,7 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)deleteNode:(QPDFNode*)nd;
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor;
 
-
 @end
 
 NS_ASSUME_NONNULL_END

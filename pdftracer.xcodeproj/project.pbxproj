@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D114D982600CEBC00F8A6F1 /* libqpdf.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D114D972600CEBC00F8A6F1 /* libqpdf.28.dylib */; };
 		4D147B9125AAA8A7001AB1A3 /* corepdf.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D36C04925A2CF75007E0EAD /* corepdf.m */; };
 		4D147B9925ADD824001AB1A3 /* parsepdf.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D147B9825ADD824001AB1A3 /* parsepdf.mm */; };
 		4D147B9F25B06A04001AB1A3 /* Quartz.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D147B9E25B06A04001AB1A3 /* Quartz.framework */; };
@@ -42,7 +43,6 @@
 		4D8EE7212598A4C9008D2DA2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D163CF925987C0900C8C7D3 /* CoreGraphics.framework */; };
 		4D8EE7222598A51F008D2DA2 /* editor.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163D002598A0A000C8C7D3 /* editor.m */; };
 		4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */; };
-		4D9CCA8925DFD5340003DF13 /* libqpdf.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D9CCA8825DFD5340003DF13 /* libqpdf.28.dylib */; };
 		4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */; };
 /* End PBXBuildFile section */
 
@@ -96,6 +96,7 @@
 
 /* Begin PBXFileReference section */
 		4D114D9625FECACA00F8A6F1 /* TestConstrants.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TestConstrants.xib; sourceTree = "<group>"; };
+		4D114D972600CEBC00F8A6F1 /* libqpdf.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libqpdf.28.dylib; path = ../../../../../usr/local/Cellar/qpdf/10.3.1/lib/libqpdf.28.dylib; sourceTree = "<group>"; };
 		4D147B9825ADD824001AB1A3 /* parsepdf.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = parsepdf.mm; path = ../../parsepdf.mm; sourceTree = "<group>"; };
 		4D147B9E25B06A04001AB1A3 /* Quartz.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Quartz.framework; path = System/Library/Frameworks/Quartz.framework; sourceTree = SDKROOT; };
 		4D163CE7259879ED00C8C7D3 /* pdftracer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = pdftracer; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -158,7 +159,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4D9CCA8925DFD5340003DF13 /* libqpdf.28.dylib in Frameworks */,
+				4D114D982600CEBC00F8A6F1 /* libqpdf.28.dylib in Frameworks */,
 				4D147B9F25B06A04001AB1A3 /* Quartz.framework in Frameworks */,
 				4D8EE71D2598A4A2008D2DA2 /* AppKit.framework in Frameworks */,
 				4D163CFA25987C0900C8C7D3 /* CoreGraphics.framework in Frameworks */,
@@ -292,6 +293,7 @@
 			isa = PBXGroup;
 			children = (
 				4D9CCA8825DFD5340003DF13 /* libqpdf.28.dylib */,
+				4D114D972600CEBC00F8A6F1 /* libqpdf.28.dylib */,
 				4D147B9E25B06A04001AB1A3 /* Quartz.framework */,
 				4D8EE71C2598A4A1008D2DA2 /* AppKit.framework */,
 				4D163CF925987C0900C8C7D3 /* CoreGraphics.framework */,
@@ -750,10 +752,10 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
-				HEADER_SEARCH_PATHS = /usr/local/Cellar/qpdf/10.1.0/include;
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/qpdf/10.3.1/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/qpdf/10.1.0/lib,
+					/usr/local/Cellar/qpdf/10.3.1/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -770,10 +772,10 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Manual;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.objcpp;
-				HEADER_SEARCH_PATHS = /usr/local/Cellar/qpdf/10.1.0/include;
+				HEADER_SEARCH_PATHS = /usr/local/Cellar/qpdf/10.3.1/include;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/qpdf/10.1.0/lib,
+					/usr/local/Cellar/qpdf/10.3.1/lib,
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";

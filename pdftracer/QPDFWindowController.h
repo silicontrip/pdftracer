@@ -28,7 +28,7 @@
 // - (void)invalidateAll;
 
 - (void)updatePDF;
-- (void)updateOutlines:(QPDFNode*)node;
+// - (void)updateOutlines:(QPDFNode*)node;
 - (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
 
 - (void)textDidChange:(NSNotification *)notification;
@@ -36,11 +36,13 @@
 
 
 - (void)selectRow:(NSInteger)sr forSource:qov;
-- (NSString*)getText;
-- (BOOL)isEditable;
+- (NSString*)editText;
+//- (BOOL)isEditable;
+- (BOOL)editEnabled;
 
 
-- (void)setText:(NSString*)s;
+//- (void)setText:(NSString*)s;
+- (void)setEditText:(NSString*)s;
 
 //- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
 - (void)selectChangeNotification:(NSOutlineView*)no;

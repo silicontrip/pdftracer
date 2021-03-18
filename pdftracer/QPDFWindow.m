@@ -128,7 +128,7 @@
 
 	NSArray* newTypes = @[@"Null",@"Bool",@"Integer",
 						  @"Real",@"String",@"Name",
-						  @"Array",@"Dictionary"];
+						  @"Array",@"Dictionary",@"Stream"];
 	
 	[oSegment setSegmentStyle:NSSegmentStyleSmallSquare];
 	[oSegment setSegmentCount:3];
