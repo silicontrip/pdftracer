@@ -31,7 +31,7 @@
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		try {
         	qObject = QPDFObjectHandle::parse(qpdfdef);
-		} catch (QPDFExc e) {
+		} catch (std::logic_error e) {
 			return nil;
 		}
     }
@@ -90,12 +90,16 @@
 
 -(NSData*)stream
 {
-	PointerHolder<Buffer> bufRef = qObject.getStreamData();
-	
-	Buffer* buf = bufRef.getPointer();
-	size_t sz = buf->getSize();
-	unsigned char * bb = buf->getBuffer();
-	return [[[NSData alloc] initWithBytes:bb length:sz] autorelease];
+	try {
+		PointerHolder<Buffer> bufRef = qObject.getStreamData();
+		Buffer* buf = bufRef.getPointer();
+		size_t sz = buf->getSize();
+		unsigned char * bb = buf->getBuffer();
+		return [[[NSData alloc] initWithBytes:bb length:sz] autorelease];
+	} catch (QPDFExc e) {
+		return nil;
+	}
+
 }
 
 -(NSArray<NSString*>*)keys
