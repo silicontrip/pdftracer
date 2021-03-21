@@ -287,7 +287,7 @@
 			NSLog(@"delete from Array");
 			NSLog(@"node name: %@",[nd name]);
 
-			NSInteger element = [[nd name] intValue];
+			int element = [[nd name] intValue];
 			[parent removeObjectAtIndex:element];
 			[self updateChangeCount:NSChangeDone];
 
