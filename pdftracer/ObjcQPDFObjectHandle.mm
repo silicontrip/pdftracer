@@ -156,7 +156,7 @@
 
 -(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
-	//NSLog(@"Replace object");
+	NSLog(@"Replace object: %@ for: %@",obj,key);
 	if (obj != nil)
 	{
 		std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
@@ -172,6 +172,8 @@
 
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj
 {
+	NSLog(@"Replace object: %lu for: %@",index,obj);
+
 	if (obj != nil)
 	{
 		qObject.setArrayItem((int)index, [obj qpdfobject]);
@@ -352,6 +354,34 @@
 	std::string stringData([data cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf],stringData)];
 }
++ (ObjcQPDFObjectHandle*)newIndirect:(NSString*)objGen for:(ObjcQPDF*)qpdf
+{
+	NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
+	int objid = [[objElem objectAtIndex:0] intValue];
+	int genid = [[objElem objectAtIndex:1] intValue];
+	
+	QPDFObjGen newGen(objid, genid);
+	QPDFObjectHandle oh = [qpdf qpdf]->getObjectByObjGen(newGen);
+	
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:oh];
+									   //QPDFObjectHandle::newIndirect([qpdf qpdf], objid, genid)];
 
+}
+
+/*
++ (ObjcQPDFObjectHandle*)newIndirect:(NSString*)objGen usingReference:(ObjcQPDFObjectHandle*)qpdfoh
+{
+	NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
+	int objid = [[objElem objectAtIndex:0] intValue];
+	int genid = [[objElem objectAtIndex:1] intValue];
+	
+	QPDFObjGen newGen(objid, genid);
+	QPDFObjectHandle oh = [[qpdf qpdf]->getObjectByObjGen(newGen);
+	
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:oh];
+	//QPDFObjectHandle::newIndirect([qpdf qpdf], objid, genid)];
+	
+}
+*/
 
 @end

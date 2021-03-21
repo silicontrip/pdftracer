@@ -17,6 +17,8 @@
 	OutlineQPDFObj* objDS;
 }
 @property (assign) NSInteger selectedRow;
+@property (assign) NSInteger selectedColumn;
+
 @property (weak,nonatomic) QPDFOutlineView* selectedView;
 @property (weak,nonatomic) QPDFNode* selectedNode;
 
@@ -33,6 +35,9 @@
 
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
+
+// - (void)changeText:(NSInteger)row column:(NSInteger)column forSource:(QPDFOutlineView*)qov with:(NSString*)es;
+- (void)changeText:(QPDFOutlineView*)qov with:(NSString*)es;
 
 
 - (void)selectRow:(NSInteger)sr forSource:qov;

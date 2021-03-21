@@ -14,6 +14,8 @@
 @implementation QPDFWindowController
 
 @synthesize selectedRow;
+@synthesize selectedColumn;
+
 @synthesize selectedView;
 @synthesize selectedNode;
 
@@ -190,19 +192,70 @@
 
 // changeText -> refreshOutline, setText, refreshPDF, documentChanged
 
-- (void)changeText:(NSInteger)row forSource:(QPDFOutlineView*)qov with:(NSString*)es
+//- (void)changeText:(NSInteger)row column:(NSInteger)column forSource:(QPDFOutlineView*)qov with:(NSString*)es
+- (void)changeText:(QPDFOutlineView*)qov with:(NSString*)es
 {
-	NSLog(@"changeText: %ld for:%@ with:%@",(long int)row,qov,es);
+	NSInteger row = [qov editedRow];
+	NSInteger col = [qov editedColumn];
+	
+	QPDFNode* node = [qov itemAtRow:row];
+	ObjcQPDFObjectHandle* parent = [node parent];
+	NSString* name = [node name];  // dictionary key or array index value
+
+	
+	NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
+	// something else is changing...
+	// NSLog(@"not doing anything");
+	
+	if (col == 0) {
+			//Changing Name
+		if ([parent isDictionary])
+		{
+			[parent removeObjectForKey:name];
+			[parent replaceObject:[node object] forKey:es];
+		} else {
+			NSLog(@"Cannot Change");
+		}
+	}
+	if (col == 2) {
+		// make indirect object
+		
+		ObjcQPDFObjectHandle* newobj;
+		
+		NSArray<NSString*>* objElem= [es componentsSeparatedByString:@" "];
+		if (([objElem count] == 3) &&
+			([[objElem objectAtIndex:2] isEqualToString:@"R"]) &&
+			([[objElem objectAtIndex:0] integerValue] != 0))
+			{
+				newobj = [ObjcQPDFObjectHandle newIndirect:es for:[[self document] doc]];
+			}
+			else
+			{
+				NSLog(@"object elem: %lu",(unsigned long)[objElem count]);
+				newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es];
+			}
+		if (newobj) {
+			if ([parent isArray])
+			{
+				[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
+			} else if ([parent isDictionary]) {
+				[parent replaceObject:newobj forKey:name];
+			} else {
+				// who's your daddy?
+				NSLog(@"parent is not dictionary or array");  // so wtf is it?
+			}
+			[newobj autorelease];
+		}
+	}
+	
+
 	
 }
-
 
 - (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
 {
 	if ([container isArray])
 	{
-	
-		//NSLog(@"Parent is array");
 		[container addObject:obj];
 	} else if ([container isDictionary]) {
 		// find unique name
@@ -213,7 +266,6 @@
 			uniqueName = [NSString stringWithFormat:@"/Untitled-%d",version++];
 			found = [container objectForKey:uniqueName];
 		}
-	// NSLog(@"Parent is Dictionary");
 		
 		[container replaceObject:obj forKey:uniqueName];
 	} else {
@@ -293,23 +345,31 @@
 // This notification is sent when enter is pressed after editing a text cell
 - (void)textDidEndEditing:(NSNotification*)aNotification {
 	
-	// NSLog(@"textDidEndEditing %@ UI:%@",aNotification,[aNotification userInfo]);  // from outline
-
-	//which column is being edited...
-//	QPDFOutlineView* ov = [aNotification object];
+	NSLog(@"textDidEndEditing");
 	
-//	 NSLog(@"textDidEndEditing %@",ov);  // from outline
-
-	
+	selectedView = [aNotification object];
 	NSTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
 	
 	if (fieldEditor)
 	{
+		
+		selectedRow = [selectedView editedRow];
+		selectedColumn = [selectedView editedColumn];
+
+		
+		selectedNode = [selectedView itemAtRow:selectedRow];
+		
 		NSString * editor = [[fieldEditor textStorage] string];
-		[self changeText:selectedRow forSource:selectedView with:editor];
+		[self changeText:selectedView with:editor];
 		
 		// refresh outline, refreshPDF, documentChange
+		NSLog(@"reloading: %@",selectedNode);
+		[selectedView reloadItem:[selectedNode parentNode] reloadChildren:YES];
+	//	[selectedView expandItem:[selectedNode parentNode]];
 		
+		PDFDocument* doc = [[self document] pdfdocument];
+		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+		[[self document] updateChangeCount:NSChangeDone];
 	}
 //	NSLog(@"<<< textDidEndEditing %@",ov);  // from outline
 
@@ -378,7 +438,7 @@
 
 // addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 
-- (void)addType:(id)sender;
+- (void)addType:(id)sender
 {
 	NSInteger osr = self.selectedRow;
 	QPDFOutlineView* ov = self.selectedView;

@@ -78,7 +78,6 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 
 -(BOOL)childrenContainIndirects;
 
-
 + (ObjcQPDFObjectHandle*)newNull;
 + (ObjcQPDFObjectHandle*)newBool:(BOOL)b;
 + (ObjcQPDFObjectHandle*)newInteger:(NSInteger)i;
@@ -95,6 +94,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf;
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withData:(NSData*)data;
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withString:(NSString*)data;
++ (ObjcQPDFObjectHandle*)newIndirect:(NSString*)objGen for:(ObjcQPDF*)qpdf;
 
 
 
