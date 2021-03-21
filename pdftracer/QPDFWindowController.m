@@ -82,7 +82,8 @@
 	[(QPDFWindow*)[self window] updateOutline:outline forNode:node];
 }
 
-- (NSString*)editText
+// textForSelectedObject
+- (NSString*)textForSelectedObject
 {
 	if (selectedRow >= 0)
 	{
@@ -112,7 +113,7 @@
 	return [[self selectedNode] object];
 }
 
-- (BOOL)editEnabled
+- (BOOL)canEditSelectedObject
 {
 	if ([self isSelected])
 	{
@@ -168,18 +169,18 @@
 }
 */
 
-- (BOOL)addEnabled
+- (BOOL)canAddToSelectedObject
 {
 	//NSLog(@"addEnabled? %@",[selectedNode object]);
 	return [[selectedNode object] isExpandable];
 }
-
+/*
 - (BOOL)removeEnabled
 {
 //	NSLog(@"removeEnabled? %@",[selectedNode object]);
 	return [self isSelected];
 }
-
+*/
 - (void)setAddEnabled:(BOOL)ena
 {
 	[[selectedView relatedSegment] setEnabled:ena forSegment:0];
@@ -247,9 +248,6 @@
 			[newobj autorelease];
 		}
 	}
-	
-
-	
 }
 
 - (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
@@ -314,14 +312,14 @@
 	[self setSelectedNode:[qov itemAtRow:[self selectedRow]]];
 
 	// setText
-	[self setEditText:[self editText]];
+	[self setEditText:[self textForSelectedObject]];
 
 	// ena Text edit
-	[self setEditEnable:[self editEnabled]];
+	[self setEditEnable:[self canEditSelectedObject]];
 
 	//[self enableAddRemoveForRow:selectedRow outline:selectedView];
-	[self setAddEnabled:[self addEnabled]];
-	[self setRemoveEnabled:[self removeEnabled]];
+	[self setAddEnabled:[self canAddToSelectedObject]];
+	[self setRemoveEnabled:[self isSelected]];
 	
 }
 
@@ -331,15 +329,19 @@
 // this happens after each keypres..?
 - (void)textDidChange:(NSNotification *)notification
 {
-	 NSLog(@"textDidChange %@",notification); // from textview
+	//  NSLog(@"textDidChange %@",notification); // from textview
 	//QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	
 	NSString *editor = [(QPDFWindow*)[self window] text];
 	
+	//NSLog(@"%@",editor);
+	
 	[[self document] replaceQPDFNode:selectedNode withString:editor];
-
+	PDFDocument* doc = [[self document] pdfdocument];
+	[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+	[[self document] updateChangeCount:NSChangeDone];
 }
 
 // This notification is sent when enter is pressed after editing a text cell
@@ -502,12 +504,12 @@
 		
 		// set Text
 		// set the textView with text for the current selected object or stream
-		[self setEditText:[self editText]];  // seems kind of superfluous, there must be some better named logical expression for this.
+		[self setEditText:[self textForSelectedObject]];  // seems kind of superfluous, there must be some better named logical expression for this.
 
 		// ena A R
 		// enable the add/Remove buttons depending on what's selected.
-		[self setAddEnabled:[self addEnabled]]; // i'm seeing a pattern here
-		[self setRemoveEnabled:[self removeEnabled]]; 
+		[self setAddEnabled:[self canAddToSelectedObject]]; // i'm seeing a pattern here
+		[self setRemoveEnabled:[self isSelected]];
 		
 		// refresh PDF
 		PDFDocument* doc = [[self document] pdfdocument];
@@ -537,10 +539,10 @@
 	[qov reloadItem:parent reloadChildren:YES];
 	[self selectRow:[qov selectedRow] forSource:qov];
 
-	[self setAddEnabled:[self addEnabled]]; // i'm seeing a pattern here
-	[self setRemoveEnabled:[self removeEnabled]];
+	[self setAddEnabled:[self canAddToSelectedObject]]; // i'm seeing a pattern here
+	[self setRemoveEnabled:[self isSelected]];
 	
-	[self setEditText:[self editText]];
+	[self setEditText:[self textForSelectedObject]];
 	
 	PDFDocument* doc = [[self document] pdfdocument];
 	[win.documentView setDocument:doc];

@@ -41,12 +41,15 @@
 
 
 - (void)selectRow:(NSInteger)sr forSource:qov;
-- (NSString*)editText;
+- (NSString*)textForSelectedObject;
 //- (BOOL)isEditable;
-- (BOOL)editEnabled;
+- (BOOL)canEditSelectedObject;
+- (BOOL)canAddToSelectedObject;
+
+- (void)setAddEnabled:(BOOL)ena;
+- (void)setRemoveßEnabled:(BOOL)ena;
 
 
-//- (void)setText:(NSString*)s;
 - (void)setEditText:(NSString*)s;
 
 //- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
@@ -55,6 +58,5 @@
 - (void)changeFont:(id)sender;
 - (void)addRemove:(id)sender;
 - (void)addType:(id)sender;
-
 
 @end
