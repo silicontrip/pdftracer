@@ -86,10 +86,31 @@
 {
 	return [ObjcQPDFObjectHandle arrayWithVector:qDocument->getAllPages()];
 }
+-(NSUInteger)countPages
+{
+	return qDocument->getAllPages().size();
+	
+//	qDocument->get
+}
 
 -(NSArray<ObjcQPDFObjectHandle*>*)objects
 {
 	return [ObjcQPDFObjectHandle arrayWithVector:qDocument->getAllObjects()];
+}
+
+-(NSUInteger)countObjects
+{
+	return qDocument->getObjectCount();
+}
+
+-(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:qDocument->getAllPages()[index] ];
+}
+
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
+{
+	return [[self objects] objectAtIndex:index];
 }
 
 -(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj
@@ -122,13 +143,13 @@
 	qDocument->replaceObject(objid,genid,QPDFObjectHandle::newNull());
 }
 
-
 -(ObjcQPDFObjectHandle*)copyRootCatalog
 {
 	QPDFObjectHandle root = qDocument->getTrailer();
 	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
 	return rootObjc;
 }
+
 -(PDFDocument*)document
 {
 	NSData* qPDFData = [self data];
@@ -157,39 +178,6 @@
 
 	return pdfData;
 }
-
--(NSData*)data_507
-{
-	NSLog(@"getData");
-	qDocument->setImmediateCopyFrom(TRUE);
-	QPDF* tempQ = new QPDF(*qDocument);
-	
-	NSLog(@"init Qwriter");
-
-	QPDFWriter w(*tempQ);
-	NSLog(@"output memory");
-
-	w.setOutputMemory();
-	NSLog(@"write");
-
-	w.write();
-	
-	NSLog(@"getBuffer");
-
-	
-	Buffer* qBuf = qpdfWriter->getBuffer();
-	unsigned char const* qBytes = qBuf->getBuffer();
-	
-	NSLog(@"init NSData");
-
-	NSData* pdfData = [[[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()] autorelease];
-	qDocument->setImmediateCopyFrom(FALSE);
-	
-	delete(qBuf);
-	delete (tempQ);
-	return pdfData;
-}
-
 
 -(NSData*)qdf
 {

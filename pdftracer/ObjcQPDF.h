@@ -20,6 +20,13 @@
 -(NSString*)version;
 -(NSArray<ObjcQPDFObjectHandle*>*)pages;
 -(NSArray<ObjcQPDFObjectHandle*>*)objects;
+-(NSUInteger)countObjects;
+-(NSUInteger)countPages;
+
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
+-(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index;
+
+
 -(id<ObjcPDFObject>)copyRootCatalog; // naming convention for alloc
 
 -(void)replaceID:(NSString*)objGen with:(id<ObjcPDFObject>)obj;

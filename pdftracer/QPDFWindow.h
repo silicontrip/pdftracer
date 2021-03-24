@@ -53,7 +53,7 @@
 
 //-(void)updateAllOutlines:(QPDFNode*)node;
 -(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
--(void)invalidateAll;
+//-(void)invalidateAll;
 
 -(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
 -(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;

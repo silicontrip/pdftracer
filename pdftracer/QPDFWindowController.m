@@ -359,12 +359,14 @@
 	
 	NSString *editor = [(QPDFWindow*)[self window] text];
 	
-	//NSLog(@"%@",editor);
+//	NSLog(@"%@",editor);
 	
-	[[self document] replaceQPDFNode:selectedNode withString:editor];
-	PDFDocument* doc = [[self document] pdfdocument];
-	[[(QPDFWindow*)[self window] documentView] setDocument:doc];
-	[[self document] updateChangeCount:NSChangeDone];
+	if (selectedNode != nil) {
+		[[self document] replaceQPDFNode:selectedNode withString:editor];
+		PDFDocument* doc = [[self document] pdfdocument];
+		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+		[[self document] updateChangeCount:NSChangeDone];
+	}
 }
 
 // This notification is sent when enter is pressed after editing a text cell
@@ -616,6 +618,16 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 				// add page
 				
 				ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
+				ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
+				ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+				
+				[newpage replaceObject:type forKey:@"/Type"];
+				[newpage replaceObject:mbox forKey:@"/MediaBox"];
+				
 				if (selectedRow == -1)
 				{
 					[[[self document] doc] addPage:newpage atStart:NO];
@@ -631,14 +643,9 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 				QPDFOutlineView* object = [(QPDFWindow*)[self window] outlineAtIndex:1];
 				QPDFOutlineView* page = [(QPDFWindow*)[self window] outlineAtIndex:2];
 
-				OutlineQPDFObj* dsobj = [object dataSource];
-				OutlineQPDFPage* dspage = [page dataSource];
-
-				[dsobj invalidate];
-				[dspage invalidate];
-				
-				[object reloadItem:nil];
-				[page reloadItem:nil];
+				[object reloadData];  // this doesn't move the view
+				// [object reloadItem:nil]; // this one moves
+				[page reloadData];
 				
 				//[[(QPDFWindow*)[self window] outlineAtIndex:2] reloadData];
 				//[[(QPDFWindow*)[self window] outlineAtIndex:1] reloadData];

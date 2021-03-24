@@ -10,11 +10,12 @@
 	if (self != nil)
 	{
 		qpDocument = pdf;
-		objTable= [[qpDocument objects] retain];
+	//	objTable= [[qpDocument objects] retain];
 	}
 	return self;
 }
 
+/*
 - (void)invalidate
 {
 	// this is needed if an indirect object is replaced
@@ -23,6 +24,7 @@
 	NSLog(@"Invalidate object table -- %ld",[objTable count]);
 
 }
+*/
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
@@ -41,7 +43,7 @@
 //	NSLog(@"Object table: %d",objTable.size());
 	
 	if (item == nil)
-		return [objTable count];
+		return [qpDocument countObjects];
 	
 	return 0;
 }
@@ -99,7 +101,7 @@
 	
 	if (item == nil)
 	{
-		ObjcQPDFObjectHandle* pdfitem = [objTable objectAtIndex:index];
+		ObjcQPDFObjectHandle* pdfitem = [qpDocument objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d 0 R",(int)index+1];
 
 		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];

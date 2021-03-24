@@ -36,18 +36,19 @@
 	if (self != nil)
 	{
 		qpDocument = pdf;
-		pageArray = [[qpDocument pages] retain];
+	//	pageArray = [[qpDocument pages] retain];
 	}
 //	NSLog(@"returning self");
 	return self;
 }
 
+/*
 -(void)invalidate
 {
 	[pageArray release];
 	pageArray = [[qpDocument pages] retain];
 }
-
+*/
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	if (item == nil) // NULL means Root node
@@ -61,7 +62,8 @@
 //	NSLog(@"OutlinePDFPage Number of children");
 	
 	if (item == nil)
-		return [pageArray count];
+		return [qpDocument countPages];
+		//return [pageArray count];
 	
 	return [[(QPDFNode*)item object] count];
 	
@@ -94,7 +96,8 @@
 	
 	if (item == nil)
 	{
-		ObjcQPDFObjectHandle* pdfitem = [pageArray objectAtIndex:index];
+		//ObjcQPDFObjectHandle* pdfitem = [pageArray objectAtIndex:index];
+		ObjcQPDFObjectHandle* pdfitem = [qpDocument pageAtIndex:index];
 		//QPDFObjectHandle pdfitem =  QPDFObjectHandle(pageArray[index]);
 		NSString* lindex = [NSString stringWithFormat:@"Page %d",(int)index+1];
 

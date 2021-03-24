@@ -10,13 +10,13 @@
 
 @interface OutlineQPDFObj : NSObject <NSOutlineViewDataSource>
 {
-	NSArray<ObjcQPDFObjectHandle*>* objTable;
+//	NSArray<ObjcQPDFObjectHandle*>* objTable;
 	ObjcQPDF* qpDocument;
 	
 }
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf;
-- (void)invalidate;
+// - (void)invalidate;
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item;
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item;

@@ -115,6 +115,7 @@
 	}
 }
 */
+/*
 -(void)invalidateAll
 {
 	// NSLog(@"QPDFWindow Invalidate All");
@@ -124,7 +125,7 @@
 	[(OutlineQPDFObj*)[outlines[1] dataSource] invalidate]; [outlines[1] reloadData];
 	
 }
-
+*/
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];
