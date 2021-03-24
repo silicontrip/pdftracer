@@ -80,3 +80,28 @@ y - Append curved segment to path (final point replicated)
 
 IMAGE STREAM DICTIONARY
 << /BitsPerComponent 8 /ColorSpace /DeviceRGB /Filter /FlateDecode /Height 50 /Length 1279 /SMask 17 0 R /Subtype /Image /Type /XObject /Width 50 >>
+
+FONT DICTIONARY
+/BaseFont /Courier-Bold 
+/Encoding /WinAnsiEncoding 
+/FirstChar 32 
+/FontDescriptor 9 0 R 
+/LastChar 117 
+/Subtype /TrueType 
+/Type /Font 
+/Widths [ 600 0 0 0 0 0 0 0 0 0 0 0 0 0 600 0 600 600 600 600 0 0 600 600 0 0 600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 600 600 600 600 0 600 0 0 0 600 600 0 600 600 0 600 0 0 600 ] 
+
+FONT DESCRIPTOR DICTIONARY
+
+/Ascent 753 
+/CapHeight 562 
+/Descent -246 
+/Flags 262179 
+/FontBBox [ -113 -250 749 801 ] 
+/FontName /Courier-Bold 
+/ItalicAngle 0 
+/StemH 84 
+/StemV 133 
+/Type /FontDescriptor 
+/XHeight 439
+
