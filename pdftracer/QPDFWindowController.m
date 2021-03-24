@@ -22,6 +22,7 @@
 - (instancetype)initWithWindow:(NSWindow*)nsw
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
+	[self setSelectedRow:-1];
 	return self;
 }
 
@@ -191,6 +192,27 @@
 	[[selectedView relatedSegment] setEnabled:ena forSegment:1];
 }
 
+- (void)updateOutlineAddRemove
+{
+	for (int outcount=0; outcount<3; ++outcount)
+	{
+		QPDFOutlineView* outview = [(QPDFWindow*)[self window] outlineAtIndex:outcount];
+		NSSegmentedControl* outadd = [(QPDFWindow*)[self window] segmentAtIndex:outcount];
+		
+		// set remove
+		[outadd setEnabled:([outview selectedRow]!=-1) forSegment:1];
+		
+		if (outcount==0)
+		{
+			QPDFNode* selnode = [outview itemAtRow:[outview selectedRow]];
+			[outadd setEnabled:[[selnode object] isExpandable] forSegment:0];
+
+		} else
+			[outadd setEnabled:YES forSegment:0];
+		
+	}
+}
+
 // changeText -> refreshOutline, setText, refreshPDF, documentChanged
 
 //- (void)changeText:(NSInteger)row column:(NSInteger)column forSource:(QPDFOutlineView*)qov with:(NSString*)es
@@ -203,7 +225,6 @@
 	ObjcQPDFObjectHandle* parent = [node parent];
 	NSString* name = [node name];  // dictionary key or array index value
 
-	
 	NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
 	// something else is changing...
 	// NSLog(@"not doing anything");
@@ -318,8 +339,10 @@
 	[self setEditEnable:[self canEditSelectedObject]];
 
 	//[self enableAddRemoveForRow:selectedRow outline:selectedView];
-	[self setAddEnabled:[self canAddToSelectedObject]];
-	[self setRemoveEnabled:[self isSelected]];
+	//[self setAddEnabled:[self canAddToSelectedObject]];
+	//[self setRemoveEnabled:[self isSelected]];
+	
+	[self updateOutlineAddRemove];
 	
 }
 
@@ -450,7 +473,8 @@
 	
 	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
 	
-//	NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
+NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
+	
 	ObjcQPDFObjectHandle* newobj = nil;
 // if adding to dictionary auto highlight edit /Name
 	// if adding to array auto highlight edit value
@@ -534,13 +558,11 @@
 	[[self document] deleteNode:item];  // the document should record that it's changed.
 	// what about deleting from the view, rather than
 	
-	
 	// refresh outline
 	[qov reloadItem:parent reloadChildren:YES];
 	[self selectRow:[qov selectedRow] forSource:qov];
-
-	[self setAddEnabled:[self canAddToSelectedObject]]; // i'm seeing a pattern here
-	[self setRemoveEnabled:[self isSelected]];
+	
+	[self updateOutlineAddRemove];
 	
 	[self setEditText:[self textForSelectedObject]];
 	
@@ -551,19 +573,84 @@
 	
 	[[self document] updateChangeCount:NSChangeDone];
 
-	
 }
 
 - (void)addRemove:(id)sender
 {
-//	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
-		// NSLog(@"selected: %ld",(long)[sc selectedSegment]);
-	NSInteger osr = self.selectedRow;
-	QPDFOutlineView* ov = self.selectedView;
-
-		NSLog(@"### delete ###");
-		[self deleteRow:osr forSource:ov];
+	// other non menu add buttons events end up here
+	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
 	
+	// could be add page
+	NSInteger outlineTag = [sc tag];
+	NSInteger selectedSegment = [sc selectedSegment];
+
+	/*
+	NSLog(@"add/remove event: %@",sender);
+	NSLog(@"selected: %ld",(long)selectedSegment);
+	NSLog(@"outline tag: %ld",(long)outlineTag);
+	 */
+	QPDFOutlineView* sv = [(QPDFWindow*)[self window] outlineAtIndex:outlineTag];
+	[self selectRow:[sv selectedRow] forSource:sv];
+	
+	// this seems to work for all outlines
+	if (selectedSegment == 1)  // remove
+	{
+		NSInteger osr = self.selectedRow;
+		QPDFNode* pnode = nil;
+		if (outlineTag == 0)
+		{
+			pnode = [selectedNode parentNode];
+			//NSLog(@"### delete ###");
+		}
+		[self deleteRow:osr forSource:sv];
+		[sv reloadItem:pnode reloadChildren:YES];
+
+	}
+	else
+	{
+		if (outlineTag == 2) //page outline
+		{
+			if (selectedSegment == 0) // add
+			{
+				//NSLog(@"outline Page add... row: %ld",(long)selectedRow);
+				// add page
+				
+				ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
+				if (selectedRow == -1)
+				{
+					[[[self document] doc] addPage:newpage atStart:NO];
+				} else {
+					ObjcQPDFObjectHandle* existingPage = [selectedNode object];
+					[[[self document] doc] addPage:newpage before:YES page:existingPage];
+				}
+				NSLog(@"reloadinating the outline side");
+			//	[sv reloadItem:nil reloadChildren:YES];
+				[sv reloadData];
+				
+				// QPDFOutlineView* tree = [(QPDFWindow*)[self window] outlineAtIndex:0];
+				QPDFOutlineView* object = [(QPDFWindow*)[self window] outlineAtIndex:1];
+				QPDFOutlineView* page = [(QPDFWindow*)[self window] outlineAtIndex:2];
+
+				OutlineQPDFObj* dsobj = [object dataSource];
+				OutlineQPDFPage* dspage = [page dataSource];
+
+				[dsobj invalidate];
+				[dspage invalidate];
+				
+				[object reloadItem:nil];
+				[page reloadItem:nil];
+				
+				//[[(QPDFWindow*)[self window] outlineAtIndex:2] reloadData];
+				//[[(QPDFWindow*)[self window] outlineAtIndex:1] reloadData];
+				//[[(QPDFWindow*)[self window] outlineAtIndex:0] reloadData];
+
+				//[[(QPDFWindow*)[self window] outlineAtIndex:1] reloadItem:nil reloadChildren:YES];
+				//[[(QPDFWindow*)[self window] outlineAtIndex:2] reloadItem:nil reloadChildren:YES];
+				//[[(QPDFWindow*)[self window] outlineAtIndex:0] reloadItem:nil reloadChildren:YES];
+
+			}
+		}
+	}
 }
 
 - (void)delete:(id)sender

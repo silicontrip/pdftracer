@@ -56,6 +56,8 @@
 -(void)invalidateAll;
 
 -(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
+-(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;
 -(NSSplitView*)splitAtIndex:(int)index;
++(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu;
 
 @end

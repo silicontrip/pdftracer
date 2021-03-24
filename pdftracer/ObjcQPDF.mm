@@ -207,4 +207,15 @@
 	return pdfData;
 }
 
+// looks simpler than I thought... something must be wrong
+-(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first
+{
+	qDocument->addPage([newpage qpdfobject],first);  // now what?
+}
+
+-(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage
+{
+	qDocument->addPageAt([newpage qpdfobject], first, [refpage qpdfobject]);
+}
+
 @end

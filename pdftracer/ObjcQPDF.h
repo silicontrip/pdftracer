@@ -29,4 +29,7 @@
 -(PDFDocument*)document;
 -(NSData*)qdf;
 
+-(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first;
+-(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage;
+
 @end

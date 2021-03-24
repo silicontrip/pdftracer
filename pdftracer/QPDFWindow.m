@@ -49,6 +49,14 @@
 	[segments[index] setEnabled:ena forSegment:1];
 }
 
+-(NSSegmentedControl*)segmentAtIndex:(NSInteger)index
+{
+	if (index>=0 && index<=2)
+		return segments[index];
+	return nil;
+
+}
+
 -(QPDFOutlineView*)outlineAtIndex:(NSInteger)index
 {
 	if (index>=0 && index<=2)
@@ -117,7 +125,7 @@
 	
 }
 
-+(NSSegmentedControl*)addRemoveSegment
++(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];
 	[oSegment setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -143,39 +151,34 @@
 	[oSegment setAction:@selector(addRemove:)];
 	
 	// TEST CODE
-	NSMenu *myMenu = [NSMenu new];
+	if (menu) {
+		NSMenu *myMenu = [NSMenu new];
 
 	//[NSUserDefault setConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints];
 	
 	// NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:]
 	
-	NSMenuItem *mi;
-	//loop item
-	NSInteger tagNo = 2;
-	for (NSString* menuString in newTypes)
-	{
-		mi = [[NSMenuItem new] autorelease];
-		[mi setTitle:menuString];
-		[mi setEnabled:YES];
-		[mi setTarget:nil];
-		[mi setAction:@selector(addType:)];
-		[mi setTag:tagNo++];
-		[myMenu addItem:mi];
+		NSMenuItem *mi;
+		//loop item
+		NSInteger tagNo = 2;
+		for (NSString* menuString in newTypes)
+		{
+			mi = [[NSMenuItem new] autorelease];
+			[mi setTitle:menuString];
+			[mi setEnabled:YES];
+			[mi setTarget:nil];
+			[mi setAction:@selector(addType:)];
+			[mi setTag:tagNo++];
+			[myMenu addItem:mi];
+		}
+		
+		
+		[myMenu setAutoenablesItems:YES];
+
+		[oSegment setMenu:myMenu forSegment:0];
+		[oSegment setShowsMenuIndicator:YES forSegment:0];
+		[oSegment setAutoresizesSubviews:YES];
 	}
-	
-	
-	[myMenu setAutoenablesItems:YES];
-
-	[oSegment setMenu:myMenu forSegment:0];
-	[oSegment setShowsMenuIndicator:YES forSegment:0];
-	[oSegment setAutoresizesSubviews:YES];
-	
-
-	// Class=[QPDFSegmentedCell class];
-	
-	
-	
-//	[oSegment setCell];
 	
 	return oSegment;
 }
@@ -243,16 +246,23 @@
 		outlines[1] = [OutlineQPDFObj newView];
 		outlines[2] = [OutlineQPDFPage newView];
 	
-		segments[0] = [QPDFWindow addRemoveSegment];
+		/*
+		NSLog(@"0-tree: %@",outlines[0]);
+		NSLog(@"1-object: %@",outlines[1]);
+		NSLog(@"2-page: %@",outlines[2]);
+*/
+		segments[0] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[0].relatedSegment = segments[0];
+		[segments[0] setTag:0];
 		
 		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
-		//scView.translatesAutoresizingMaskIntoConstraints = NO;
+		// scView.translatesAutoresizingMaskIntoConstraints = NO;
 		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
 		// scsView.translatesAutoresizingMaskIntoConstraints = NO;
 
-		segments[1] = [QPDFWindow addRemoveSegment];
+		segments[1] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[1].relatedSegment = segments[1];
+		[segments[1] setTag:1];
 
 		NSScrollView* socView = [QPDFWindow hvScrollView:outlines[1]];
 		//socView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -260,8 +270,9 @@
 		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:segments[1]];
 		// socsView.translatesAutoresizingMaskIntoConstraints = NO;
 
-		segments[2] = [QPDFWindow addRemoveSegment];
+		segments[2] = [QPDFWindow addRemoveSegmentWithMenu:NO];
 		outlines[2].relatedSegment = segments[2];
+		[segments[2] setTag:2];
 
 		NSScrollView* spcView = [QPDFWindow hvScrollView:outlines[2]];
 		// spcView.translatesAutoresizingMaskIntoConstraints = NO;
