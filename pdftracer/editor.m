@@ -70,8 +70,6 @@ int main (int argc, char * const argv[])
 	
 	[NSApp setDelegate:mm];
 	
-
-	
 	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
 	Arguments* aa = [Arguments argumentsWithCount:argc values:argv];
@@ -90,8 +88,7 @@ int main (int argc, char * const argv[])
 			NSLog(@"%@",document);
 		}];
 	//	[docControl openDocument:nil];
-		
-		// [docControl openDocument:fu];
+	// [docControl openDocument:fu];
 
 	}
 	

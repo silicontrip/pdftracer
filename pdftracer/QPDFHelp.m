@@ -116,7 +116,8 @@
 - (void)performActionForItem:(id)item
 {
 	// templates
-	
+	NSLog (@"performActionForItem: %@",item
+		   );
     // Open your custom url assuming item is actually searchString
 }
 

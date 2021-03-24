@@ -18,7 +18,6 @@
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
-
 @property (weak,nonatomic) QPDFOutlineView* selectedView;
 @property (weak,nonatomic) QPDFNode* selectedNode;
 
@@ -47,7 +46,7 @@
 - (BOOL)canAddToSelectedObject;
 
 - (void)setAddEnabled:(BOOL)ena;
-- (void)setRemoveßEnabled:(BOOL)ena;
+- (void)setRemoveEnabled:(BOOL)ena;
 
 
 - (void)setEditText:(NSString*)s;
