@@ -49,7 +49,7 @@
 							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:",@"exportText:"],
 							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:",@"delete:",@"selectAll:"],
 							 @[@"orderFrontFontPanel:"],
-							 @[tnil,tnil,tnil,tnil,tnil],
+							 @[@"zoomAct:",@"zoomFit:",@"zoomIn:",@"zoomOut:",@"zoomSel:"],
 							 @[tnil,tnil,tnil,tnil],
 							 @[@"performMiniturize:"],
 							 @[tnil]

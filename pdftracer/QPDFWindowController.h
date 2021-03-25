@@ -58,4 +58,10 @@
 - (void)addRemove:(id)sender;
 - (void)addType:(id)sender;
 
+- (void)zoomAct:(id)sender;
+- (void)zoomFit:(id)sender;
+- (void)zoomIn:(id)sender;
+- (void)zoomOut:(id)sender;
+- (void)zoomSel:(id)sender;
+
 @end

@@ -586,11 +586,6 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 	NSInteger outlineTag = [sc tag];
 	NSInteger selectedSegment = [sc selectedSegment];
 
-	/*
-	NSLog(@"add/remove event: %@",sender);
-	NSLog(@"selected: %ld",(long)selectedSegment);
-	NSLog(@"outline tag: %ld",(long)outlineTag);
-	 */
 	QPDFOutlineView* sv = [(QPDFWindow*)[self window] outlineAtIndex:outlineTag];
 	[self selectRow:[sv selectedRow] forSource:sv];
 	
@@ -635,7 +630,7 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 					ObjcQPDFObjectHandle* existingPage = [selectedNode object];
 					[[[self document] doc] addPage:newpage before:YES page:existingPage];
 				}
-				NSLog(@"reloadinating the outline side");
+			//	NSLog(@"reloadinating the outline side");
 			//	[sv reloadItem:nil reloadChildren:YES];
 				[sv reloadData];
 				
@@ -683,8 +678,28 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 }
 
 
-
-
+- (void)zoomAct:(id)sender
+{
+	((QPDFWindow*)[self window]).documentView.scaleFactor = 1.0;
+}
+- (void)zoomFit:(id)sender
+{
+	((QPDFWindow*)[self window]).documentView.scaleFactor = ((QPDFWindow*)[self window]).documentView.scaleFactorForSizeToFit ;
+}
+- (void)zoomIn:(id)sender
+{
+	[((QPDFWindow*)[self window]).documentView zoomIn:sender];
+}
+- (void)zoomOut:(id)sender
+{
+	[((QPDFWindow*)[self window]).documentView zoomOut:sender];
+}
+/*
+- (void)zoomSel:(id)sender
+{
+	
+}
+*/
 
 
 
