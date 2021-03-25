@@ -17,12 +17,11 @@
 //make this class the app delegate and split the pdf editing/ textviewdelegate into another class
 @interface pdfApp : NSObject <NSApplicationDelegate>
 {
-	// NSMutableArray<QPDFEditor*>* openDocuments;
 	QPDFDocumentController* docControl;
 }
+
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
 - (void)applicationWillTerminate:(NSNotification *)aNotification;
-// - (BOOL)validateMenuItem:(NSMenuItem *)menuItem;
 
 @end
 

@@ -27,12 +27,6 @@
 	// [tfont retain];  // but how does it release
 }
 
-/*
--(NSTextView*)self.textView
-{
-	return textView;
-}
-*/
 
 -(NSString*)text
 {
@@ -80,52 +74,10 @@
 	NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 	
 	[ov reloadItem:nn];
-
-//	while (nn != nil)
-//	{
-//		NSLog(@"getting parent of %@",nn);
-//		pp =[nn parentNode];
-//		NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
-//		[ov reloadItem:nn];
-//
-//		nn = [nn parentNode];
-//	}
  
 }
-/*
--(void)updateAllOutlines:(QPDFNode *)node
-{
-	NSLog(@"update all: %@",node);
 
-	if (node != nil)
-	{
-		[outlines[0] reloadItem:node reloadChildren:NO];
-	//	if ([node parentNode] != nil)
-	//		[outlines[0] reloadItem:[node parentNode] reloadChildren:NO];
 
-		[outlines[1] reloadItem:nil reloadChildren:NO];
-		// object view doesn't have the parent you're looking for
-	//	if ([node parentNode] != nil)
-	//		[outlines[1] reloadItem:[node parentNode] reloadChildren:NO];
-
-		[outlines[2] reloadItem:node reloadChildren:NO];
-		if ([node parentNode] != nil)
-			[outlines[1] reloadItem:[node parentNode] reloadChildren:NO];
-
-	}
-}
-*/
-/*
--(void)invalidateAll
-{
-	// NSLog(@"QPDFWindow Invalidate All");
-
-	[(OutlineQPDF*)[outlines[0] dataSource] invalidate]; [outlines[0] reloadData];
-	[(OutlineQPDFPage*)[outlines[2] dataSource] invalidate]; [outlines[2] reloadData];
-	[(OutlineQPDFObj*)[outlines[1] dataSource] invalidate]; [outlines[1] reloadData];
-	
-}
-*/
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];
@@ -247,11 +199,6 @@
 		outlines[1] = [OutlineQPDFObj newView];
 		outlines[2] = [OutlineQPDFPage newView];
 	
-		/*
-		NSLog(@"0-tree: %@",outlines[0]);
-		NSLog(@"1-object: %@",outlines[1]);
-		NSLog(@"2-page: %@",outlines[2]);
-*/
 		segments[0] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[0].relatedSegment = segments[0];
 		[segments[0] setTag:0];

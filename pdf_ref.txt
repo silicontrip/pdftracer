@@ -77,18 +77,22 @@ y - Append curved segment to path (final point replicated)
 ' - Move to next line and show text
 " - Set word and character spacing, move to next line, and show text
 
+RESOURCES Dictionary
+/ProcSet (array of names)
+/ExtGState (dictionary of object names)
+/Font 
 
 IMAGE STREAM DICTIONARY
 << /BitsPerComponent 8 /ColorSpace /DeviceRGB /Filter /FlateDecode /Height 50 /Length 1279 /SMask 17 0 R /Subtype /Image /Type /XObject /Width 50 >>
 
 FONT DICTIONARY
-/BaseFont /Courier-Bold 
+/BaseFont /Courier-Bold  (required)
 /Encoding /WinAnsiEncoding 
 /FirstChar 32 
 /FontDescriptor 9 0 R 
 /LastChar 117 
-/Subtype /TrueType 
-/Type /Font 
+/Subtype /TrueType  (required)
+/Type /Font (required)
 /Widths [ 600 0 0 0 0 0 0 0 0 0 0 0 0 0 600 0 600 600 600 600 0 0 600 600 0 0 600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 0 0 0 0 0 0 0 600 600 600 600 0 600 0 0 0 600 600 0 600 600 0 600 0 0 600 ] 
 
 FONT DESCRIPTOR DICTIONARY
