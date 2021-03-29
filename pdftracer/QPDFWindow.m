@@ -20,14 +20,21 @@
 
 -(void)setFont:(NSFont*)font
 {
-	
 	self.textFont = font;
-	[self.textView setFont:self.textFont];  // user prefs
+	
+//	NSLog(@"setting to font: %@",font);
+	
+	[self.textView setFont:font];  // user prefs
 
 	// [tfont retain];  // but how does it release
 }
 
-
+/*
+-(NSFont*)textFont
+{
+	return textFont;
+}
+*/
 -(NSString*)text
 {
 	return [self.textView string];
@@ -74,9 +81,7 @@
 	NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 	
 	[ov reloadItem:nn];
- 
 }
-
 
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
@@ -85,8 +90,6 @@
 	QPDFSegmentedCell* csell = [[QPDFSegmentedCell alloc] init];
 	oSegment.cell = csell;
 	
-//	oSegment.cellClass = [QPDFSegmentedCell class];
-
 	NSArray* newTypes = @[@"Null",@"Bool",@"Integer",
 						  @"Real",@"String",@"Name",
 						  @"Array",@"Dictionary",@"Stream"];
@@ -161,10 +164,8 @@
 	return scsView;
 }
 
-+(NSTextView*)textEditorView
++(NSTextView*)textEditorViewWithFont:(NSFont*)tfont
 {
-	
-	NSFont* tfont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 	
 	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
 	
@@ -257,7 +258,9 @@
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
 
-		self.textView = [QPDFWindow textEditorView];
+		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+		
+		self.textView = [QPDFWindow textEditorViewWithFont:self.textFont];
 
 		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
 		sctView.translatesAutoresizingMaskIntoConstraints = NO;

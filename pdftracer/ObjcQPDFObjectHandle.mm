@@ -160,7 +160,7 @@
 
 -(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
-	NSLog(@"Replace object: %@ for: %@",obj,key);
+	// NSLog(@"Replace object: %@ for: %@",obj,key);
 	if (obj != nil)
 	{
 		std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
@@ -176,7 +176,7 @@
 
 -(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj
 {
-	NSLog(@"Replace object: %lu for: %@",index,obj);
+//	NSLog(@"Replace object: %lu for: %@",index,obj);
 
 	if (obj != nil)
 	{

@@ -16,20 +16,21 @@
 	self = [super init];
 	if (self)
 	{
-		NSArray* menutitle = @[@"app",@"File",@"Edit",@"Format",@"View",@"Tools",@"Window",@"Help"];
+		NSNull* tnil  = [NSNull null];
+
+		NSArray* menutitle = @[@"app",@"File",@"Edit",@"FONT",@"View",@"Tools",@"Window",@"Help"];
 		
 		NSArray* menuItems = @[
 							   @[@"About",@"Quit PDFTracer"],
 							   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved",@"Export Text"],
 							   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste",@"Delete",@"Select All"],
-							   @[@"Font"],
+							   @[tnil],
 							   @[@"Actual Size",@"Zoom to Fit",@"Zoom In",@"Zoom Out",@"Zoom to Selection"],
 							   @[@"Insert",@"Text Box",@"Pointer",@"Font Finder"],
-							   @[@"Minimize"],
+							   @[@"Minimize",@"Zoom",@"-",@"Bring All to Front",@"-"],
 							   @[@"PDF Documentation"]
 							   ];
 		
-		NSNull* tnil  = [NSNull null];
 		
 		NSString *bkspace = [NSString stringWithFormat:@"%c",8];
 		
@@ -39,8 +40,8 @@
 									@[@"z",@"Z",tnil,@"x",@"c",@"v",bkspace,@"a"],
 									@[tnil],
 									@[@"0",@"9",@"+",@"-",@"*"],
-									@[tnil,tnil,tnil,tnil],
-									@[@"m"],
+									@[tnil,tnil,tnil,tnil,tnil],
+									@[@"m",tnil,tnil,tnil],
 									@[@")"]
 									];
 		
@@ -48,10 +49,11 @@
 							 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
 							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:",@"exportText:"],
 							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:",@"delete:",@"selectAll:"],
-							 @[@"orderFrontFontPanel:"],
+							 @[tnil],
+							 // @[@"orderFrontFontPanel:"],
 							 @[@"zoomAct:",@"zoomFit:",@"zoomIn:",@"zoomOut:",@"zoomSel:"],
 							 @[tnil,tnil,tnil,tnil],
-							 @[@"performMiniturize:"],
+							 @[@"performMiniturize:",@"performZoom:",tnil,tnil,tnil],
 							 @[tnil]
 							 ];
 		
@@ -61,12 +63,28 @@
 		//NSMenu *menubar = [NSMenu new];
 		for (NSUInteger i=0; i<[menutitle count]; ++i)
 		{
+			
+			
 			NSString* title = [menutitle objectAtIndex:i];
 			NSArray* items = [menuItems objectAtIndex:i];
 			NSArray* keyquiv = [keyEquivalents objectAtIndex:i];
 			NSArray* select = [targets objectAtIndex:i];
 			
-			[self addItem:[[QPDFMenu newMenuBar:title with:items keys:keyquiv selectors:select] autorelease]];
+			// conditional menus.
+			if ([title isEqualToString:@"FONT"])
+			{
+				NSFontManager *fontManager = [NSFontManager sharedFontManager];
+				NSMenu *fontMenu = [fontManager fontMenu:YES];
+				
+				NSMenuItem *appMenuItem;
+				appMenuItem = [NSMenuItem new];
+
+				[appMenuItem setSubmenu:fontMenu];
+				[self addItem:appMenuItem];
+				
+			} else {
+				[self addItem:[[QPDFMenu newMenuBar:title with:items keys:keyquiv selectors:select] autorelease]];
+			}
 		}
 	}
 	return self;
@@ -80,12 +98,21 @@
 	
 	for (NSUInteger i=0; i<[menutitle count]; ++i)
 	{
-		NSMenuItem *mi = [[NSMenuItem new] autorelease];
+		NSMenuItem *mi;
 		NSString * menuTitle = [menutitle objectAtIndex:i];
 		if ([menuTitle isEqualToString:@"-"])
 		{
 			mi = [NSMenuItem separatorItem];
+		/*
+		} else if ([menuTitle isEqualToString:@"FONT"]) {
+			mi = [[NSMenuItem new] autorelease];
+			[mi setTitle:@"Font"];
+			NSFontManager *fontManager = [NSFontManager sharedFontManager];
+			NSMenu *fontMenu = [fontManager fontMenu:YES];
+			[mi setSubmenu:fontMenu];
+		*/
 		} else {
+			mi = [[NSMenuItem new] autorelease];
 			[mi setTitle:[NSString stringWithString:menuTitle]];
 			[mi setTarget:nil];
 			NSString* thisKey = [keyequiv objectAtIndex:i];

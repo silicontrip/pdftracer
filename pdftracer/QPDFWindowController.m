@@ -22,6 +22,10 @@
 - (instancetype)initWithWindow:(NSWindow*)nsw
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
+	
+	// NSLog(@"win title: %@",[nsw title]);
+	
+	[self synchronizeWindowTitleWithDocumentName];
 	[self setSelectedRow:-1];
 	return self;
 }
@@ -64,11 +68,12 @@
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
 }
 
+/*
 - (NSString*)windowTitleForDocumentDisplayName:(NSString *)displayName
 {
 	return displayName;
 }
-
+*/
 
 
 // MARK: View state change
@@ -356,6 +361,8 @@
 	//QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	[[self document] updateChangeCount:NSChangeDone];
+	[self setDocumentEdited:YES];
+	// [[self document] setDocumentEdited:YES];
 	
 	NSString *editor = [(QPDFWindow*)[self window] text];
 	
@@ -366,6 +373,10 @@
 		PDFDocument* doc = [[self document] pdfdocument];
 		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
 		[[self document] updateChangeCount:NSChangeDone];
+		[self setDocumentEdited:YES];
+	//	[[self document] setDocumentEdited:YES];
+
+
 	}
 }
 
@@ -397,6 +408,10 @@
 		PDFDocument* doc = [[self document] pdfdocument];
 		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
 		[[self document] updateChangeCount:NSChangeDone];
+		[self setDocumentEdited:YES];
+		// [[self document] setDocumentEdited:YES];
+
+
 	}
 //	NSLog(@"<<< textDidEndEditing %@",ov);  // from outline
 
@@ -418,12 +433,21 @@
 
 -(void)changeFont:(id)sender
 {
-	//	NSLog(@"changing font: %@",sender);
+//	NSLog(@"changing font: %@",sender);
 	NSFontManager* fm = (NSFontManager*)sender;
-	NSLog(@"changing font: %@",[fm selectedFont]);  // why is this nil?
 	
-	//	[(QPDFWindow*)[self window] setFont:[fm selectedFont]];
+	QPDFWindow* win=(QPDFWindow*)[self window];
 	
+//	NSLog(@"changing font: %@",[fm selectedFont]);  // why is this nil?
+	
+	NSFont* tf = [win textFont];
+	NSLog(@"old font: %@",tf);
+	if (tf) {
+		NSFont* nf = [fm convertFont:tf];
+		NSLog(@"new font: %@",nf);
+
+		[win setFont:nf];
+	}
 }
 
 -(void)exportText:(id)sender
@@ -475,7 +499,7 @@
 	
 	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
 	
-NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
+// NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 	
 	ObjcQPDFObjectHandle* newobj = nil;
 // if adding to dictionary auto highlight edit /Name
@@ -543,6 +567,9 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 
 		//documentChanged
 		[[self document] updateChangeCount:NSChangeDone];
+		[self setDocumentEdited:YES];
+	//	[[self document] setDocumentEdited:YES];
+
 		[ov endUpdates];
 
 	}
@@ -574,6 +601,9 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 	//[self setSelectedRow:[qov selectedRow]];
 	
 	[[self document] updateChangeCount:NSChangeDone];
+	[self setDocumentEdited:YES];
+//	[[self document] setDocumentEdited:YES];
+
 
 }
 
@@ -615,6 +645,7 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 				ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
 				ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
 				ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+				
 				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
 				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
 				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
@@ -694,31 +725,27 @@ NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
 {
 	[((QPDFWindow*)[self window]).documentView zoomOut:sender];
 }
-/*
+
 - (void)zoomSel:(id)sender
 {
 	
 }
-*/
 
 
-
-
-/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
 	if (![selstr isEqualToString:@"validModesForFontPanel:"])
 	{
-		NSLog(@"WC EVENT -> %@",NSStringFromSelector(aSelector));
-		if( [NSWindowController instancesRespondToSelector:aSelector] ) {
+		NSLog(@"WindowController EVENT -> %@",NSStringFromSelector(aSelector));
+		if( [QPDFWindowController instancesRespondToSelector:aSelector] ) {
 			// invoke the inherited method
 			return YES;
 		}
 	}
-	return NO;
+	return [super respondsToSelector:aSelector];
 }
-*/
+
 /*
 - (NSResponder*)nextResponder
 {

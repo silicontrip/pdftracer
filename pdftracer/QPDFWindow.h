@@ -27,7 +27,7 @@
 	QPDFOutlineView* outlines[3];
 	NSSegmentedControl* segments[3];
 	
-//	NSFont * textFont;
+//	NSFont * textFont;   // property not ivar
 	
 	//NSSplitView* soView;
 	NSSplitView* sView[2];

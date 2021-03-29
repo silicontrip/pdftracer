@@ -18,6 +18,7 @@
 
 -(instancetype)init
 {
+	NSLog(@"QPDFD init");
 	self=[super init];
 	if (self) {
 		pDoc = nil;
@@ -31,23 +32,29 @@
 
 - (instancetype)initWithContentsOfURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
+	NSLog(@"QPDFD initWithURL");
+
 	return [self initForURL:url withContentsOfURL:url ofType:@"PDF" error:outError];
 }
 
 - (nullable instancetype)initForURL:(nullable NSURL *)urlOrNil withContentsOfURL:(NSURL *)contentsURL ofType:(NSString *)typeName error:(NSError **)outError
 {
+	NSLog(@"QPDFD initForURL: %@ %@",urlOrNil,contentsURL);
+
 	self = [super init];
 	if (self) {
 		[self setFileURL:urlOrNil];
 
 		pDoc = nil;
-		qDocument = [[ObjcQPDF alloc] initWithURL:urlOrNil];
+		qDocument = [[ObjcQPDF alloc] initWithURL:contentsURL];
 	}
 	return self;
 }
 
 - (BOOL)readFromURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
+	NSLog(@"QPDFD readFromURL");
+
 	[self setFileURL:url];
 	qDocument = [[ObjcQPDF alloc] initWithURL:url];
 	[self setDisplayName:[url description]];
@@ -90,7 +97,8 @@
 
 	[self writeToURL:fn ofType:@"PDF" error:&theError];
 	[self updateChangeCount:NSChangeCleared];
-	
+	[[[self windowControllers] firstObject] setDocumentEdited:NO];
+
 }
 
 - (void)saveDocumentAs:(nullable id)sender
@@ -107,14 +115,17 @@
 		{
 			NSURL*  theFile = [p URL];
 			NSError *theError;
+		//	[self renameDocument:theFile];
 			[self writeToURL:theFile ofType:@"PDF" error:&theError];
 			// Write the contents in the new format.
 			[[[self windowControllers] firstObject] setDocumentEdited:NO];
 		}
-		[p autorelease];
+		[p release];
+		//p=nil;
 	}];
+	if(p)
+		[p autorelease];
 	[self updateChangeCount:NSChangeCleared];
-
 }
 
 + (BOOL)autosavesInPlace {
@@ -133,14 +144,17 @@
 
 -(void)makeWindowControllers
 {
-	NSRect rr = NSMakeRect(10, 10, 640, 480);  // want better defaults
+	NSLog(@"QPDFD makeWindowControllers");
+	
+	NSRect rr = NSMakeRect(10, 10, 1440, 480);  // want better defaults
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
 	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered];
 	QPDFWindowController* nwc = [[[QPDFWindowController alloc] initWithWindow:w] autorelease];
 
+	// [w makeKeyAndOrderFront:self];
 	[self addWindowController:nwc];
-	
 	[nwc initDataSource];
+
 }
 
 - (ObjcQPDF*)doc
@@ -183,8 +197,10 @@
 }
 
 // this is purely document changing code
+
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
 {
+	NSLog(@"when does replaceQPDFNode get called?");  // looks like when the textview changes.
 	ObjcQPDFObjectHandle* qpdf = [node object];
 	
 	if ([editor length]>0)
@@ -219,12 +235,12 @@
 				*/
 				NSString* safeUnparse = [indirectRegex stringByReplacingMatchesInString:editor options:0 range:editRange withTemplate:@"($0)"];
 				// rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
-				NSLog(@"indirect Replace ##########");
-				NSLog(@"%@",safeUnparse);
+				//NSLog(@"indirect Replace ##########");
+				//NSLog(@"%@",safeUnparse);
 				
 				rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
 				// walk the object and turn back into indirects
-				NSLog(@"type %@",[rePDFObj typeName]);
+				//NSLog(@"type %@",[rePDFObj typeName]);
 				[self replaceIndirect:rePDFObj];
 				/*
 				 QPDFObjectHandle font = doSomethingToGetFont();
@@ -290,6 +306,7 @@
 			int element = [[nd name] intValue];
 			[parent removeObjectAtIndex:element];
 			[self updateChangeCount:NSChangeDone];
+			[[[self windowControllers] firstObject] setDocumentEdited:YES];
 
 			// delete from array
 		} else if ([parent isDictionary]) {

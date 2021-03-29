@@ -152,6 +152,7 @@
 		4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFHelp.m; sourceTree = "<group>"; };
 		4D9CCA9125E62B460003DF13 /* ObjcPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcPDFDocument.h; sourceTree = "<group>"; };
 		4D9CCA9225E62BB30003DF13 /* ObjcPDFObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcPDFObject.h; sourceTree = "<group>"; };
+		4DBD5AEB260D393200767A14 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -285,6 +286,7 @@
 				4D5450E225C535F500ED6F54 /* QPDFWindowController.h */,
 				4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */,
 				4D114D9625FECACA00F8A6F1 /* TestConstrants.xib */,
+				4DBD5AEB260D393200767A14 /* MainMenu.xib */,
 			);
 			path = pdftracer;
 			sourceTree = "<group>";

@@ -40,14 +40,31 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	// Insert code here to initialize your application
-	NSLog(@"applicationDidFinishLaunching");
-	
-
+	// NSLog(@"applicationDidFinishLaunching");
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
 	// Insert code here to tear down your application
 	NSLog(@"applicationWillTerminate");
+}
+
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+	NSString* selstr =NSStringFromSelector(aSelector);
+	if (![selstr isEqualToString:@"validModesForFontPanel:"])
+	{
+		NSLog(@"AppDelegate EVENT -> %@",NSStringFromSelector(aSelector));
+		if( [pdfApp instancesRespondToSelector:aSelector] ) {
+			// invoke the inherited method
+			return YES;
+		}
+	}
+	return [super respondsToSelector:aSelector];
+}
+
+-(BOOL)applicationShouldTerminateAfterLastWindowClosed:(id)sender
+{
+	return NO;
 }
 
 int main (int argc, char * const argv[])
@@ -57,8 +74,13 @@ int main (int argc, char * const argv[])
 	
 	[NSApplication sharedApplication];
 	QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
+	
+	// QPDFDocumentController* docControl = [[QPDFDocumentController alloc] init];
+
+	
 	NSMenu* appMenu = [[QPDFMenu alloc] initWithMenu];
 	[appMenu setDelegate:docControl];
+	
 	[NSApp setMainMenu:appMenu];
 	
 	
@@ -91,15 +113,9 @@ int main (int argc, char * const argv[])
 
 	}
 	
-[NSApp run];
+	[NSApp run];
 
 	[splash release];
-	
-	/*
-	NSTextStorage * nts = [[NSTextStorage alloc]
-
-	[nts setImportsGraphics:NO];
-	 */
 
 }
 
