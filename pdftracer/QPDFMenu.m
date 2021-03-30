@@ -18,13 +18,13 @@
 	{
 		NSNull* tnil  = [NSNull null];
 
-		NSArray* menutitle = @[@"app",@"File",@"Edit",@"FONT",@"View",@"Tools",@"Window",@"Help"];
+		NSArray* menutitle = @[@"app",@"File",@"Edit",@"Insert",@"View",@"Tools",@"Window",@"Help"];
 		
 		NSArray* menuItems = @[
 							   @[@"About",@"Quit PDFTracer"],
 							   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved",@"Export Text"],
-							   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste",@"Delete",@"Select All"],
-							   @[tnil],
+							   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste",@"Delete",@"Select All",@"-",@"Format",@"Find"],
+							   @[@"Font...",@"Image..."],
 							   @[@"Actual Size",@"Zoom to Fit",@"Zoom In",@"Zoom Out",@"Zoom to Selection"],
 							   @[@"Insert",@"Text Box",@"Pointer",@"Font Finder"],
 							   @[@"Minimize",@"Zoom",@"-",@"Bring All to Front",@"-"],
@@ -37,19 +37,19 @@
 		NSArray* keyEquivalents = @[
 									@[tnil,@"q"],
 									@[@"n", @"o",tnil,@"w",@"s",@"S",@"r",tnil],
-									@[@"z",@"Z",tnil,@"x",@"c",@"v",bkspace,@"a"],
-									@[tnil],
+									@[@"z",@"Z",tnil,@"x",@"c",@"v",bkspace,@"a",tnil,@"T",@"f"],
+									@[tnil,tnil],
 									@[@"0",@"9",@"+",@"-",@"*"],
-									@[tnil,tnil,tnil,tnil,tnil],
-									@[@"m",tnil,tnil,tnil],
+									@[tnil,tnil,tnil,tnil],
+									@[@"m",tnil,tnil,tnil,tnil],
 									@[@")"]
 									];
 		
 		NSArray* targets = @[
 							 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
 							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:",@"exportText:"],
-							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:",@"delete:",@"selectAll:"],
-							 @[tnil],
+							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:",@"delete:",@"selectAll:",tnil,@"orderFrontFontPanel:",@"performFindPanelAction:"],
+							 @[tnil,tnil],
 							 // @[@"orderFrontFontPanel:"],
 							 @[@"zoomAct:",@"zoomFit:",@"zoomIn:",@"zoomOut:",@"zoomSel:"],
 							 @[tnil,tnil,tnil,tnil],
@@ -57,8 +57,11 @@
 							 @[tnil]
 							 ];
 		
-		
-		
+		NSUInteger mCount = [menutitle count];
+	//	NSLog(@"%lu = %lu = %lu = %lu",mCount,[menuItems count],[keyEquivalents count],[targets count]);
+		NSAssert(mCount == [menuItems count], @"menuItems mismatch");
+		NSAssert(mCount == [keyEquivalents count], @"keyEquivalents mismatch");
+		NSAssert(mCount == [targets count], @"target mismatch");
 		
 		//NSMenu *menubar = [NSMenu new];
 		for (NSUInteger i=0; i<[menutitle count]; ++i)
@@ -70,6 +73,12 @@
 			NSArray* keyquiv = [keyEquivalents objectAtIndex:i];
 			NSArray* select = [targets objectAtIndex:i];
 			
+			// NSLog(@"%lu = %lu = %lu",[items count],[keyquiv count],[select count]);
+			
+			NSLog(@"item: %lu",i);
+			NSAssert([items count] == [keyquiv count],@"items != keyequiv");
+			NSAssert([select count] == [keyquiv count],@"targets != keyequiv");
+
 			// conditional menus.
 			if ([title isEqualToString:@"FONT"])
 			{
