@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "pdftracer/QPDFWindowController.m"
-            timestampString = "638702667.0275019"
+            timestampString = "638802523.248001"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "405"
-            endingLineNumber = "405"
+            startingLineNumber = "417"
+            endingLineNumber = "417"
             landmarkName = "-textDidEndEditing:"
             landmarkType = "7">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "pdftracer/QPDFWindowController.m"
-            timestampString = "638702667.027917"
+            timestampString = "638802523.248396"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "441"
-            endingLineNumber = "441"
+            startingLineNumber = "453"
+            endingLineNumber = "453"
             landmarkName = "-changeFont:"
             landmarkType = "7">
          </BreakpointContent>

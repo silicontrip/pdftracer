@@ -24,6 +24,7 @@
 //	NSTextView* textView;
 //	PDFView *documentView;
 
+	NSTextStorage * textStorage;
 	QPDFOutlineView* outlines[3];
 	NSSegmentedControl* segments[3];
 	
@@ -33,6 +34,8 @@
 	NSSplitView* sView[2];
 }
 
+@property (nonatomic,strong) NSTextContainer* textContainer;
+@property (nonatomic,strong) NSLayoutManager* layout;
 @property (nonatomic,strong) NSTextView* textView;
 @property (nonatomic,strong) PDFView* documentView;
 @property (nonatomic,strong) NSFont* textFont;

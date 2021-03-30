@@ -2,6 +2,12 @@
 
 @implementation QPDFWindow
 
+@synthesize textContainer;
+@synthesize layout;
+@synthesize textView;
+@synthesize documentView;
+@synthesize textFont;
+
 -(void)editorEnabled:(BOOL)ena
 {
 	[self.textView setEditable:ena];
@@ -21,11 +27,8 @@
 -(void)setFont:(NSFont*)font
 {
 	self.textFont = font;
-	
-//	NSLog(@"setting to font: %@",font);
-	
 	[self.textView setFont:font];  // user prefs
-
+	// heres hoping textView has a strong reference.
 	// [tfont retain];  // but how does it release
 }
 
@@ -111,7 +114,6 @@
 		NSMenu *myMenu = [NSMenu new];
 
 	//[NSUserDefault setConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints];
-	
 	// NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:]
 	
 		NSMenuItem *mi;
@@ -163,15 +165,23 @@
 	[scsView addView:seg inGravity:NSStackViewGravityLeading];
 	return scsView;
 }
-
-+(NSTextView*)textEditorViewWithFont:(NSFont*)tfont
+/*
++(NSTextContainer*)textContainer
+{
+	NSSize sz = NSMakeSize(0,0);
+	NSTextContainer* ts = [[[NSTextContainer alloc] initWithContainerSize:sz] autorelease];
+	
+	
+}
+*/
++(NSTextView*)textEditorViewWithFont:(NSFont*)tfont container:(NSTextContainer*)tCon
 {
 	
 	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
 	
 	// See NSRulerView
 	
-	NSTextView *tView = [[NSTextView alloc] initWithFrame:vRect];
+	NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect textContainer:tCon] autorelease];
 	//[tView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
 	[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
@@ -258,9 +268,20 @@
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
 
-		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+		NSSize sz = NSMakeSize(720,1080);
+		self.textContainer = [[NSTextContainer alloc] initWithContainerSize:sz];
+
+		self.layout = [[NSLayoutManager alloc] init];
+		[self.layout addTextContainer:self.textContainer];
 		
-		self.textView = [QPDFWindow textEditorViewWithFont:self.textFont];
+		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+		self.textView = [QPDFWindow textEditorViewWithFont:self.textFont container:self.textContainer];
+		
+		// [self.textView setTextStorage:textStorage];  // textStorage readonly
+					   
+	//	NSLog(@"text - %@ : %@",self.textView,[self.textView textStorage]);
+		NSTextStorage* nts =[self.textView textStorage];
+		NSLog(@"textStorage (%@)",nts);
 
 		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
 		sctView.translatesAutoresizingMaskIntoConstraints = NO;

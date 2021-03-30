@@ -22,11 +22,20 @@
 - (instancetype)initWithWindow:(NSWindow*)nsw
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
-	
+	if (self) {
 	// NSLog(@"win title: %@",[nsw title]);
 	
-	[self synchronizeWindowTitleWithDocumentName];
-	[self setSelectedRow:-1];
+		QPDFWindow* qpw = (QPDFWindow*)nsw;
+		
+		layout = [[NSLayoutManager alloc] init];
+		textStore = [[NSTextStorage alloc] init];
+		[textStore addLayoutManager:layout];
+
+		[layout addTextContainer:qpw.textContainer];
+		
+		[self synchronizeWindowTitleWithDocumentName];
+		[self setSelectedRow:-1];
+	}
 	return self;
 }
 
@@ -106,7 +115,10 @@
 
 - (void)setEditText:(NSString*)s
 {
-	[(QPDFWindow*)[self window] setText:s];
+	NSLog(@"setting text: %@",s);
+	if (s)
+		[textStore setAttributedString:[[NSAttributedString alloc] initWithString:s]];
+//	[(QPDFWindow*)[self window] setText:s];
 }
 - (void)setEditEnable:(BOOL)ee
 {
@@ -731,7 +743,7 @@
 	
 }
 
-
+/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
@@ -745,7 +757,7 @@
 	}
 	return [super respondsToSelector:aSelector];
 }
-
+*/
 /*
 - (NSResponder*)nextResponder
 {

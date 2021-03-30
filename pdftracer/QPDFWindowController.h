@@ -15,6 +15,9 @@
 	OutlineQPDF* pdfDS;
 	OutlineQPDFPage* pageDS;
 	OutlineQPDFObj* objDS;
+	
+	NSLayoutManager* layout;
+	NSTextStorage *textStore;
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
