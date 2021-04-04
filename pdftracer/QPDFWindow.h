@@ -45,9 +45,9 @@
 -(void)setDocument:(PDFDocument*)pdf;
 
 -(NSTextView*)textView;
--(NSString*)text;
--(void)setText:(NSString*)text;
--(void)setFont:(NSFont*)font;
+//-(NSString*)text;
+//-(void)setText:(NSString*)text;
+//-(void)setFont:(NSFont*)font;
 
 -(void)removeEnabled:(BOOL)ena forIndex:(int)index;
 -(void)addEnabled:(BOOL)ena forIndex:(int)index;
@@ -62,5 +62,6 @@
 -(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;
 -(NSSplitView*)splitAtIndex:(int)index;
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu;
++(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon;
 
 @end

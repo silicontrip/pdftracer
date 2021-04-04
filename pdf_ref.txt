@@ -109,3 +109,15 @@ FONT DESCRIPTOR DICTIONARY
 /Type /FontDescriptor 
 /XHeight 439
 
+COLOUR DEFAULTS
+
+keywords: purple
+comments: green
+string: orange
+hex_strings:
+names:
+arguments:
+
+BEGIN/END:
+Arrays
+

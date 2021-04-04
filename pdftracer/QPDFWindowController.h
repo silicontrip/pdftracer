@@ -2,6 +2,7 @@
 #import "QPDFDocument.h"
 #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
+#import "QPDFSyntaxHighlighter.h"
 
 @class QPDFDocument;
 @class OutlineQPDF;
@@ -18,6 +19,8 @@
 	
 	NSLayoutManager* layout;
 	NSTextStorage *textStore;
+	
+	QPDFSyntaxHighlighter *syntaxer;
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
@@ -55,6 +58,7 @@
 - (void)setEditText:(NSString*)s;
 
 //- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
+- (void)textStorageDidProcessEditing:(NSNotification *)notification;
 - (void)selectChangeNotification:(NSOutlineView*)no;
 - (void)selectObject:(id)sender;
 - (void)changeFont:(id)sender;

@@ -31,12 +31,46 @@
 		textStore = [[NSTextStorage alloc] init];
 		[textStore addLayoutManager:layout];
 
+		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
+		
+		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
+		
+		[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
+		
 		[layout addTextContainer:qpw.textContainer];
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
 	}
 	return self;
+}
+
+- (void)textStorageDidProcessEditing:(NSNotification *)notification
+{
+	NSTextStorage *textStorage = [notification object];
+	NSColor *blue = [NSColor blueColor]; // prefs
+	NSRange found, area;
+	NSString *codeText = [textStorage string];
+	NSUInteger length = [codeText length];
+
+	// remove the old colors
+	area.location = 0;
+	area.length = length;
+	[textStorage removeAttribute:NSForegroundColorAttributeName range:area];
+
+	// add new colors
+	while (area.length) {
+		found = [codeText rangeOfString:@"Mike"
+							  options:NSCaseInsensitiveSearch
+								range:area];
+		if (found.location == NSNotFound) break;
+		[textStorage addAttribute:NSForegroundColorAttributeName
+							value:blue
+							range:found];
+		area.location = NSMaxRange(found);
+		area.length = length - area.location;
+	}
+	
 }
 
 -(void)initDataSource
@@ -115,9 +149,17 @@
 
 - (void)setEditText:(NSString*)s
 {
-	NSLog(@"setting text: %@",s);
+	// NSLog(@"setting text: %@",s);
 	if (s)
-		[textStore setAttributedString:[[NSAttributedString alloc] initWithString:s]];
+	{
+		QPDFWindow* w = (QPDFWindow*)[self window];
+		NSDictionary* attrib = @{NSFontAttributeName: w.textFont};
+		NSAttributedString* as = [[[NSAttributedString alloc] initWithString:s attributes:attrib] autorelease];
+		//[as
+		[textStore setAttributedString:as];
+	//	[as addAttribute:NSFontAttributeName ];
+	//	[textStore addAttribute:<#(nonnull NSAttributedStringKey)#> value:<#(nonnull id)#> range:<#(NSRange)#>]
+	}
 //	[(QPDFWindow*)[self window] setText:s];
 }
 - (void)setEditEnable:(BOOL)ee
@@ -376,8 +418,8 @@
 	[self setDocumentEdited:YES];
 	// [[self document] setDocumentEdited:YES];
 	
-	NSString *editor = [(QPDFWindow*)[self window] text];
-	
+	// NSString *editor = [(QPDFWindow*)[self window] text];
+	NSString *editor = [textStore string];
 //	NSLog(@"%@",editor);
 	
 	if (selectedNode != nil) {
@@ -458,7 +500,7 @@
 		NSFont* nf = [fm convertFont:tf];
 		NSLog(@"new font: %@",nf);
 
-		[win setFont:nf];
+	//	[win setFont:nf];
 	}
 }
 
@@ -505,6 +547,9 @@
 {
 	NSInteger osr = self.selectedRow;
 	QPDFOutlineView* ov = self.selectedView;
+	
+	NSLog (@"Adding Type to: %lu",self.selectedRow);
+	
 	QPDFNode *item = [ov itemAtRow:osr];
 	ObjcQPDFObjectHandle *toObj = [item object];
 //	ObjcQPDF* toQPDF = [toObj owner];
@@ -543,7 +588,7 @@
 			break;;
 		case ot_stream:
 			NSLog(@"creating stream");
-			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[item owner] withString:@" "];
+			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[item owner] withString:@""];
 			break;
 		default:
 			NSLog(@"You're creating a wha-?");
@@ -559,14 +604,15 @@
 		
 		[self addObject:newobj to:toObj];  // Add Row
 		[ov reloadItem:item reloadChildren:YES]; // refresh Outline
-		[self selectRow:[ov selectedRow] forSource:ov]; // setRow
+		item = [ov itemAtRow:[ov selectedRow]];
+	//	[self selectRow:[ov selectedRow] forSource:ov]; // setRow
 
-		[ov expandItem:item];
+		if ([ov isExpandable:item])
+			[ov expandItem:item];  // but not if it's an object
 	
-		
 		// set Text
 		// set the textView with text for the current selected object or stream
-		[self setEditText:[self textForSelectedObject]];  // seems kind of superfluous, there must be some better named logical expression for this.
+		[self setEditText:[self textForSelectedObject]];  // seems kind of superfluous, there must be some better named logical expression for this.  almost sorted.
 
 		// ena A R
 		// enable the add/Remove buttons depending on what's selected.

@@ -1,0 +1,86 @@
+
+font glyph mapping unscramble. (or just show character code and glyph)
+build character re-map, reset font and search/replace stream.
+change / remove characters from font.
+
+PDF document current point cursor at current text edit cursor.
+probably requires: Get Current Matrix transform.
+convert back to standard transform. (i've heard that inverting matricies is hard)
+
+Add Font from file
+Add Image
+
+New Page. - done
+Remove page - done
+New Object. - done
+Remove Object - Done
+New primative. - Done
+Remove primative - Done
+
+export Stream. - Done
+
+Highlight mediabox, select page size from menu.
+Rotate layout [0 0 595 842] -> [0 0 842 595]
+
+Page Sizes in point units 
+(72pt = 1inch)
+(1mm = 2+ 106/127pt)
+
+Letter 612 792
+Legal 612 1008
+Tabloid 792 1224
+A3 842 1191
+A4 595 842
+A5 421 595
+B3 1001 1417
+B4 709 1001
+B5 499 709
+C4 649 916
+C5 459 649
+C6 323 459
+DL 312 624
+C5/6 323 649
+personal envelope 261 468
+monarch 279 540
+postcard 432 288
+
+insert IDE style template text, select from dropdown "m: move pen to point" (X) (Y) m - command search available.
+(X) and (Y) are highlighted in a parameter needs filling in style (eg xcode)
+not much use for tab completion as many commands are 1 or 2 letters.  
+
+Insert High level object dictionary skeleton.  Page, Resources, Font, Image.  
+- Page insertion done
+
+Non printable characters in stream string <-> visual textview <-> binary stream.
+uses \ooo (octal) notation. find and replace unprintables in streams for TextView (only needs to be a 1 way conversion)
+or <HEXdigits>
+
+
+textView: view as, hex/ ascii / make a hex editor!!
+
+- Find (in Text)
+- Revert
+
+
+## BUGS
+Outline view vertical scroll disappears won't respond to direct scrolling gesture.  After expanding nodes.
+requires moving the split view to bring it back. normal functionality returns.
+
+TextView scroller not appearing.
+
+remove Pages Object, then add page crashes.
+
+## OPTIMIZATIONS
+only output the current page to pdf.
+
+## COLOUR DEFAULTS
+
+keywords: purple B21889
+comments: green 41B645
+string: red DB2C38
+hex_strings: DBDB2C ... ?
+names: orange C67C48
+arguments: blue (cornflower) 786DC4
+BEGIN/END:
+Arrays:
+
