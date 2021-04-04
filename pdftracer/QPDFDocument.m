@@ -200,7 +200,7 @@
 
 - (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
 {
-	NSLog(@"when does replaceQPDFNode get called?");  // looks like when the textview changes.
+	// NSLog(@"when does replaceQPDFNode get called?");  // looks like when the textview changes during live editing.
 	ObjcQPDFObjectHandle* qpdf = [node object];
 	
 	if ([editor length]>0)
@@ -211,7 +211,7 @@
 		}
 		else
 		{
-			
+			NSLog(@"when does replaceQPDFNode get called, other than texteditview changes?");
 			NSError* err = NULL;
 			NSRegularExpression *indirectRegex = [NSRegularExpression regularExpressionWithPattern:@"\\d+ \\d+ R"
 																						   options:0
@@ -221,7 +221,7 @@
 																  options:0
 																	range:editRange];
 			
-			NSLog(@"number of indirects: %lu",indirects);
+			// NSLog(@"number of indirects: %lu",indirects);
 			
 			ObjcQPDFObjectHandle* rePDFObj;
 			if (indirects == 0) {

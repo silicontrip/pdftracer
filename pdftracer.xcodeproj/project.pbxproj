@@ -44,6 +44,7 @@
 		4D8EE7222598A51F008D2DA2 /* editor.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163D002598A0A000C8C7D3 /* editor.m */; };
 		4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */; };
 		4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */; };
+		4DA54A60261858AC00CFE719 /* QPDFSyntaxHighlighter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -152,6 +153,8 @@
 		4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFHelp.m; sourceTree = "<group>"; };
 		4D9CCA9125E62B460003DF13 /* ObjcPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcPDFDocument.h; sourceTree = "<group>"; };
 		4D9CCA9225E62BB30003DF13 /* ObjcPDFObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcPDFObject.h; sourceTree = "<group>"; };
+		4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFSyntaxHighlighter.m; sourceTree = "<group>"; };
+		4DA54A5F261858AC00CFE719 /* QPDFSyntaxHighlighter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFSyntaxHighlighter.h; sourceTree = "<group>"; };
 		4DBD5AEB260D393200767A14 /* MainMenu.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -279,6 +282,8 @@
 				4D3A6B9325BAADB500B22499 /* QPDFNode.m */,
 				4D7BAF2F25FB43AA00432F33 /* QPDFSegmentedCell.h */,
 				4D7BAF2E25FB43AA00432F33 /* QPDFSegmentedCell.m */,
+				4DA54A5F261858AC00CFE719 /* QPDFSyntaxHighlighter.h */,
+				4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */,
 				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
 				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
 				4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */,
@@ -579,6 +584,7 @@
 				4D638AE425C2DBBB00BAB433 /* QPDFDocumentController.m in Sources */,
 				4D3A6B9A25BD8E0600B22499 /* OutlineQPDFObj.m in Sources */,
 				4D3A6B9425BAADB500B22499 /* QPDFNode.m in Sources */,
+				4DA54A60261858AC00CFE719 /* QPDFSyntaxHighlighter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
