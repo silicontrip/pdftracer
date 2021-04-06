@@ -291,6 +291,9 @@
 		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 		self.textView = [QPDFWindow textEditorViewWithContainer:self.textContainer];
 		
+		[self.textView setBackgroundColor:[NSColor blackColor]];
+		[self.textView setDrawsBackground:YES];
+		
 		[self.textContainer setWidthTracksTextView:YES];
 	//	[self.textContainer setHeightTracksTextView:YES];
 

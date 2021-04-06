@@ -14,75 +14,110 @@
 	self = [super init];
 	if (self)
 	{
+		NSError *error = NULL;
+
 		// NSLog(@"lists: %@",[NSColorList availableColorLists]);
 		//keywordColour = [NSColor colorWithCatalogName:@"Web Safe Colors" colorName:@"AA1188"];
 		keywordColour = [[NSColor colorWithRed:0.698 green:0.094 blue:0.537 alpha:1] retain];
-		NSLog(@"keyword: %@",keywordColour);
-					//	 + (NSColor *)colorWithRed:(CGFloat)red green:(CGFloat)green blue:(CGFloat)blue alpha:(CGFloat)alpha
+
+	//	NSColor* keywordColour = [[NSColor colorWithRed:0.698 green:0.094 blue:0.537 alpha:1] retain];
+	//	NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];
+		NSColor* stringColour = [NSColor colorWithRed:0.859 green:0.173 blue:0.220 alpha:1];
+	//	NSColor* hexColour = [NSColor colorWithRed:0.859 green:0.859 blue:0.173 alpha:1];
+		NSColor* nameColour = [NSColor colorWithRed:0.776 green:0.463 blue:0.282 alpha:1];
+		NSColor* realColour = [NSColor colorWithRed:0.471 green:0.427 blue:0.769 alpha:1];
+
+		NSString *argName = @"/\\w+";
+		NSString *argReal = @"[+-]?([0-9]*[.])?[0-9]+";
+		NSString *argString = @"\\((\\\\\\)|[^\\)])*\\)";
+		NSString *argHex = @"<[0-9A-F]+>";
+		NSString *argArray = @"\\[[^\\]]*\\]";
+		NSString *argDict = @"<<[^>]*>>";
 		
-		NSArray <NSString*> * pdf_command_set = @[
-			@"\\s+B\\s+",
-			@"\\s+b\\s+",
-			@"\\s+B\\*\\s+",
-			@"\\s+b\\*\\s+",
-			@"\\s+BI\\s+",
-			@"\\s+BT\\s+",
-			@"\\s+BX\\s+",
-			@"\\s+EI\\s+",
-			@"\\s+EMC\\s+",
-			@"\\s+ET\\s+",
-			@"\\s+EX\\s+",
-			@"\\s+F\\s+",
-			@"\\s+f\\s+",
-			@"\\s+f\\*\\s+",
-			@"\\s+h\\s+",
-			@"\\s+ID\\s+",
-			@"\\s+n\\s+",
-			@"\\s+Q\\s+",
-			@"\\s+q\\s+",
-			@"\\s+S\\s+",
-			@"\\s+s\\s+",
-			@"\\s+T\\*\\s+",
-			@"\\s+W\\s+",
-			@"\\s+W\\*\\s+",
-			@"[\\s\\n]+-?[\\.0-9]+[\\s\\n]+-?[\\.0-9]+[\\s\\n]+-?[\\.0-9]+[\\s\\n]+-?[\\.0-9]+[\\s\\n]+-?[\\.0-9]+[\\s\\n]+-?[\\.0-9]+\\s+c\\s+",
-			@"/\\w+\\s+BMC\\s+",
-			@"/\\w+\\s+CS\\s+",
-			@"/\\w+\\s+cs\\s+",
-			@"/\\w+\\s+Do\\s+",
-			@"/\\w+\\s+gs\\s+",
-			@"/\\w+\\s+MP\\s+",
-			@"/\\w+\\s+ri\\s+",
-			@"/\\w+\\s+sh\\s+",
-			@"\\s+-?[\\.0-9]+\\s+G\\s+",
-			@"\\s+-?[\\.0-9]+\\s+g\\s+",
-			@"\\s+-?[\\.0-9]+\\s+i\\s+",
-			@"\\s+-?[\\.0-9]+\\s+J\\s+",
-			@"\\s+-?[\\.0-9]+\\s+j\\s+",
-			@"\\s+-?[\\.0-9]+\\s+M\\s+",
-			@"\\s+-?[\\.0-9]+\\s+Tc\\s+",
-			@"\\s+-?[\\.0-9]+\\s+TL\\s+",
-			@"\\s+-?[\\.0-9]+\\s+Tr\\s+",
-			@"\\s+-?[\\.0-9]+\\s+Ts\\s+",
-			@"\\s+-?[\\.0-9]+\\s+Tw\\s+",
-			@"\\s+-?[\\.0-9]+\\s+Tz\\s+",
-			@"\\s+-?[\\.0-9]+\\s+w\\s+"
-
-		];
-
-		// make regexp array
-
-		NSMutableArray<NSRegularExpression*>*pdfref = [[NSMutableArray alloc] initWithCapacity:[pdf_command_set count]];
+		NSString *cmdStart = @"(^|\\s+)";
+		NSString *cmdEnd = @"($|(?=\\s+))";
 		
-		NSError *error = NULL;
-		for (NSString * regstr in pdf_command_set)
+		NSString *nameRe = [NSString stringWithFormat:@"%@%@%@",cmdStart,argName,cmdEnd];
+		NSString *realRe = [NSString stringWithFormat:@"%@%@%@",cmdStart,argReal,cmdEnd];
+		NSString *stringRe = [NSString stringWithFormat:@"%@",argString];
+		NSString *arrayRe = [NSString stringWithFormat:@"%@",argArray];
+		NSString *dictRe = [NSString stringWithFormat:@"%@%@%@",cmdStart,argDict,cmdEnd];
+
+		// NSLog(@"%@",stringRe);
+		
+		colour_re = @{
+					  [NSRegularExpression regularExpressionWithPattern:arrayRe options:0 error:&error] : realColour,
+					  [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error] : realColour,
+					  [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error] : nameColour,
+					  [NSRegularExpression regularExpressionWithPattern:stringRe options:0 error:&error] : stringColour,
+//					  [NSRegularExpression regularExpressionWithPattern:dictRe options:0 error:&error] : dictColour,
+					  };
+		
+		[colour_re retain];
+		
+		NSString *arg1Name = [NSString stringWithFormat:@"%@\\s+",argName];
+		NSString *arg1Real = [NSString stringWithFormat:@"%@\\s+",argReal];
+		NSString *arg1String = [NSString stringWithFormat:@"%@\\s*",argString];
+		NSString *arg1Array = [NSString stringWithFormat:@"%@\\s*",argArray];
+		NSString *arg2Real = [NSString stringWithFormat:@"%@\\s+%@\\s+",argReal,argReal];
+		NSString *arg2NameDict = [NSString stringWithFormat:@"%@\\s+%@\\s+",argName,argDict];
+		NSString *arg2NameReal = [NSString stringWithFormat:@"%@\\s+%@\\s+",argName,argReal];
+		NSString *arg3Real = [NSString stringWithFormat:@"%@\\s+%@\\s+%@\\s+",argReal,argReal,argReal];
+		NSString *arg3RealString = [NSString stringWithFormat:@"%@\\s+%@\\s*%@\\s*",argReal,argReal,argString];
+		NSString *arg4Real = [NSString stringWithFormat:@"%@\\s+%@\\s+%@\\s+%@\\s+",argReal,argReal,argReal,argReal];
+		NSString *arg6Real = [NSString stringWithFormat:@"%@\\s+%@\\s+%@\\s+%@\\s+%@\\s+%@\\s+",argReal,argReal,argReal,argReal,argReal,argReal];
+
+		NSString *arg134Real = [NSString stringWithFormat:@"(%@|%@\\s+%@\\s+%@|%@\\s+%@\\s+%@\\s+%@)\\s+",argReal,argReal,argReal,argReal,argReal,argReal,argReal,argReal];
+		NSString *arg134RealOrName = [NSString stringWithFormat:@"((%@|%@\\s+%@\\s+%@|%@\\s+%@\\s+%@\\s+%@)|%@)\\s+",argReal,argReal,argReal,argReal,argReal,argReal,argReal,argReal,argName];
+
+		NSDictionary <NSString*,
+			NSArray<NSString*>*>* cmdDict = @{
+									 @"" : @[
+												@"B", @"b", @"B\\*", @"b\\*", @"BI", @"BT", @"BX",
+												@"EI", @"EMC", @"ET", @"EX", @"F", @"f", @"f\\*",
+												@"h", @"ID", @"n", @"Q", @"q", @"S", @"s",
+												@"T\\*", @"W", @"W\\*"
+											],
+									 arg1Name : @[ @"BMC", @"CS", @"cs", @"Do",
+												  @"gs", @"MP", @"ri", @"sh"
+											 ],
+									 arg1Real : @[ @"G", @"g", @"i", @"J", @"j", @"M",
+												  @"Tc", @"TL", @"Tr", @"Ts",@"Tw",
+												  @"Tz", @"w"],
+									 arg1String : @[ @"Tj", @"'" ],
+									 arg1Array : @[ @"TJ" ],
+									 arg2Real : @[ @"d", @"d0", @"l", @"m", @"TD", @"Td" ],
+									 arg2NameDict : @[ @"BDC", @"DP"],
+									 arg2NameReal : @[ @"Tf" ],
+									 arg3Real : @[ @"RG", @"rg" ],
+									 arg3RealString : @[ @"\""],  // seriously Adobe wtf?
+									 arg4Real : @[  @"K", @"k", @"re", @"v", @"y" ],
+									 arg6Real : @[ @"c", @"cm", @"d1", @"Tm" ],
+									 arg134Real : @[ @"SC", @"sc" ],
+									 arg134RealOrName : @[ @"SCN", @"scn" ]
+									 };
+		
+		NSMutableArray<NSRegularExpression*>*pdfref = [[NSMutableArray alloc] initWithCapacity:32];
+		// this keyword highlighter seems a bit pointless now
+		for (NSUInteger lv = 0; lv < [cmdDict count]; ++lv)
 		{
-			NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regstr
-																				   options:NSRegularExpressionDotMatchesLineSeparators|NSRegularExpressionUseUnixLineSeparators
-																					 error:&error];
-			[pdfref addObject:regex];
+			NSString *argre = [[cmdDict allKeys] objectAtIndex:lv];
+			NSArray<NSString*>* cmds = [cmdDict objectForKey:argre];
+			for (NSUInteger cc=0; cc < [cmds count]; ++cc)
+			{
+				NSString * cmd = [cmds objectAtIndex:cc];
+				NSString *regstr = [NSString stringWithFormat:@"%@%@%@%@",cmdStart,argre,cmd,cmdEnd];
+				NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regstr
+																					   options:NSRegularExpressionDotMatchesLineSeparators|NSRegularExpressionUseUnixLineSeparators
+																						 error:&error];
+				NSAssert(regex != nil, @"regex fail: %@",regstr);
+				[pdfref addObject:regex];
+			}
 		}
 		pdf_keyword_re = [pdfref copy];
+		[pdfref autorelease];
+
+		
 	}
 	return self;
 }
@@ -94,25 +129,28 @@
 	NSRange area;
 	NSString *codeText = [textStorage string];
 	NSUInteger length = [codeText length];
-
 	
 	NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
-	 NSLog(@"%@",searchText);
-	
+//	NSLog(@"%@",searchText);
+//	NSLog(@"%@",codeText);
+
 //	for (NSInteger i = 0 ; i < [codeText length]; ++i)
 //		if (*(charText+1) == 10) *(charText+i)=32;
 	
 	// determine onscreen range
+	
+	// NSRange visible =
+	
 	// remove the old colors
 	area.location = 0;
 	area.length = length;
 
 	[textStorage removeAttribute:NSForegroundColorAttributeName range:area];
 
-	
-	
 	NSArray<NSTextCheckingResult*>* matchbox;
+	NSArray<NSTextCheckingResult*>* colourbox;
+
 	for (NSRegularExpression *re in pdf_keyword_re)
 	{
 				matchbox = [re matchesInString:searchText
@@ -123,17 +161,43 @@
 		{
 			NSRange fr = [cr range];
 			// if([cr range])
-			NSLog(@"%@ -> %lu-%lu %@",re,fr.location,(fr.location+fr.length),[searchText substringWithRange:fr]);
-		//	NSLog(@"colour: %@",keywordColour);
+		//	NSLog(@"%@ -> %lu-%lu %@",re,fr.location,(fr.location+fr.length),[searchText substringWithRange:fr]);
 			
-		//	NSLog(@"check result: %@",NSStringFromRange([cr range]));
+		// NSLog(@"keyword colour: %@",keywordColour);
+			
+		// NSLog(@"check result: %@",NSStringFromRange([cr range]));
 			
 				[textStorage addAttribute:NSForegroundColorAttributeName
 								value:keywordColour
-								range:[cr range]];
+								range:fr];
+			
+			
+		//	NSLog(@"range length: %lu",fr.length);
+			
+			for (NSUInteger av=0; av < [colour_re count]; ++av)
+			{
+				NSRegularExpression* hire = [[colour_re allKeys] objectAtIndex:av];
+			NSLog(@"scanning %@ in %@",hire,[searchText substringWithRange:fr]);
+				colourbox = [hire matchesInString:searchText
+									   options:0
+										 range:fr];
+				
+				NSColor * matchColour = [colour_re objectForKey:hire];
+				for (NSTextCheckingResult* dr in colourbox)
+				{
+					NSRange gr = [dr range];
+					// NSLog(@"%@ -> %lu-%lu %@",hire,gr.location,(gr.location+gr.length),[searchText substringWithRange:gr]);
+					// NSLog(@"match colour: %@",matchColour);
+
+					[textStorage addAttribute:NSForegroundColorAttributeName
+										value:matchColour
+										range:gr];
+				}
+			}
 		}
 
 	}
+
 
 
 }
