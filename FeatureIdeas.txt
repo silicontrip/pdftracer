@@ -75,12 +75,13 @@ only output the current page to pdf.
 
 ## COLOUR DEFAULTS
 
-keywords: purple B21889
-comments: green 41B645
-string: red DB2C38
-hex_strings: DBDB2C ... ?
-names: orange C67C48
-arguments: blue (cornflower) 786DC4
+keywords: purple B21889 .698 .094 .537
+comments: green  41B645 .255 .714 .270
+string:      red DB2C38 .859 .173 .220
+hex_strings: DBDB2C     .859 .859 .173
+names: orange C67C48    .776 .463 .282
+arguments: blue 786DC4  .471 .427 .769
+
 BEGIN/END:
 Arrays:
 
