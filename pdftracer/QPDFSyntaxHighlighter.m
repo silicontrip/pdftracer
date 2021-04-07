@@ -22,7 +22,8 @@
 
 	//	NSColor* keywordColour = [[NSColor colorWithRed:0.698 green:0.094 blue:0.537 alpha:1] retain];
 	//	NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];
-		NSColor* stringColour = [NSColor colorWithRed:0.859 green:0.173 blue:0.220 alpha:1];
+		NSColor* hexColour = [NSColor colorWithRed:0.859 green:0.173 blue:0.220 alpha:1];
+		NSColor* stringColour = [NSColor colorWithRed:0.6 green:0.8 blue:0.4 alpha:1];
 	//	NSColor* hexColour = [NSColor colorWithRed:0.859 green:0.859 blue:0.173 alpha:1];
 		NSColor* nameColour = [NSColor colorWithRed:0.776 green:0.463 blue:0.282 alpha:1];
 		NSColor* realColour = [NSColor colorWithRed:0.471 green:0.427 blue:0.769 alpha:1];
@@ -41,23 +42,28 @@
 		NSString *realRe = [NSString stringWithFormat:@"%@%@%@",cmdStart,argReal,cmdEnd];
 		NSString *stringRe = [NSString stringWithFormat:@"%@",argString];
 		NSString *arrayRe = [NSString stringWithFormat:@"%@",argArray];
-		NSString *dictRe = [NSString stringWithFormat:@"%@%@%@",cmdStart,argDict,cmdEnd];
+		NSString *hexRe = [NSString stringWithFormat:@"%@",argHex];
+
+		NSString *dictRe = [NSString stringWithFormat:@"%@",argDict];
 
 		// NSLog(@"%@",stringRe);
 		
 		colour_re = @{
-					  [NSRegularExpression regularExpressionWithPattern:arrayRe options:0 error:&error] : realColour,
-					  [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error] : realColour,
-					  [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error] : nameColour,
-					  [NSRegularExpression regularExpressionWithPattern:stringRe options:0 error:&error] : stringColour,
+			[NSRegularExpression regularExpressionWithPattern:hexRe options:0 error:&error] : hexColour,
+			[NSRegularExpression regularExpressionWithPattern:arrayRe options:0 error:&error] : realColour,
+			[NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error] : realColour,
+			[NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error] : nameColour,
+			[NSRegularExpression regularExpressionWithPattern:stringRe options:0 error:&error] : stringColour,
 //					  [NSRegularExpression regularExpressionWithPattern:dictRe options:0 error:&error] : dictColour,
-					  };
+		};
 		
 		[colour_re retain];
 		
 		NSString *arg1Name = [NSString stringWithFormat:@"%@\\s+",argName];
 		NSString *arg1Real = [NSString stringWithFormat:@"%@\\s+",argReal];
 		NSString *arg1String = [NSString stringWithFormat:@"%@\\s*",argString];
+		NSString *arg1Hex = [NSString stringWithFormat:@"%@\\s*",argHex];
+
 		NSString *arg1Array = [NSString stringWithFormat:@"%@\\s*",argArray];
 		NSString *arg2Real = [NSString stringWithFormat:@"%@\\s+%@\\s+",argReal,argReal];
 		NSString *arg2NameDict = [NSString stringWithFormat:@"%@\\s+%@\\s+",argName,argDict];
@@ -85,6 +91,8 @@
 												  @"Tc", @"TL", @"Tr", @"Ts",@"Tw",
 												  @"Tz", @"w"],
 									 arg1String : @[ @"Tj", @"'" ],
+									 arg1Hex : @[ @"Tj", @"'" ],
+
 									 arg1Array : @[ @"TJ" ],
 									 arg2Real : @[ @"d", @"d0", @"l", @"m", @"TD", @"Td" ],
 									 arg2NameDict : @[ @"BDC", @"DP"],
@@ -124,60 +132,62 @@
 
 - (void)textStorageDidProcessEditing:(NSNotification *)notification
 {
-	NSTextStorage *textStorage = [notification object];
-	//NSColor *blue = [NSColor blueColor]; // prefs
-	NSRange area;
-	NSString *codeText = [textStorage string];
-	NSUInteger length = [codeText length];
+	_theStorage = [notification object];
+	_theLayout = [[_theStorage layoutManagers] firstObject];
 	
+	NSRange glyphRange = [self.theLayout glyphRangeForBoundingRect:self.theScroll.documentVisibleRect inTextContainer:self.theContainer];
+	NSRange editedRange = [self.theLayout characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+	
+	[self colouriseRange:editedRange];
+	
+}
+
+-(void)colouriseAll
+{
+	NSRange area;
+	area.location = 0;
+	area.length = [[_theStorage string] length];
+	[self colouriseRange:area];
+}
+
+-(void)colouriseRange:(NSRange)editedRange
+{
+	NSString* codeText = [_theStorage string];
 	NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
-//	NSLog(@"%@",searchText);
-//	NSLog(@"%@",codeText);
-
-//	for (NSInteger i = 0 ; i < [codeText length]; ++i)
-//		if (*(charText+1) == 10) *(charText+i)=32;
-	
-	// determine onscreen range
-	
-	// NSRange visible =
-	
+//	[_theStorage beginEditing];
 	// remove the old colors
-	area.location = 0;
-	area.length = length;
 
-	[textStorage removeAttribute:NSForegroundColorAttributeName range:area];
-
+	//[_theStorage removeAttribute:NSForegroundColorAttributeName range:editedRange];
+	
+	NSDictionary* attrib = @{
+							 NSForegroundColorAttributeName: [NSColor whiteColor]
+							 };
+	[_theStorage setAttributes:attrib range:editedRange];
+	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;
 
 	for (NSRegularExpression *re in pdf_keyword_re)
 	{
-				matchbox = [re matchesInString:searchText
+		matchbox = [re matchesInString:searchText
 							   options:0
-								 range:area];
+								 range:editedRange];
 		
 		for (NSTextCheckingResult* cr in matchbox)
 		{
 			NSRange fr = [cr range];
-			// if([cr range])
-		//	NSLog(@"%@ -> %lu-%lu %@",re,fr.location,(fr.location+fr.length),[searchText substringWithRange:fr]);
 			
-		// NSLog(@"keyword colour: %@",keywordColour);
-			
-		// NSLog(@"check result: %@",NSStringFromRange([cr range]));
-			
-				[textStorage addAttribute:NSForegroundColorAttributeName
+			[_theStorage addAttribute:NSForegroundColorAttributeName
 								value:keywordColour
 								range:fr];
-			
 			
 		//	NSLog(@"range length: %lu",fr.length);
 			
 			for (NSUInteger av=0; av < [colour_re count]; ++av)
 			{
 				NSRegularExpression* hire = [[colour_re allKeys] objectAtIndex:av];
-			NSLog(@"scanning %@ in %@",hire,[searchText substringWithRange:fr]);
+		//	NSLog(@"scanning %@ in %@",hire,[searchText substringWithRange:fr]);
 				colourbox = [hire matchesInString:searchText
 									   options:0
 										 range:fr];
@@ -189,7 +199,7 @@
 					// NSLog(@"%@ -> %lu-%lu %@",hire,gr.location,(gr.location+gr.length),[searchText substringWithRange:gr]);
 					// NSLog(@"match colour: %@",matchColour);
 
-					[textStorage addAttribute:NSForegroundColorAttributeName
+					[_theStorage addAttribute:NSForegroundColorAttributeName
 										value:matchColour
 										range:gr];
 				}
@@ -197,9 +207,7 @@
 		}
 
 	}
-
-
-
+//	[_theStorage endEditing];
 }
 
 @end

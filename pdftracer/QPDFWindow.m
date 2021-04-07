@@ -181,7 +181,6 @@
 */
 //+(NSTextView*)textEditorViewWithFont:(NSFont*)tfont container:(NSTextContainer*)tCon
 +(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon
-
 {
 	
 	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
@@ -292,9 +291,13 @@
 		self.textView = [QPDFWindow textEditorViewWithContainer:self.textContainer];
 		
 		[self.textView setBackgroundColor:[NSColor blackColor]];
+		[self.textView setTextColor:[NSColor whiteColor]];
+		[self.textView setInsertionPointColor:[NSColor whiteColor]];
+		[self.textView setFont:self.textFont];
 		[self.textView setDrawsBackground:YES];
 		
 		[self.textContainer setWidthTracksTextView:YES];
+		
 	//	[self.textContainer setHeightTracksTextView:YES];
 
 		
@@ -305,11 +308,11 @@
 		[nts setFont:self.textFont];
 		// NSLog(@"textStorage (%@)",nts);
 
-		NSScrollView* sctView = [[[NSScrollView alloc] init] autorelease];
-		sctView.translatesAutoresizingMaskIntoConstraints = NO;
+		self.scrollTextView = [[[NSScrollView alloc] init] autorelease];
+		self.scrollTextView.translatesAutoresizingMaskIntoConstraints = NO;
 
-		[sctView setHasVerticalScroller:YES];
-		[sctView setDocumentView:self.textView];
+		[self.scrollTextView setHasVerticalScroller:YES];
+		[self.scrollTextView setDocumentView:self.textView];
 		
 		self.documentView = [[[PDFView alloc] init] autorelease];
 		[self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -332,7 +335,7 @@
 
 		[sView[0] setVertical:YES];
 		[sView[0] addArrangedSubview:sView[1]];
-		[sView[0] addArrangedSubview:sctView];
+		[sView[0] addArrangedSubview:self.scrollTextView];
 		[sView[0] addArrangedSubview:self.documentView];
 
 		NSWindowCollectionBehavior behavior = [self collectionBehavior];

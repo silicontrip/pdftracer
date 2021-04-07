@@ -37,6 +37,7 @@
 @property (nonatomic,strong) NSTextContainer* textContainer;
 @property (nonatomic,strong) NSLayoutManager* layout;
 @property (nonatomic,strong) NSTextView* textView;
+@property (nonatomic,strong) NSScrollView* scrollTextView;
 @property (nonatomic,strong) PDFView* documentView;
 @property (nonatomic,strong) NSFont* textFont;
 

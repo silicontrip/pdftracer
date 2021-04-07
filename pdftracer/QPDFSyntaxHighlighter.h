@@ -11,8 +11,6 @@
 	//NSArray <NSRegularExpression*> * pdf_name_re;
 	
 	NSDictionary <NSRegularExpression*,NSColor*>* colour_re;
-
-	
 	NSColor *keywordColour;  // talk about conflicting spelling :-P
 	/*
 	NSColor *commentColour;
@@ -23,7 +21,15 @@
 	*/
 }
 
+@property (nonatomic,strong) NSTextView* theView;
+@property (nonatomic,strong) NSTextStorage* theStorage;
+@property (nonatomic,strong) NSTextContainer* theContainer;
+@property (nonatomic,strong) NSLayoutManager* theLayout;
+@property (nonatomic,strong) NSScrollView* theScroll;
+
 - (instancetype)init;
 - (void)textStorageDidProcessEditing:(NSNotification *)notification;
+- (void)colouriseRange:(NSRange)r;
+- (void)colouriseAll;
 
 @end

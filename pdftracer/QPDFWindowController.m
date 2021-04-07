@@ -34,6 +34,11 @@
 		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
+		syntaxer.theLayout = layout;
+		syntaxer.theStorage = textStore;
+		syntaxer.theContainer = qpw.textContainer;
+		syntaxer.theView = qpw.textView;
+		syntaxer.theScroll = qpw.scrollTextView;
 		
 		[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
 		
@@ -44,7 +49,7 @@
 	}
 	return self;
 }
-
+/*
 - (void)textStorageDidProcessEditing:(NSNotification *)notification
 {
 	NSTextStorage *textStorage = [notification object];
@@ -72,7 +77,7 @@
 	}
 	
 }
-
+*/
 -(void)initDataSource
 {
 	// QPDFWindowController* nwc = [self windowController];
@@ -153,14 +158,19 @@
 	if (s)
 	{
 		QPDFWindow* w = (QPDFWindow*)[self window];
-		NSDictionary* attrib = @{NSFontAttributeName: w.textFont};
+		NSDictionary* attrib = @{NSFontAttributeName: w.textFont,
+								 NSForegroundColorAttributeName: [NSColor whiteColor]
+								 };
 		NSAttributedString* as = [[[NSAttributedString alloc] initWithString:s attributes:attrib] autorelease];
+		[w.textView setInsertionPointColor:[NSColor whiteColor]];
 		//[as
+		// Now I discover that textView has a setColour forRange...
+		[textStore beginEditing];
 		[textStore setAttributedString:as];
-	//	[as addAttribute:NSFontAttributeName ];
-	//	[textStore addAttribute:<#(nonnull NSAttributedStringKey)#> value:<#(nonnull id)#> range:<#(NSRange)#>]
+		[syntaxer colouriseAll];
+		[textStore endEditing];
+
 	}
-//	[(QPDFWindow*)[self window] setText:s];
 }
 - (void)setEditEnable:(BOOL)ee
 {
@@ -234,13 +244,7 @@
 	//NSLog(@"addEnabled? %@",[selectedNode object]);
 	return [[selectedNode object] isExpandable];
 }
-/*
-- (BOOL)removeEnabled
-{
-//	NSLog(@"removeEnabled? %@",[selectedNode object]);
-	return [self isSelected];
-}
-*/
+
 - (void)setAddEnabled:(BOOL)ena
 {
 	[[selectedView relatedSegment] setEnabled:ena forSegment:0];

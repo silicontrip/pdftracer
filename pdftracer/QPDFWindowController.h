@@ -58,7 +58,7 @@
 - (void)setEditText:(NSString*)s;
 
 //- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
-- (void)textStorageDidProcessEditing:(NSNotification *)notification;
+//- (void)textStorageDidProcessEditing:(NSNotification *)notification;
 - (void)selectChangeNotification:(NSOutlineView*)no;
 - (void)selectObject:(id)sender;
 - (void)changeFont:(id)sender;
