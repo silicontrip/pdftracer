@@ -27,20 +27,20 @@
 	
 		QPDFWindow* qpw = (QPDFWindow*)nsw;
 		
-		layout = [[NSLayoutManager alloc] init];
-		textStore = [[NSTextStorage alloc] init];
-		[textStore addLayoutManager:layout];
+	//	layout = [[NSLayoutManager alloc] init];
+	//	textStore = [[NSTextStorage alloc] init];
+	//	[textStore addLayoutManager:layout];
 
-		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
+		// NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
-		syntaxer.theLayout = layout;
-		syntaxer.theStorage = textStore;
-		syntaxer.theContainer = qpw.textContainer;
+	//	syntaxer.theLayout = layout;
+	//	syntaxer.theStorage = textStore;
+	//	syntaxer.theContainer = qpw.textContainer;
 		syntaxer.theView = qpw.textView;
 		syntaxer.theScroll = qpw.scrollTextView;
 		
-		[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
+	//	[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
 		
 		[layout addTextContainer:qpw.textContainer];
 		
@@ -154,21 +154,37 @@
 
 - (void)setEditText:(NSString*)s
 {
-	// NSLog(@"setting text: %@",s);
+	//NSLog(@"setting text: %@",s);
+	NSLog(@"string length %lu",[s length]);
 	if (s)
 	{
 		QPDFWindow* w = (QPDFWindow*)[self window];
-		NSDictionary* attrib = @{NSFontAttributeName: w.textFont,
-								 NSForegroundColorAttributeName: [NSColor whiteColor]
-								 };
-		NSAttributedString* as = [[[NSAttributedString alloc] initWithString:s attributes:attrib] autorelease];
-		[w.textView setInsertionPointColor:[NSColor whiteColor]];
+		
+		NSTextView* ntv = w.textView;
+		
+//		NSDictionary* attrib = @{NSFontAttributeName: w.textFont,
+//								 NSForegroundColorAttributeName: [NSColor whiteColor]
+//								 };
+		// NSAttributedString* as = [[[NSAttributedString alloc] initWithString:s attributes:attrib] autorelease];
+	//	[w.textView setInsertionPointColor:[NSColor whiteColor]];
 		//[as
 		// Now I discover that textView has a setColour forRange...
-		[textStore beginEditing];
-		[textStore setAttributedString:as];
+		
+		// NSLog(@"window textview: %@",w.textView);
+		
+		NSLog(@"string length: %lu",[s length]);
+		
+		// [w.textView setString:s];  // this isn't right
+		//w.textView.string = s; // what about this?
+		[ntv setString:s]; // yeah getting desperate now
+		[ntv checkTextInDocument:nil];
+		
+		NSLog(@"wTextView length: %lu",[[ntv string] length]);
+		
+		//[textStore beginEditing];
+		//[textStore setAttributedString:as];
 		[syntaxer colouriseAll];
-		[textStore endEditing];
+		//[textStore endEditing];
 
 	}
 }
@@ -422,9 +438,11 @@
 	[self setDocumentEdited:YES];
 	// [[self document] setDocumentEdited:YES];
 	
-	// NSString *editor = [(QPDFWindow*)[self window] text];
-	NSString *editor = [textStore string];
+	NSString *editor = [[(QPDFWindow*)[self window] textView] string];
+	// NSString *editor = [textStore string];
 //	NSLog(@"%@",editor);
+	
+	[syntaxer colouriseAll];
 	
 	if (selectedNode != nil) {
 		[[self document] replaceQPDFNode:selectedNode withString:editor];

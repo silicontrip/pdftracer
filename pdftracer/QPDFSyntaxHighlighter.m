@@ -146,13 +146,23 @@
 {
 	NSRange area;
 	area.location = 0;
-	area.length = [[_theStorage string] length];
+	area.length = [[_theView string] length];
+	
+	NSLog(@"text length: %lu",[[_theView string] length]);
+	
+	NSLog(@"theview: %@",_theView);
+	
+	NSLog(@"Colorizing %lu characters",area.length);
+	
+//	area.length = [[_theStorage string] length];
 	[self colouriseRange:area];
 }
 
 -(void)colouriseRange:(NSRange)editedRange
 {
-	NSString* codeText = [_theStorage string];
+	//NSString* codeText = [_theStorage string];
+	NSString* codeText = [_theView string];
+
 	NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
 //	[_theStorage beginEditing];
@@ -160,10 +170,10 @@
 
 	//[_theStorage removeAttribute:NSForegroundColorAttributeName range:editedRange];
 	
-	NSDictionary* attrib = @{
-							 NSForegroundColorAttributeName: [NSColor whiteColor]
-							 };
-	[_theStorage setAttributes:attrib range:editedRange];
+//	NSDictionary* attrib = @{
+//							 NSForegroundColorAttributeName: [NSColor whiteColor]
+//							 };
+//	[_theStorage setAttributes:attrib range:editedRange];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;
@@ -178,9 +188,15 @@
 		{
 			NSRange fr = [cr range];
 			
-			[_theStorage addAttribute:NSForegroundColorAttributeName
-								value:keywordColour
-								range:fr];
+	//		[_theStorage addAttribute:NSForegroundColorAttributeName
+	//							value:keywordColour
+	//							range:fr];
+	
+			NSString * sub = [searchText substringWithRange:fr];
+			
+			NSLog(@"colouring... %@ to %@",sub,keywordColour);
+			
+			[_theView setTextColor:keywordColour range:fr];
 			
 		//	NSLog(@"range length: %lu",fr.length);
 			
@@ -199,9 +215,13 @@
 					// NSLog(@"%@ -> %lu-%lu %@",hire,gr.location,(gr.location+gr.length),[searchText substringWithRange:gr]);
 					// NSLog(@"match colour: %@",matchColour);
 
-					[_theStorage addAttribute:NSForegroundColorAttributeName
-										value:matchColour
-										range:gr];
+				//	[_theStorage addAttribute:NSForegroundColorAttributeName
+				//						value:matchColour
+				//						range:gr];
+					
+					[_theView setTextColor:matchColour range:gr];
+
+					
 				}
 			}
 		}

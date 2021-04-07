@@ -187,7 +187,10 @@
 	
 	// See NSRulerView
 	
-	NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect textContainer:tCon] autorelease];
+	//NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect textContainer:tCon] autorelease];
+	NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect] autorelease];
+
+	
 	//[tView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
 	[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
@@ -276,16 +279,16 @@
 												  ]];
 
 		NSSize sz = NSMakeSize(0,FLT_MAX);
-		NSTextContainer* tc =  [[NSTextContainer alloc] initWithContainerSize:sz];
-		self.textContainer = tc;
+		//NSTextContainer* tc =  [[NSTextContainer alloc] initWithContainerSize:sz];
+		//self.textContainer = tc;
 
 		/*
 		[NSLayoutConstraint activateConstraints:@[
 												  [[tc leadingAnchor]]
 												  ]];
 		*/
-		self.layout = [[NSLayoutManager alloc] init];
-		[self.layout addTextContainer:self.textContainer];
+//		self.layout = [[NSLayoutManager alloc] init];
+	//	[self.layout addTextContainer:self.textContainer];
 		
 		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 		self.textView = [QPDFWindow textEditorViewWithContainer:self.textContainer];
@@ -296,7 +299,7 @@
 		[self.textView setFont:self.textFont];
 		[self.textView setDrawsBackground:YES];
 		
-		[self.textContainer setWidthTracksTextView:YES];
+	//	[self.textContainer setWidthTracksTextView:YES];
 		
 	//	[self.textContainer setHeightTracksTextView:YES];
 
@@ -304,8 +307,8 @@
 		// [self.textView setTextStorage:textStorage];  // textStorage readonly
 					   
 	//	NSLog(@"text - %@ : %@",self.textView,[self.textView textStorage]);
-		NSTextStorage* nts =[self.textView textStorage];
-		[nts setFont:self.textFont];
+	//	NSTextStorage* nts =[self.textView textStorage];
+	//	[nts setFont:self.textFont];
 		// NSLog(@"textStorage (%@)",nts);
 
 		self.scrollTextView = [[[NSScrollView alloc] init] autorelease];
