@@ -124,7 +124,7 @@
 
 	// Autoresize
 	QPDFOutlineView* ooView = [[QPDFOutlineView alloc] init];
-	[ooView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	// [ooView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
 	[ooView setIndentationPerLevel:16.0];
 	[ooView setIndentationMarkerFollowsCell:YES];

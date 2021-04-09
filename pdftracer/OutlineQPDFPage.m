@@ -12,7 +12,7 @@
 	
 	//Autoresize
 	QPDFOutlineView* oView=[[QPDFOutlineView alloc] init];
-	[oView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	// [oView setTranslatesAutoresizingMaskIntoConstraints:NO];
 	
 	// All the settings .plist
 	[oView setIndentationPerLevel:16.0];

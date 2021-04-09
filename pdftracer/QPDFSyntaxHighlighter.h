@@ -10,7 +10,10 @@
 	//NSArray <NSRegularExpression*> * pdf_hex_re;
 	//NSArray <NSRegularExpression*> * pdf_name_re;
 	
-	NSDictionary <NSRegularExpression*,NSColor*>* colour_re;
+	NSArray <NSRegularExpression*>* colourre_arr;
+	NSArray <NSColor*>* colour_arr;
+	
+	// NSDictionary <NSRegularExpression*,NSColor*>* colour_re;
 	NSColor *keywordColour;  // talk about conflicting spelling :-P
 	/*
 	NSColor *commentColour;

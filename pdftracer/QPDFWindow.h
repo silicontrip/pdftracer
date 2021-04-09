@@ -63,6 +63,6 @@
 -(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;
 -(NSSplitView*)splitAtIndex:(int)index;
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu;
-+(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon;
+// +(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon;
 
 @end

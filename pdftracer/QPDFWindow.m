@@ -180,7 +180,7 @@
 }
 */
 //+(NSTextView*)textEditorViewWithFont:(NSFont*)tfont container:(NSTextContainer*)tCon
-+(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon
++(NSTextView*)textEditorView // WithContainer:(NSTextContainer*)tCon
 {
 	
 	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
@@ -278,7 +278,7 @@
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
 
-		NSSize sz = NSMakeSize(0,FLT_MAX);
+		//NSSize sz = NSMakeSize(0,FLT_MAX);
 		//NSTextContainer* tc =  [[NSTextContainer alloc] initWithContainerSize:sz];
 		//self.textContainer = tc;
 
@@ -287,13 +287,15 @@
 												  [[tc leadingAnchor]]
 												  ]];
 		*/
-//		self.layout = [[NSLayoutManager alloc] init];
-	//	[self.layout addTextContainer:self.textContainer];
+		//	self.layout = [[NSLayoutManager alloc] init];
+		//	[self.layout addTextContainer:self.textContainer];
 		
 		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
-		self.textView = [QPDFWindow textEditorViewWithContainer:self.textContainer];
+		self.textView = [QPDFWindow textEditorView]; // WithContainer:self.textContainer];
 		
-		[self.textView setBackgroundColor:[NSColor blackColor]];
+		NSColor* backGround = [NSColor colorWithRed:0.157 green:0.169 blue:0.208 alpha:1.0];
+		
+		[self.textView setBackgroundColor:backGround];
 		[self.textView setTextColor:[NSColor whiteColor]];
 		[self.textView setInsertionPointColor:[NSColor whiteColor]];
 		[self.textView setFont:self.textFont];

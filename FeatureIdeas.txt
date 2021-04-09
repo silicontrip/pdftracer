@@ -1,14 +1,13 @@
 
-font glyph mapping unscramble. (or just show character code and glyph)
-build character re-map, reset font and search/replace stream.
-change / remove characters from font.
+- font glyph mapping unscramble. (or just show character code and glyph)
+- build character re-map, reset font and search/replace stream.
+- change / remove characters from font.
 
-PDF document current point cursor at current text edit cursor.
-probably requires: Get Current Matrix transform.
-convert back to standard transform. (i've heard that inverting matricies is hard)
+- PDF document current point cursor at current text edit cursor.  probably requires: Get Current Matrix transform.
+- convert back to standard transform. (i've heard that inverting matricies is hard)
 
-Add Font from file
-Add Image
+- Add Font from file
+- Add Image
 
 New Page. - done
 Remove page - done
@@ -16,11 +15,11 @@ New Object. - done
 Remove Object - Done
 New primative. - Done
 Remove primative - Done
+Export Stream. - Done
 
-export Stream. - Done
-
-Highlight mediabox, select page size from menu.
-Rotate layout [0 0 595 842] -> [0 0 842 595]
+- Highlight mediabox, select page size from menu. 
+- Rotate layout [0 0 595 842] -> [0 0 842 595]
+- Or Highlight Page "Add MediaBox"
 
 Page Sizes in point units 
 (72pt = 1inch)
@@ -48,7 +47,7 @@ insert IDE style template text, select from dropdown "m: move pen to point" (X) 
 (X) and (Y) are highlighted in a parameter needs filling in style (eg xcode)
 not much use for tab completion as many commands are 1 or 2 letters.  
 
-Insert High level object dictionary skeleton.  Page, Resources, Font, Image.  
+Insert High level object dictionary skeletonr:  Page, Resources, Font, Image.  
 - Page insertion done
 
 Non printable characters in stream string <-> visual textview <-> binary stream.
@@ -63,12 +62,14 @@ textView: view as, hex/ ascii / make a hex editor!!
 
 
 ## BUGS
-Outline view vertical scroll disappears won't respond to direct scrolling gesture.  After expanding nodes.
+Outline view vertical scroll disappears won't respond to direct scrolling gesture.  After expanding nodes. 
 requires moving the split view to bring it back. normal functionality returns.
 
-TextView scroller not appearing.
+ resolved, allow translating autoresizing into constraints.
 
-remove Pages Object, then add page crashes.
+TextView scroller not appearing.  - only with textstorage version.
+
+remove Pages Object, then add page crashes. catch and report error.
 
 ## OPTIMIZATIONS
 only output the current page to pdf.
@@ -78,10 +79,30 @@ only output the current page to pdf.
 keywords: purple B21889 .698 .094 .537
 comments: green  41B645 .255 .714 .270
 string:      red DB2C38 .859 .173 .220
+string:      lime green 
 hex_strings: DBDB2C     .859 .859 .173
 names: orange C67C48    .776 .463 .282
-arguments: blue 786DC4  .471 .427 .769
-
+compound enclosers: blue 786DC4  .471 .427 .769
+arguments:  0099CC .000 .600 .800
+background: 40,43,53 .157 .169 .208
 BEGIN/END:
 Arrays:
+
+STANDARD FONTS:
+
+Courier
+Courier-Bold
+Courier-Oblique
+Courier-BoldOblique
+Helvetica
+Helvetica-Bold
+Helvetica-Oblique
+Helvetica-BoldOblique
+Times-Roman
+Times-Bold
+Times-Italic
+Times-BoldItalic
+Symbol
+ZapfDingbats
+
 
