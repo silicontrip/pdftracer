@@ -32,7 +32,7 @@
 
 - (instancetype)initWithContentsOfURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-	NSLog(@"QPDFD initWithURL");
+	NSLog(@"QPDFD initWithContentsOfURL");
 
 	return [self initForURL:url withContentsOfURL:url ofType:@"PDF" error:outError];
 }
@@ -44,6 +44,7 @@
 	self = [super init];
 	if (self) {
 		[self setFileURL:urlOrNil];
+		[self setDisplayName:[urlOrNil description]];
 
 		pDoc = nil;
 		qDocument = [[ObjcQPDF alloc] initWithURL:contentsURL];

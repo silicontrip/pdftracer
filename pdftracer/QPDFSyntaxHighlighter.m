@@ -71,12 +71,11 @@
 						  [NSRegularExpression regularExpressionWithPattern:hexRe options:0 error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:arrayRe options:0 error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:dictRe options:0 error:&error],
-						 [NSRegularExpression regularExpressionWithPattern:innerHexRe options:0 error:&error],
-						 [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error],
-						 [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error],
-						 [NSRegularExpression regularExpressionWithPattern:commentRe options:NSRegularExpressionAnchorsMatchLines error:&error],
+						  [NSRegularExpression regularExpressionWithPattern:innerHexRe options:0 error:&error],
+						  [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error],
+						  [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error],
+						  [NSRegularExpression regularExpressionWithPattern:commentRe options:NSRegularExpressionAnchorsMatchLines error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:innerStringRe options:0 error:&error]
-
 						 ] retain ] ;
 		
 		colour_arr = [@[
@@ -84,12 +83,11 @@
 						encloseColour,
 						encloseColour,
 						encloseColour,
-					   hexColour,
-					   realColour,
-					   nameColour,
+					    hexColour,
+					    realColour,
+					    nameColour,
 						commentColour,
 						stringColour
-
 					   ] retain];
 		/*
 		colour_re = @{

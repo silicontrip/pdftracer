@@ -22,10 +22,8 @@
 	NSLog(@"QDocControl: makeDocumentWithContentsOfURL");
 	NSError* theError;
 	
-	QPDFDocument* newDoc=[[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
-//	[newDoc makeWindowControllers];
+	QPDFDocument* newDoc=[[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"PDF" error:&theError] autorelease];
 	[self addDocument:newDoc];
-	// [newDoc showWindows];
 	return newDoc;
 }
 

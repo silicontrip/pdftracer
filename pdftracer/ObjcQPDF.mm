@@ -25,7 +25,7 @@
 		NSString *fn = [fileURL path];
 		qDocument = new QPDF();
 		qDocument->processFile([fn UTF8String]);
-		NSLog(@"initWithURL QPDF %@ - %lx",self,(unsigned long)qDocument);
+		NSLog(@"initWithURL %@ QPDF %@ - %lx",fileURL,self,(unsigned long)qDocument);
 
 	}
 	return self;
