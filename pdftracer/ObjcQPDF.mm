@@ -105,7 +105,12 @@
 
 -(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index
 {
-	return [[ObjcQPDFObjectHandle alloc] initWithObject:qDocument->getAllPages()[index] ];
+	std::vector<QPDFObjectHandle> qohv = qDocument->getAllPages();
+	if (index <qohv.size()) {
+		QPDFObjectHandle qoh = qohv[index];
+		return [[ObjcQPDFObjectHandle alloc] initWithObject:qoh];
+	}
+	return nil;
 }
 
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
@@ -196,6 +201,8 @@
 }
 
 // looks simpler than I thought... something must be wrong
+// these are the legacy methods.
+// should look at using qpdf page document helper
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first
 {
 	qDocument->addPage([newpage qpdfobject],first);  // now what?
@@ -204,6 +211,14 @@
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage
 {
 	qDocument->addPageAt([newpage qpdfobject], first, [refpage qpdfobject]);
+}
+
+-(void)addPageUsingHelper:(ObjcQPDFObjectHandle*)page atStart:(BOOL)first
+{
+	QPDFPageObjectHelper poh = QPDFPageObjectHelper([page qpdfobject]);
+	QPDFPageDocumentHelper pdh = QPDFPageDocumentHelper(*qDocument);
+	
+	pdh.addPage(poh,first);
 }
 
 @end

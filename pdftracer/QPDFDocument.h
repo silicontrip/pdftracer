@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError;
 - (BOOL)readFromData:(NSData *)data ofType:(NSString *)typeName error:(NSError **)outError;
 - (PDFDocument*)pdfdocument;
+- (PDFDocument*)pdfDocumentPage:(NSUInteger)page;
 - (ObjcQPDF*)doc;
 - (NSString*)displayName;
 + (BOOL)autosavesInPlace;

@@ -97,7 +97,8 @@
 	[[w textView] setDelegate:self];
 	
 	//[qp pdfdocument];
-	[w setDocument:[[self document] pdfdocument]];
+	PDFDocument* ppdf = [[self document] pdfDocumentPage:0];
+	[w setDocument:ppdf];
 	
 	NSString* documentName = [[self document] displayName];
 	
@@ -444,9 +445,13 @@
 	
 	[syntaxer colouriseAll];
 	
+	// so which page???
+	
 	if (selectedNode != nil) {
 		[[self document] replaceQPDFNode:selectedNode withString:editor];
-		PDFDocument* doc = [[self document] pdfdocument];
+		//PDFDocument* doc = [[self document] pdfdocument];
+		PDFDocument* doc = [[self document] pdfDocumentPage:1];
+
 		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];

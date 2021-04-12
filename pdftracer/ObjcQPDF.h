@@ -38,5 +38,6 @@
 
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first;
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage;
+-(void)addPageUsingHelper:(ObjcQPDFObjectHandle*)page atStart:(BOOL)first;
 
 @end

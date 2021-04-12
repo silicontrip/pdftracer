@@ -143,6 +143,17 @@
 	return [qDocument document];
 }
 
+- (PDFDocument*)pdfDocumentPage:(NSUInteger)page
+{
+	ObjcQPDF* blank = [[[ObjcQPDF alloc] init] autorelease];
+	//ObjcQPDF* doc = qDocument;
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+
+	if (pageObj)
+		[blank addPageUsingHelper:pageObj atStart:YES];
+	return [blank document];
+}
+
 -(void)makeWindowControllers
 {
 	NSLog(@"QPDFD makeWindowControllers");
