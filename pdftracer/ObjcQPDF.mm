@@ -12,7 +12,7 @@
 		qDocument = new QPDF();
 		qDocument->emptyPDF();
 		
-		NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
+		// NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
 	}
 	return self;
 }
@@ -20,14 +20,17 @@
 -(instancetype)initWithURL:(NSURL*)fileURL
 {
 	self = [super init];
+	NSLog(@"ObjcQPDF initWithURL url %@ self %@",fileURL,self);  // open document is failing.
+
 	if (self)
 	{
 		NSString *fn = [fileURL path];
 		qDocument = new QPDF();
 		qDocument->processFile([fn UTF8String]);
-		NSLog(@"initWithURL %@ QPDF %@ - %lx",fileURL,self,(unsigned long)qDocument);
 
 	}
+	NSLog(@"ObjcQPDF initWithURL qDocument %lx",(unsigned long)qDocument);  // open document is failing.
+
 	return self;
 }
 
@@ -39,7 +42,7 @@
 		qDocument = new QPDF();
 		qDocument->processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
 		
-		NSLog(@"initWithData QPDF %@ - %lx",self,(unsigned long)qDocument);
+		// NSLog(@"initWithData QPDF %@ - %lx",self,(unsigned long)qDocument);
 
 	}
 	return self;
@@ -62,7 +65,7 @@
  // only for the other objc++ class
 -(QPDF*)qpdf
 {
-	NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
+	// NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
 
 	return qDocument;
 }
@@ -113,10 +116,32 @@
 	return nil;
 }
 
+/*
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
 {
 	return [[self objects] objectAtIndex:index];
 }
+*/
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSString*)objGen
+{
+	
+	// i know we've been warned not to simply rely on the objectid, without the generation
+
+	
+	// fine have it your way
+	if (objGen != nil)
+	{
+		NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
+		int objid = [[objElem objectAtIndex:0] intValue];
+		int genid = [[objElem objectAtIndex:1] intValue];
+		
+		QPDFObjectHandle oai = qDocument->getObjectByID(objid,genid);
+		return [[ObjcQPDFObjectHandle alloc] initWithObject:oai];
+
+	}
+	return nil;
+}
+
 
 -(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj
 {
@@ -126,14 +151,15 @@
 		int objid = [[objElem objectAtIndex:0] intValue];
 		int genid = [[objElem objectAtIndex:1] intValue];
 
-		NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,obj);
+		// NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,obj);
 		
 		QPDFObjectHandle qoh = [obj qpdfobject];
 		
 		qDocument->replaceObject(objid,genid,qoh);
 		
-		NSString* doctex = [[[NSString alloc] initWithData:[self data] encoding:NSMacOSRomanStringEncoding] autorelease];
-		NSLog(@"replaceID: %@",doctex);
+		// these two are a package deal
+		// NSString* doctex = [[[NSString alloc] initWithData:[self data] encoding:NSMacOSRomanStringEncoding] autorelease];
+		// NSLog(@"replaceID: %@",doctex);
 	}
 }
 
@@ -143,7 +169,7 @@
 	int objid = [[objElem objectAtIndex:0] intValue];
 	int genid = [[objElem objectAtIndex:1] intValue];
 	
-	NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,objGen);
+	// NSLog(@"QPDF replacing indirect: %d %d R with %@",objid,genid,objGen);
 		
 	qDocument->replaceObject(objid,genid,QPDFObjectHandle::newNull());
 }
@@ -159,7 +185,6 @@
 {
 	NSData* qPDFData = [self data];
 	return [[[PDFDocument alloc] initWithData:qPDFData] autorelease];
-	
 }
 
 -(NSData*)data

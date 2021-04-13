@@ -165,12 +165,13 @@
 				NSString * cmd = [cmds objectAtIndex:cc];
 				NSString *regstr = [NSString stringWithFormat:@"%@%@%@",argre,cmd,cmdEnd];
 				
-				NSLog(@"RE: %@",regstr);
+				// NSLog(@"RE: %@",regstr);
 				
 				NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regstr
 																					   options:NSRegularExpressionDotMatchesLineSeparators|NSRegularExpressionUseUnixLineSeparators
 																						 error:&error];
-				NSAssert(regex != nil, @"regex fail: %@",regstr);
+				
+				NSAssert(regex != nil, @"regex fail: %@",regstr);  // you code 'em, you fix 'em
 				[pdfref addObject:regex];
 			}
 		}
@@ -216,17 +217,6 @@
 	//NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
 	NSString* searchText = [_theView string];
-	
-	
-//	[_theStorage beginEditing];
-	// remove the old colors
-
-	//[_theStorage removeAttribute:NSForegroundColorAttributeName range:editedRange];
-	
-//	NSDictionary* attrib = @{
-//							 NSForegroundColorAttributeName: [NSColor whiteColor]
-//							 };
-//	[_theStorage setAttributes:attrib range:editedRange];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;

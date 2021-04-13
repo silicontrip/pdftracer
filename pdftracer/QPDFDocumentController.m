@@ -19,7 +19,9 @@
 
 - (QPDFDocument*)makeDocumentWithContentsOfURL:(NSURL*)url ofType:(NSString *)type error:(NSError**)outError
 {
-	NSLog(@"QDocControl: makeDocumentWithContentsOfURL");
+	//[super makeDocumentWithContentsOfURL:url ofType:type error:outError];
+	// this is called from another QPDFDocumentController method
+	NSLog(@"QDocControl: makeDocumentWithContentsOfURL: %@",url);
 	NSError* theError;
 	
 	QPDFDocument* newDoc=[[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"PDF" error:&theError] autorelease];
@@ -29,7 +31,7 @@
 
 - (void)openDocument:(id)sender
 {
-	NSLog(@"QDocControl: openDocument");
+	NSLog(@"QDocControl: openDocument sender: %@",sender);  // open document menu is failing
 
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
 	[openDlg setCanChooseFiles:YES];
@@ -37,12 +39,22 @@
 	[openDlg setCanChooseDirectories:NO];
 	
 	[openDlg beginWithCompletionHandler:^(NSInteger result){
+		NSLog(@"QDocControl complettionHandler");
+		
 		if (result == NSModalResponseOK) {
 			NSURL* url = [[openDlg URLs] firstObject];
 			NSError* theError;
 			// Open  the document.
-
+			NSLog(@"QDocControl .. makeDocument:");
 			[self makeDocumentWithContentsOfURL:url ofType:@"PDF" error:&theError];
+			
+			/*
+			[self addDocument:newDoc];
+			if (dd) {
+				[newDoc makeWindowControllers];
+			}
+			return newDoc;
+			*/
 			/*
 			QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
 			[self addDocument:newDoc];
@@ -79,7 +91,7 @@
 
 - (QPDFDocument*)makeUntitledDocumentOfType:(NSString*)pdf error:(NSError **)outError
 {
-	NSLog(@"QDocControl: makeUntitledDocumentOfType");
+	// NSLog(@"QDocControl: makeUntitledDocumentOfType");
 
 	// we only ever deal with PDF
 	return [[[QPDFDocument alloc] init] autorelease];
@@ -87,7 +99,7 @@
 
 - (void)openPDF:(NSString*)filename
 {
-	NSLog(@"QDocControl: openPDF");
+	NSLog(@"QDocControl: openPDF: %@",filename);
 
 	NSURL* url = [NSURL fileURLWithPath:filename];
 	NSError* theError;
@@ -97,6 +109,7 @@
 //	[self addDocument:nd];
 }
 
+/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
@@ -110,5 +123,5 @@
 	}
 	return [super respondsToSelector:aSelector];
 }
-
+*/
 @end

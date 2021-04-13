@@ -23,7 +23,9 @@
 -(NSUInteger)countObjects;
 -(NSUInteger)countPages;
 
--(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
+//-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
+-(ObjcQPDFObjectHandle*)objectAtIndex:(NSString*)objGen;
+
 -(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index;
 
 

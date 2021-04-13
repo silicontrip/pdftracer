@@ -47,7 +47,7 @@ insert IDE style template text, select from dropdown "m: move pen to point" (X) 
 (X) and (Y) are highlighted in a parameter needs filling in style (eg xcode)
 not much use for tab completion as many commands are 1 or 2 letters.  
 
-Insert High level object dictionary skeletonr:  Page, Resources, Font, Image.  
+Insert High level object dictionary skeleton:  Page, Resources, Font, Image.  
 - Page insertion done
 
 Non printable characters in stream string <-> visual textview <-> binary stream.
@@ -72,10 +72,10 @@ TextView scroller not appearing.  - only with textstorage version.
 remove Pages Object, then add page crashes. catch and report error.
 
 ## OPTIMIZATIONS
-only output the current page to pdf.
+only output the current page to pdf. - Done
 
 ## COLOUR DEFAULTS
-
+// make available via settings (make themes! err... no)
 keywords: purple B21889 .698 .094 .537
 comments: green  41B645 .255 .714 .270
 string:      red DB2C38 .859 .173 .220
