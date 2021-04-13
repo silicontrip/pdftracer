@@ -18,36 +18,6 @@
 	[self.documentView setDocument:pdf];
 }
 
-/*
--(void)setText:(NSString*)text
-{
-	NSLog(@"%@",[[self.textView textStorage] string]);
-	if (text)
-		[[self.textView textStorage] setString:text];
-	//	[self.textView setString:text];
-}
-
-
--(void)setFont:(NSFont*)font
-{
-	self.textFont = font;
-	[[self.textView textStorage] setFont:font];  // user prefs
-	// heres hoping textView has a strong reference.
-	// [tfont retain];  // but how does it release
-}
-*/
-/*
--(NSFont*)textFont
-{
-	return textFont;
-}
-*/
-/*
--(NSString*)text
-{
-	return [self.textView string];
-}
-*/
 -(void)addEnabled:(BOOL)ena forIndex:(int)index
 {
 	[segments[index] setEnabled:ena forSegment:0];
@@ -170,16 +140,7 @@
 	[scsView addView:seg inGravity:NSStackViewGravityLeading];
 	return scsView;
 }
-/*
-+(NSTextContainer*)textContainer
-{
-	NSSize sz = NSMakeSize(0,0);
-	NSTextContainer* ts = [[[NSTextContainer alloc] initWithContainerSize:sz] autorelease];
-	
-	
-}
-*/
-//+(NSTextView*)textEditorViewWithFont:(NSFont*)tfont container:(NSTextContainer*)tCon
+
 +(NSTextView*)textEditorView // WithContainer:(NSTextContainer*)tCon
 {
 	
@@ -225,28 +186,22 @@
 		[segments[0] setTag:0];
 		
 		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
-		// scView.translatesAutoresizingMaskIntoConstraints = NO;
 		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
-		// scsView.translatesAutoresizingMaskIntoConstraints = NO;
 
 		segments[1] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[1].relatedSegment = segments[1];
 		[segments[1] setTag:1];
 
 		NSScrollView* socView = [QPDFWindow hvScrollView:outlines[1]];
-		//socView.translatesAutoresizingMaskIntoConstraints = NO;
-
 		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:segments[1]];
-		// socsView.translatesAutoresizingMaskIntoConstraints = NO;
 
 		segments[2] = [QPDFWindow addRemoveSegmentWithMenu:NO];
 		outlines[2].relatedSegment = segments[2];
 		[segments[2] setTag:2];
 
 		NSScrollView* spcView = [QPDFWindow hvScrollView:outlines[2]];
-		// spcView.translatesAutoresizingMaskIntoConstraints = NO;
-
 		NSStackView* spcsView = [QPDFWindow stackScroll:spcView andSegment:segments[2]];
+		
 		// spcsView.translatesAutoresizingMaskIntoConstraints = NO;
 
 		// unused constraints, maybe
@@ -277,41 +232,17 @@
 												  [[segments[2] trailingAnchor] constraintEqualToAnchor:[spcsView trailingAnchor]],
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
-
-		//NSSize sz = NSMakeSize(0,FLT_MAX);
-		//NSTextContainer* tc =  [[NSTextContainer alloc] initWithContainerSize:sz];
-		//self.textContainer = tc;
-
-		/*
-		[NSLayoutConstraint activateConstraints:@[
-												  [[tc leadingAnchor]]
-												  ]];
-		*/
-		//	self.layout = [[NSLayoutManager alloc] init];
-		//	[self.layout addTextContainer:self.textContainer];
 		
 		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
 		self.textView = [QPDFWindow textEditorView]; // WithContainer:self.textContainer];
 		
-		NSColor* backGround = [NSColor colorWithRed:0.157 green:0.169 blue:0.208 alpha:1.0];
+		NSColor* backGround = [NSColor colorWithRed:0.157 green:0.169 blue:0.208 alpha:1.0];  // more prefs
 		
 		[self.textView setBackgroundColor:backGround];
 		[self.textView setTextColor:[NSColor whiteColor]];
 		[self.textView setInsertionPointColor:[NSColor whiteColor]];
 		[self.textView setFont:self.textFont];
 		[self.textView setDrawsBackground:YES];
-		
-	//	[self.textContainer setWidthTracksTextView:YES];
-		
-	//	[self.textContainer setHeightTracksTextView:YES];
-
-		
-		// [self.textView setTextStorage:textStorage];  // textStorage readonly
-					   
-	//	NSLog(@"text - %@ : %@",self.textView,[self.textView textStorage]);
-	//	NSTextStorage* nts =[self.textView textStorage];
-	//	[nts setFont:self.textFont];
-		// NSLog(@"textStorage (%@)",nts);
 
 		self.scrollTextView = [[[NSScrollView alloc] init] autorelease];
 		self.scrollTextView.translatesAutoresizingMaskIntoConstraints = NO;

@@ -44,11 +44,13 @@
 		
 		NSString *innerStringRe = @"(?<=\\()(\\\\\\)|[^\\)])*(?=\\))";
 		NSString *innerHexRe = @"(?<=<)[0-9A-Fa-f]+(?=>)";
-		NSString *innerArrayRe = @"(?<=\\[)[0-9A-Fa-f]+(?=\\])";
+		// NSString *innerArrayRe = @"(?<=\\[)[0-9A-Fa-f]+(?=\\])";
 		NSString *nameRe = @"/\\w+";
 		NSString *commentRe = @"%.*";
 	//	NSString *nameRe = [NSString stringWithFormat:@"/\\w+%@",cmdEnd];
 
+		NSLog(@"init syntax: %@",commentRe);
+		
 		//NSString *realRe = [NSString stringWithFormat:@"%@[+-]?([0-9]*[.])?[0-9]+%@",cmdStart,cmdEnd];
 		NSString *realRe = @"[+-]?([0-9]*[.])?[0-9]+";
 
@@ -74,7 +76,7 @@
 						  [NSRegularExpression regularExpressionWithPattern:innerHexRe options:0 error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error],
-						  [NSRegularExpression regularExpressionWithPattern:commentRe options:NSRegularExpressionAnchorsMatchLines error:&error],
+						  [NSRegularExpression regularExpressionWithPattern:commentRe options:0 error:&error],
 						  [NSRegularExpression regularExpressionWithPattern:innerStringRe options:0 error:&error]
 						 ] retain ] ;
 		
@@ -89,22 +91,7 @@
 						commentColour,
 						stringColour
 					   ] retain];
-		/*
-		colour_re = @{
-					 [NSRegularExpression regularExpressionWithPattern:innerHexRe options:0 error:&error] : hexColour,
-					 [NSRegularExpression regularExpressionWithPattern:innerStringRe options:0 error:&error] : stringColour,
-					 [NSRegularExpression regularExpressionWithPattern:stringRe options:0 error:&error] : encloseColour,
-					 [NSRegularExpression regularExpressionWithPattern:realRe options:0 error:&error] : realColour,
-					 [NSRegularExpression regularExpressionWithPattern:nameRe options:0 error:&error] : nameColour,
-					 [NSRegularExpression regularExpressionWithPattern:commentRe options:0 error:&error] : commentColour,
-					 [NSRegularExpression regularExpressionWithPattern:hexRe options:0 error:&error] : encloseColour,
-					 [NSRegularExpression regularExpressionWithPattern:arrayRe options:0 error:&error] : encloseColour,
-					 [NSRegularExpression regularExpressionWithPattern:dictRe options:0 error:&error] : encloseColour,
 
-		};
-		 */
-		
-		//[colour_re retain];
 		
 		NSString *arg1Name = [NSString stringWithFormat:@"%@\\s+",nameRe];
 		NSString *arg1Real = [NSString stringWithFormat:@"%@\\s+",realRe];
@@ -165,12 +152,13 @@
 				NSString * cmd = [cmds objectAtIndex:cc];
 				NSString *regstr = [NSString stringWithFormat:@"%@%@%@",argre,cmd,cmdEnd];
 				
-				NSLog(@"RE: %@",regstr);
+				// NSLog(@"RE: %@",regstr);
 				
 				NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:regstr
 																					   options:NSRegularExpressionDotMatchesLineSeparators|NSRegularExpressionUseUnixLineSeparators
 																						 error:&error];
-				NSAssert(regex != nil, @"regex fail: %@",regstr);
+				
+				NSAssert(regex != nil, @"regex fail: %@",regstr);  // you code 'em, you fix 'em
 				[pdfref addObject:regex];
 			}
 		}
@@ -194,17 +182,12 @@
 	
 }
 
+// try not to call this... resource hungry
 -(void)colouriseAll
 {
 	NSRange area;
 	area.location = 0;
 	area.length = [[_theView string] length];
-	/*
-	NSLog(@"text length: %lu",[[_theView string] length]);
-	NSLog(@"theview: %@",_theView);
-	NSLog(@"Colorizing %lu characters",area.length);
-	*/
-//	area.length = [[_theStorage string] length];
 	[self colouriseRange:area];
 }
 
@@ -216,17 +199,6 @@
 	//NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
 	NSString* searchText = [_theView string];
-	
-	
-//	[_theStorage beginEditing];
-	// remove the old colors
-
-	//[_theStorage removeAttribute:NSForegroundColorAttributeName range:editedRange];
-	
-//	NSDictionary* attrib = @{
-//							 NSForegroundColorAttributeName: [NSColor whiteColor]
-//							 };
-//	[_theStorage setAttributes:attrib range:editedRange];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;

@@ -22,5 +22,6 @@
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item;
 // - (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item;
+- (NSString*)description;
 
 @end

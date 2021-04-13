@@ -47,7 +47,7 @@
 	// Insert code here to tear down your application
 	NSLog(@"applicationWillTerminate");
 }
-
+/*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
@@ -61,7 +61,7 @@
 	}
 	return [super respondsToSelector:aSelector];
 }
-
+*/
 -(BOOL)applicationShouldTerminateAfterLastWindowClosed:(id)sender
 {
 	return NO;
@@ -106,7 +106,7 @@ int main (int argc, char * const argv[])
 	//	NSError *errorError;
 		// [docControl makeDocumentWithContentsOfURL:fu ofType:@"PDF" error:&errorError];
 		[docControl openDocumentWithContentsOfURL:fu display:YES completionHandler:^(NSDocument *document, BOOL alreadyOpen, NSError *error){
-			NSLog(@"%@",document);
+			NSLog(@"main loop: %@",document);
 		}];
 	//	[docControl openDocument:nil];
 	// [docControl openDocument:fu];

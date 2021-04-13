@@ -42,7 +42,7 @@
 		
 	//	[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
 		
-		[layout addTextContainer:qpw.textContainer];
+		// [layout addTextContainer:qpw.textContainer];
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
@@ -184,7 +184,16 @@
 		
 		//[textStore beginEditing];
 		//[textStore setAttributedString:as];
-		[syntaxer colouriseAll];
+		
+		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+																	inTextContainer:w.textView.textContainer];
+		
+		NSLog(@"glyphrange: %@",NSStringFromRange(glyphRange));
+		
+	//	NSRange editedRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+
+		
+		[syntaxer colouriseRange:glyphRange];
 		//[textStore endEditing];
 
 	}
@@ -432,25 +441,34 @@
 // this happens after each keypres..?
 - (void)textDidChange:(NSNotification *)notification
 {
-	//  NSLog(@"textDidChange %@",notification); // from textview
-	//QPDFNode* node = [selectedView itemAtRow:selectedRow];
+	NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
+	// QPDFNode* node = [selectedView itemAtRow:selectedRow];
+	
+	NSTextView* notifview = [notification object];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	[self setDocumentEdited:YES];
 	// [[self document] setDocumentEdited:YES];
 	
-	NSString *editor = [[(QPDFWindow*)[self window] textView] string];
-	// NSString *editor = [textStore string];
-//	NSLog(@"%@",editor);
+	NSRange editRange = [notifview rangeForUserTextChange];
+	NSString *editor = [notifview string];  // much of a muchness
+	NSRange lineRange = [editor lineRangeForRange:editRange];
 	
-	[syntaxer colouriseAll];
+	//NSString *editor = [[(QPDFWindow*)[self window] textView] string];
+	// NSString *editor = [textStore string];
+	//	NSLog(@"%@",editor);
+	
+	// NSLog(@"textchange: %@", NSStringFromRange([notifview rangeForUserTextChange]));
+	
+	[syntaxer colouriseRange:lineRange];
+	// [syntaxer colouriseAll];  // no no no no, huge waste of resources
 	
 	// so which page???
 	
 	if (selectedNode != nil) {
 		[[self document] replaceQPDFNode:selectedNode withString:editor];
 		//PDFDocument* doc = [[self document] pdfdocument];
-		PDFDocument* doc = [[self document] pdfDocumentPage:1];
+		PDFDocument* doc = [[self document] pdfDocumentPage:0];  // arrays are zero indexed...
 
 		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
 		[[self document] updateChangeCount:NSChangeDone];
@@ -575,7 +593,7 @@
 	NSInteger osr = self.selectedRow;
 	QPDFOutlineView* ov = self.selectedView;
 	
-	NSLog (@"Adding Type to: %lu",self.selectedRow);
+	// NSLog (@"Adding Type to: %lu",self.selectedRow);
 	
 	QPDFNode *item = [ov itemAtRow:osr];
 	ObjcQPDFObjectHandle *toObj = [item object];
@@ -658,6 +676,7 @@
 		[ov endUpdates];
 
 	}
+	// now to highlight the new object...
 	
 }
 
@@ -773,7 +792,7 @@
 
 - (void)delete:(id)sender
 {
-	NSLog(@"DELETE: %@",sender);
+	// NSLog(@"DELETE: %@",sender);
 	[self deleteRow:selectedRow forSource:selectedView];  // need to pick one... forSource or forOutline
 }
 

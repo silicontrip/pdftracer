@@ -161,16 +161,19 @@
 -(void)replaceObject:(nonnull ObjcQPDFObjectHandle*)obj forKey:(NSString*)key
 {
 	// NSLog(@"Replace object: %@ for: %@",obj,key);
+	NSAssert(obj!=nil,@"[ObjcQPDFObjectHandle replaceObject obj==nil");
+
 	if (obj != nil)
 	{
 		std::string ckey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		QPDFObjectHandle rObject = [obj qpdfobject];
 
 		qObject.replaceKey(ckey, rObject);
-	} else {
-		// I doubt that this should ever be called.
-		NSLog(@"Warning danger Will Robinson replacement object is nil");
 	}
+//	else {
+		// I doubt that this should ever be called.
+		//NSLog(@"Warning danger Will Robinson replacement object is nil");  // but I like this string
+//	}
 	
 }
 
