@@ -156,31 +156,25 @@
 - (void)setEditText:(NSString*)s
 {
 	//NSLog(@"setting text: %@",s);
-	NSLog(@"string length %lu",[s length]);
+	//NSLog(@"string length %lu",[s length]);
 	if (s)
 	{
 		QPDFWindow* w = (QPDFWindow*)[self window];
 		
 		NSTextView* ntv = w.textView;
 		
-//		NSDictionary* attrib = @{NSFontAttributeName: w.textFont,
-//								 NSForegroundColorAttributeName: [NSColor whiteColor]
-//								 };
-		// NSAttributedString* as = [[[NSAttributedString alloc] initWithString:s attributes:attrib] autorelease];
-	//	[w.textView setInsertionPointColor:[NSColor whiteColor]];
-		//[as
 		// Now I discover that textView has a setColour forRange...
 		
 		// NSLog(@"window textview: %@",w.textView);
 		
-		NSLog(@"string length: %lu",[s length]);
+	//	NSLog(@"string length: %lu",[s length]);
 		
 		// [w.textView setString:s];  // this isn't right
 		//w.textView.string = s; // what about this?
 		[ntv setString:s]; // yeah getting desperate now
 		[ntv checkTextInDocument:nil];
 		
-		NSLog(@"wTextView length: %lu",[[ntv string] length]);
+	//	NSLog(@"wTextView length: %lu",[[ntv string] length]);
 		
 		//[textStore beginEditing];
 		//[textStore setAttributedString:as];
@@ -188,10 +182,8 @@
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
 																	inTextContainer:w.textView.textContainer];
 		
-		NSLog(@"glyphrange: %@",NSStringFromRange(glyphRange));
-		
-	//	NSRange editedRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-
+	//	NSLog(@"number of glyphs: %lu", [w.textView.layoutManager numberOfGlyphs]);
+	//	NSLog(@"glyphrange: %@",NSStringFromRange(glyphRange));
 		
 		[syntaxer colouriseRange:glyphRange];
 		//[textStore endEditing];

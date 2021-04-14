@@ -198,6 +198,11 @@
 	//NSString* codeText = [_theView string];
 	//NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 	
+	
+	NSLog(@"number of glyphs: %lu", [_theView.layoutManager numberOfGlyphs]);
+	NSLog(@"glyphrange: %@",NSStringFromRange(editedRange));
+	
+	
 	NSString* searchText = [_theView string];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
@@ -236,6 +241,26 @@
 			}
 		}
 	}
+	
+	//NSRegularExpression* commentRe;
+	NSError* error;
+	NSRegularExpression* commentRe=[NSRegularExpression regularExpressionWithPattern:@"%.*" options:0 error:&error];
+
+	NSArray<NSTextCheckingResult*>* commentBox = [commentRe matchesInString:searchText
+							  options:0
+								range:editedRange];
+	
+	//NSColor * matchColour = [colour_arr objectAtIndex:6];
+	NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];  // settings settings settings
+
+	
+	for (NSTextCheckingResult* dr in commentBox)
+	{
+//		NSRange gr = [dr range];
+		[_theView setTextColor:commentColour range:[dr range]];
+	}
+
+	
 //	[_theStorage endEditing];
 }
 
