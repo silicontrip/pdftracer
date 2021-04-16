@@ -21,13 +21,42 @@
 {
 	//[super makeDocumentWithContentsOfURL:url ofType:type error:outError];
 	// this is called from another QPDFDocumentController method
-	NSLog(@"QDocControl: makeDocumentWithContentsOfURL: %@",url);
+	// NSLog(@"QDocControl: makeDocumentWithContentsOfURL: %@",url);
 	NSError* theError;
 	
 	QPDFDocument* newDoc=[[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"PDF" error:&theError] autorelease];
 	[self addDocument:newDoc];
 	return newDoc;
 }
+
+/*
+-(void)beginOpenPanelWithCompletionHandler:(void (^)(NSArray<NSURL *> * __nullable))completionHandler
+{
+	
+	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
+	[openDlg setCanChooseFiles:YES];
+	[openDlg setAllowsMultipleSelection:NO];
+	[openDlg setCanChooseDirectories:NO];
+	
+	NSArray<NSString*>* types = @[ @"PDF" ];
+	
+	[self beginOpenPanel:openDlg forTypes:types completionHandler:
+	 ^(NSInteger result){
+		 NSLog(@"QDocControl complettionHandler");
+		 
+		 if (result == NSModalResponseOK) {
+			 NSURL* url = [[openDlg URLs] firstObject];
+			 NSError* theError;
+			 // Open  the document.
+			 NSLog(@"QDocControl .. makeDocument:");
+			 [self makeDocumentWithContentsOfURL:url ofType:@"PDF" error:&theError];
+			 
+		 }
+	 }];
+	
+	
+}
+*/
 
 - (void)openDocument:(id)sender
 {
@@ -38,7 +67,8 @@
 	[openDlg setAllowsMultipleSelection:NO];
 	[openDlg setCanChooseDirectories:NO];
 	
-	[openDlg beginWithCompletionHandler:^(NSInteger result){
+	[openDlg beginWithCompletionHandler:^(NSInteger result)
+	{
 		NSLog(@"QDocControl complettionHandler");
 		
 		if (result == NSModalResponseOK) {
@@ -48,19 +78,20 @@
 			NSLog(@"QDocControl .. makeDocument:");
 			[self makeDocumentWithContentsOfURL:url ofType:@"PDF" error:&theError];
 			
-			/*
-			[self addDocument:newDoc];
-			if (dd) {
-				[newDoc makeWindowControllers];
-			}
-			return newDoc;
-			*/
-			/*
-			QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
+			QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"PDF" error:&theError] autorelease];
+
 			[self addDocument:newDoc];
 			[newDoc makeWindowControllers];
 			[newDoc showWindows];
-			 */
+
+			// return newDoc;
+ 
+ 
+			//QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
+			//[self addDocument:newDoc];
+			//[newDoc makeWindowControllers];
+			//[newDoc showWindows];
+			 
 		}
 	}];
 
