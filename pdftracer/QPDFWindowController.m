@@ -115,6 +115,9 @@
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:1]];
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
+	
+	// not enough performance
+	// [dc addObserver:self selector:@selector(textViewScrollNotification:) name:NSViewBoundsDidChangeNotification object:[w.scrollTextView contentView]] ;
 }
 
 /*
@@ -188,6 +191,9 @@
 		[syntaxer colouriseRange:glyphRange];
 		//[textStore endEditing];
 
+		[syntaxer colouriseAllAsync];
+		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });
+		
 	}
 }
 - (void)setEditEnable:(BOOL)ee
@@ -508,6 +514,16 @@
 
 }
 
+- (void)textViewScrollNotification:(NSNotification*)nn
+{
+	// NSLog(@"WinCon scrolly: %@",nn);
+	QPDFWindow* w = (QPDFWindow*)[self window];
+
+	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+															 inTextContainer:w.textView.textContainer];
+	
+	[syntaxer colouriseRange:glyphRange];
+}
 
 - (void)selectChangeNotification:(NSNotification*)nn
 {
@@ -831,7 +847,8 @@
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
 	NSString* selstr =NSStringFromSelector(aSelector);
-	if (![selstr isEqualToString:@"validModesForFontPanel:"])
+ 	NSSet* ignore = [NSSet setWithArray:@[@"_installTrackingRect:assumeInside:userData:trackingNum:"]];
+ 	if (![ignore containsObject:selstr])
 	{
 		NSLog(@"WindowController EVENT -> %@",NSStringFromSelector(aSelector));
 		if( [QPDFWindowController instancesRespondToSelector:aSelector] ) {

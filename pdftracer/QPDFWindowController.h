@@ -1,4 +1,5 @@
 #import <Cocoa/Cocoa.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import "QPDFDocument.h"
 #import "QPDFNode.h"
 #import "QPDFOutlineView.h"

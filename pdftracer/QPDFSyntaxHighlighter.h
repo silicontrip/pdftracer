@@ -34,5 +34,8 @@
 - (void)textStorageDidProcessEditing:(NSNotification *)notification;
 - (void)colouriseRange:(NSRange)r;
 - (void)colouriseAll;
+- (void)colouriseAllAsync;
+- (void)colouriseQueue;
+
 
 @end
