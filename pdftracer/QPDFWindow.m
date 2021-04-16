@@ -249,6 +249,7 @@
 
 		[self.scrollTextView setHasVerticalScroller:YES];
 		[self.scrollTextView setDocumentView:self.textView];
+		[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
 		self.documentView = [[[PDFView alloc] init] autorelease];
 		[self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -283,7 +284,21 @@
 	
 	return self;
 }
+/*
+- (BOOL)respondsToSelector:(SEL)aSelector
+{
+ 	NSString* selstr =NSStringFromSelector(aSelector);
 
-
-
+	NSSet* ignore = [NSSet setWithArray:@[@"_installTrackingRect:assumeInside:userData:trackingNum:"]];
+	if (![ignore containsObject:selstr])
+	{
+		NSLog(@"Window EVENT -> %@",NSStringFromSelector(aSelector));
+		if( [QPDFWindow instancesRespondToSelector:aSelector] ) {
+			// invoke the inherited method
+			return YES;
+		}
+	}
+	return [super respondsToSelector:aSelector];
+}
+*/
 @end

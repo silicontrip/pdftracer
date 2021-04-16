@@ -32,14 +32,14 @@
 
 - (instancetype)initWithContentsOfURL:(NSURL *)url ofType:(NSString *)typeName error:(NSError * _Nullable *)outError
 {
-	NSLog(@"QPDFDoc initWithContentsOfURL: %@",url);  // open document from menu is failing.
+	//NSLog(@"QPDFDoc initWithContentsOfURL: %@",url);  // open document from menu is failing.
 
 	return [self initForURL:url withContentsOfURL:url ofType:@"PDF" error:outError];
 }
 
 - (nullable instancetype)initForURL:(nullable NSURL *)urlOrNil withContentsOfURL:(NSURL *)contentsURL ofType:(NSString *)typeName error:(NSError **)outError
 {
-	NSLog(@"QPDFDoc initForURL: %@ %@",urlOrNil,contentsURL);  // open document is failing
+	// NSLog(@"QPDFDoc initForURL: %@ %@",urlOrNil,contentsURL);  // open document is failing
 
 	self = [super init];
 	if (self) {
@@ -156,7 +156,7 @@
 
 -(void)makeWindowControllers
 {
-	NSLog(@"QPDFDoc makeWindowControllers");
+	// NSLog(@"QPDFDoc makeWindowControllers");
 	
 	NSRect rr = NSMakeRect(10, 10, 1440, 480);  // want better defaults
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;

@@ -20,7 +20,7 @@
 -(instancetype)initWithURL:(NSURL*)fileURL
 {
 	self = [super init];
-	NSLog(@"ObjcQPDF initWithURL url %@ self %@",fileURL,self);  // open document is failing.
+//	NSLog(@"ObjcQPDF initWithURL url %@ self %@",fileURL,self);  // open document is failing.
 
 	if (self)
 	{
@@ -29,7 +29,7 @@
 		qDocument->processFile([fn UTF8String]);
 
 	}
-	NSLog(@"ObjcQPDF initWithURL qDocument %lx",(unsigned long)qDocument);  // open document is failing.
+//	NSLog(@"ObjcQPDF initWithURL qDocument %lx",(unsigned long)qDocument);  // open document is failing.
 
 	return self;
 }
