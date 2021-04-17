@@ -70,19 +70,12 @@
 		//NSString *realRe = [NSString stringWithFormat:@"%@[+-]?([0-9]*[.])?[0-9]+%@",cmdStart,cmdEnd];
 		NSString *realRe = @"[+-]?([0-9]*[.])?[0-9]+";
 
-//		NSString *stringRe = [NSString stringWithFormat:@"%@",argString];
-//		NSString *innerStringRe = [NSString stringWithFormat:@"%@",argInnerString];
-//		NSString *arrayRe = [NSString stringWithFormat:@"%@",argArray];
-//		NSString *hexRe = [NSString stringWithFormat:@"%@",argHex];
-//		NSString *innerHexRe = [NSString stringWithFormat:@"%@",argInnerHex];
-//		NSString *dictRe = [NSString stringWithFormat:@"%@",argDict];
-
 		
 		//NSString *dictRe = [NSString stringWithFormat:@"%@",argDict];
 
 		// NSLog(@"%@",stringRe);
 		
-		// these are order dependent, migrate to NSArray
+		// these are order dependent, migrate to NSArray [Done]
 		
 		colourre_arr = [@[
 						  [NSRegularExpression regularExpressionWithPattern:stringRe options:0 error:&error],
@@ -185,7 +178,7 @@
 	}
 	return self;
 }
-
+/*
 - (void)textStorageDidProcessEditing:(NSNotification *)notification
 {
 	_theStorage = [notification object];
@@ -197,8 +190,9 @@
 	[self colouriseRange:editedRange];
 	
 }
-
+*/
 // try not to call this... resource hungry
+/*
 -(void)colouriseAll
 {
 	NSRange area;
@@ -206,24 +200,26 @@
 	area.length = [[_theView string] length];
 	[self colouriseRange:area];
 }
+*/
 
-- (void)colouriseAllAsync
+- (void)colouriseAll
 {
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueue]; } );
+	NSString* storageString = [[_asyncView textStorage] string];
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString]; } );
 }
 
 
 
--(void)colouriseQueue
+-(void)colouriseQueueString:(NSString*)searchText
 {
 
 	NSRange area;
 	area.location = 0;
-	area.length = [[_theView string] length];
+	area.length = [searchText length];
 
 	NSMutableArray<Colourise*>* colourInstruct = [NSMutableArray arrayWithCapacity:16];
 
-	NSString* searchText = [_theView string];
+	// NSString* searchText = [[_theView textStorage] string];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;
@@ -297,14 +293,16 @@
 	
 	// this should be much faster than the Regex search
 	// but unfortunately not enough.
-	dispatch_async(dispatch_get_main_queue(), ^{
-		for (Colourise* cr in colourInstruct)
-			[_theView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
-	});
 	
+	//I don't care how you do it, as long as its not a complete muppet
+	for (Colourise* cr in colourInstruct)
+	{
+	dispatch_async(dispatch_get_main_queue(), ^{
+			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
+	});
+	}
 	//	[_theStorage endEditing];
 
-	
 }
 
 -(void)colouriseRange:(NSRange)editedRange
@@ -318,7 +316,7 @@
 	//NSLog(@"glyphrange: %@",NSStringFromRange(editedRange));
 	
 	
-	NSString* searchText = [_theView string];
+	NSString* searchText = [_asyncView string];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;
@@ -335,7 +333,7 @@
 			
 			// NSLog(@"colouring... %@ to %@",[searchText substringWithRange:fr],keywordColour);
 			
-			[_theView setTextColor:keywordColour range:fr];
+			[_asyncView setTextColor:keywordColour range:fr];
 			
 		//	NSLog(@"range length: %lu",fr.length);
 			
@@ -351,7 +349,7 @@
 				for (NSTextCheckingResult* dr in colourbox)
 				{
 					NSRange gr = [dr range];
-					[_theView setTextColor:matchColour range:gr];
+					[_asyncView setTextColor:matchColour range:gr];
 				}
 			}
 		}
@@ -372,13 +370,14 @@
 	for (NSTextCheckingResult* dr in commentBox)
 	{
 //		NSRange gr = [dr range];
-		[_theView setTextColor:commentColour range:[dr range]];
+		[_asyncView setTextColor:commentColour range:[dr range]];
 	}
 
 	
 //	[_theStorage endEditing];
 }
 
+/*
 - (NSAttributedString*) colouriseString:(NSString*)searchText inRange:(NSRange)editedRange
 {
 	// I'm copying this code quite a bit, but I can't seem to paramatise the differences
@@ -448,6 +447,17 @@
 		// [_theView setTextColor:commentColour range:[dr range]];
 	}
 	return [colourMe copy];
+}
+*/
+
+- (void)scanStreamString:(NSString *)s
+{
+	NSScanner* sc = [[NSScanner alloc] initWithString:s];
+	// whitespaceAndNewlineCharacterSet
+	sc.charactersToBeSkipped =[NSCharacterSet whitespaceAndNewlineCharacterSet];
+	sc.caseSensitive = YES;
+	
+	
 }
 
 @end

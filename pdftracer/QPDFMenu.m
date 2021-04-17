@@ -75,7 +75,7 @@
 			
 			// NSLog(@"%lu = %lu = %lu",[items count],[keyquiv count],[select count]);
 			
-			NSLog(@"item: %lu",i);
+			// NSLog(@"item: %lu",i);
 			NSAssert([items count] == [keyquiv count],@"items != keyequiv");
 			NSAssert([select count] == [keyquiv count],@"targets != keyequiv");
 

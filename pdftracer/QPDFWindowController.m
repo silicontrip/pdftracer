@@ -37,8 +37,8 @@
 	//	syntaxer.theLayout = layout;
 	//	syntaxer.theStorage = textStore;
 	//	syntaxer.theContainer = qpw.textContainer;
-		syntaxer.theView = qpw.textView;
-		syntaxer.theScroll = qpw.scrollTextView;
+		syntaxer.asyncView = qpw.textView;
+		// syntaxer.theScroll = qpw.scrollTextView;
 		
 	//	[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
 		
@@ -191,7 +191,7 @@
 		[syntaxer colouriseRange:glyphRange];
 		//[textStore endEditing];
 
-		[syntaxer colouriseAllAsync];
+		[syntaxer colouriseAll];
 		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });
 		
 	}
