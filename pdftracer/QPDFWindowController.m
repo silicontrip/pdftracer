@@ -435,12 +435,34 @@
 
 // MARK: interface events
 
+void printView (NSView* n)
+{
+	NSArray<NSView*>* ch = [n subviews];
+	for (NSView *v in ch)
+	{
+		NSRect rr = [v visibleRect];
+		NSArray<NSView*>* cha = [v subviews];
+		
+		NSLog(@"%@ (%lu) [%@]",v,(unsigned long)[cha count],NSStringFromRect(rr));
+		
+		if ([cha count] > 0)
+			printView(v);
+	}
+	
+}
 
 // this happens after each keypres..?
 - (void)textDidChange:(NSNotification *)notification
 {
-	NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
+	// NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
 	// QPDFNode* node = [selectedView itemAtRow:selectedRow];
+	
+	QPDFWindow* qwin = (QPDFWindow*)[self window];
+	PDFView* pv = [qwin documentView];
+	
+	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
+	
+	NSRect saveRect = [visRect visibleRect];
 	
 	NSTextView* notifview = [notification object];
 	
@@ -468,9 +490,20 @@
 		//PDFDocument* doc = [[self document] pdfdocument];
 		PDFDocument* doc = [[self document] pdfDocumentPage:0];  // arrays are zero indexed...
 
-		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+
+		//NSLog(@"before: %@",NSStringFromRect(saveRect));
+		
+		// printView (pv);
+		
+		[pv setDocument:doc];
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
+		
+		[visRect scrollRectToVisible:saveRect];
+		
+		//NSRect save2Rect = [visRect visibleRect];
+		//NSLog(@"after: %@",NSStringFromRect(save2Rect));
+		
 	//	[[self document] setDocumentEdited:YES];
 
 
