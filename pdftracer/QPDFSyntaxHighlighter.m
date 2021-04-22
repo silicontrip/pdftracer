@@ -65,7 +65,7 @@
 		NSString *commentRe = @"%.*";
 	//	NSString *nameRe = [NSString stringWithFormat:@"/\\w+%@",cmdEnd];
 
-		NSLog(@"init syntax: %@",commentRe);
+	//	NSLog(@"init syntax: %@",commentRe);
 		
 		//NSString *realRe = [NSString stringWithFormat:@"%@[+-]?([0-9]*[.])?[0-9]+%@",cmdStart,cmdEnd];
 		NSString *realRe = @"[+-]?([0-9]*[.])?[0-9]+";
@@ -205,6 +205,9 @@
 - (void)colouriseAll
 {
 	NSString* storageString = [[_asyncView textStorage] string];
+	// NSLog(@"colorize all -> %@",storageString);
+	NSAssert((storageString != nil), @" colourise all storage string null");
+	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString]; } );
 }
 
@@ -217,9 +220,9 @@
 	area.location = 0;
 	area.length = [searchText length];
 
+	NSAssert(searchText!=nil,@"searchText nil");
+	
 	NSMutableArray<Colourise*>* colourInstruct = [NSMutableArray arrayWithCapacity:16];
-
-	// NSString* searchText = [[_theView textStorage] string];
 	
 	NSArray<NSTextCheckingResult*>* matchbox;
 	NSArray<NSTextCheckingResult*>* colourbox;
