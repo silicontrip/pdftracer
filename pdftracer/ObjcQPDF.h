@@ -9,6 +9,7 @@
 @interface ObjcQPDF : NSObject<ObjcPDFDocument>
 {
 	PDFDocument *pDoc;
+	NSDictionary<NSString*,NSNumber*>* pageDirects; //TODO: also need to handle adding/removing pages
 }
 
 -(instancetype)init; // empty pdf
@@ -28,6 +29,9 @@
 
 -(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index;
 
+-(BOOL)isIndirectPage:(NSString*)objectGeneration;
+-(NSNumber*)pageIndexForIndirect:(NSString*)objectGeneration;
+-(ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration;
 
 -(id<ObjcPDFObject>)copyRootCatalog; // naming convention for alloc
 

@@ -27,6 +27,7 @@
 @property (assign) NSInteger selectedColumn;
 @property (weak,nonatomic) QPDFOutlineView* selectedView;
 @property (weak,nonatomic) QPDFNode* selectedNode;
+@property (assign) NSUInteger selectedPage;
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw;
 - (void)initDataSource;
@@ -35,7 +36,7 @@
 
 // - (void)invalidateAll;
 
-- (void)updatePDF;
+// - (void)updatePDF;
 // - (void)updateOutlines:(QPDFNode*)node;
 - (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
 

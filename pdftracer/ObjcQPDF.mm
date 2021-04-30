@@ -27,12 +27,15 @@
 		NSString *fn = [fileURL path];
 		qDocument = new QPDF();
 		qDocument->processFile([fn UTF8String]);
+		pageDirects = nil;
 
+		[self makePageDirects];
 	}
 //	NSLog(@"ObjcQPDF initWithURL qDocument %lx",(unsigned long)qDocument);  // open document is failing.
 
 	return self;
 }
+
 
 -(instancetype)initWithData:(NSData*)data
 {
@@ -41,8 +44,10 @@
 	{
 		qDocument = new QPDF();
 		qDocument->processMemoryFile("NSData", (char*)[data bytes], [data length]);  // initialise QPDF from memory
-		
+		pageDirects = nil;
+
 		// NSLog(@"initWithData QPDF %@ - %lx",self,(unsigned long)qDocument);
+		[self makePageDirects];
 
 	}
 	return self;
@@ -55,12 +60,33 @@
 	if (self)
 	{
 		qDocument = qpdf;
-		
+		pageDirects = nil;
 		NSLog(@"(objc++) initWith QPDF %@ - %lx",self,(unsigned long)qDocument);
+		[self makePageDirects];
 
 	}
 	return self;
 }
+
+- (void)makePageDirects
+{
+	if (pageDirects)
+		[pageDirects release];
+	std::vector<QPDFObjectHandle> pageList = qDocument->getAllPages();
+	unsigned long sz = pageList.size();
+	
+	NSMutableDictionary<NSString*,NSNumber*>* pageIndex = [[[NSMutableDictionary alloc] init] autorelease];
+	
+	for (unsigned long index=0;index<sz;++index)
+	{
+		QPDFObjectHandle qObject = pageList[index];
+		NSString* objKey = [NSString stringWithFormat:@"%d %d R",qObject.getObjectID(),qObject.getGeneration()];
+		NSNumber* objVal = [NSNumber numberWithUnsignedLong:index];
+		[pageIndex setObject:objVal forKey:objKey];
+	}
+	pageDirects = [pageIndex copy];  // is this retained?
+}
+
 
  // only for the other objc++ class
 -(QPDF*)qpdf
@@ -106,7 +132,7 @@
 	return qDocument->getObjectCount();
 }
 
--(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index
+-(nullable ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index
 {
 	std::vector<QPDFObjectHandle> qohv = qDocument->getAllPages();
 	if (index <qohv.size()) {
@@ -115,6 +141,26 @@
 	}
 	return nil;
 }
+
+-(BOOL)isIndirectPage:(NSString*)objectGeneration
+{
+	if ([pageDirects objectForKey:objectGeneration])
+		return YES;
+	return NO;
+}
+-(NSNumber*)pageIndexForIndirect:(NSString*)objectGeneration
+{
+	return [pageDirects objectForKey:objectGeneration];
+}
+
+-(nullable ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration
+{
+	if([pageDirects objectForKey:objectGeneration])
+		return [self pageAtIndex:[[pageDirects objectForKey:objectGeneration] unsignedLongValue]];
+	
+	return nil;
+}
+
 
 /*
 -(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
@@ -228,14 +274,20 @@
 // looks simpler than I thought... something must be wrong
 // these are the legacy methods.
 // should look at using qpdf page document helper
+
+// um, so which one of these is working?
+
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first
 {
 	qDocument->addPage([newpage qpdfobject],first);  // now what?
+	[self makePageDirects];
 }
 
 -(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage
 {
 	qDocument->addPageAt([newpage qpdfobject], first, [refpage qpdfobject]);
+	[self makePageDirects];
+
 }
 
 -(void)addPageUsingHelper:(ObjcQPDFObjectHandle*)page atStart:(BOOL)first
@@ -244,6 +296,8 @@
 	QPDFPageDocumentHelper pdh = QPDFPageDocumentHelper(*qDocument);
 	
 	pdh.addPage(poh,first);
+	[self makePageDirects];
+
 }
 
 @end

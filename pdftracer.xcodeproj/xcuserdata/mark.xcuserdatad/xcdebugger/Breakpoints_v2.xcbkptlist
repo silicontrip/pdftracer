@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "pdftracer/QPDFWindowController.m"
-            timestampString = "640789919.581732"
+            timestampString = "641467655.0866981"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "498"
-            endingLineNumber = "498"
+            startingLineNumber = "532"
+            endingLineNumber = "532"
             landmarkName = "-textDidChange:"
             landmarkType = "7">
          </BreakpointContent>

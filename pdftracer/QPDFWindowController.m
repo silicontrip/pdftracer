@@ -15,6 +15,7 @@
 
 @synthesize selectedRow;
 @synthesize selectedColumn;
+@synthesize selectedPage;
 
 @synthesize selectedView;
 @synthesize selectedNode;
@@ -43,6 +44,8 @@
 	//	[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
 		
 		// [layout addTextContainer:qpw.textContainer];
+		
+		self.selectedPage = 0;
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
@@ -129,12 +132,13 @@
 
 
 // MARK: View state change
+/*
 -(void)updatePDF
 {
 	PDFDocument* tpDoc = [[self document] pdfdocument];
 	[(QPDFWindow*)[self window] setDocument:tpDoc];
 }
-
+*/
 - (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node
 {
 	[(QPDFWindow*)[self window] updateOutline:outline forNode:node];
@@ -158,13 +162,14 @@
 
 - (void)setEditText:(NSString*)s
 {
+//	NSLog(@"setEditText:");
 	//NSLog(@"setting text: %@",s);
 	//NSLog(@"string length %lu",[s length]);
 	if (s)
 	{
 		QPDFWindow* w = (QPDFWindow*)[self window];
 		
-		NSTextView* ntv = w.textView;
+		QPDFTextView* ntv = w.textView;
 		
 		// Now I discover that textView has a setColour forRange...
 		
@@ -177,24 +182,18 @@
 		[ntv setString:s]; // yeah getting desperate now
 		[ntv checkTextInDocument:nil];
 		
-	//	NSLog(@"wTextView length: %lu",[[ntv string] length]);
-		
-		//[textStore beginEditing];
-		//[textStore setAttributedString:as];
-		
-		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-																	inTextContainer:w.textView.textContainer];
-		
-	//	NSLog(@"number of glyphs: %lu", [w.textView.layoutManager numberOfGlyphs]);
-	//	NSLog(@"glyphrange: %@",NSStringFromRange(glyphRange));
-		
-		[syntaxer colouriseRange:glyphRange];
-		//[textStore endEditing];
+		//NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect];
+		// [syntaxer colouriseRange:glyphRange];
+							  
+	//	NSLog(@"begin colouriseAll");
+		//[syntaxer colouriseAll];
+	//	NSLog(@"end colouriseAll");
 
-		[syntaxer colouriseAll];
 		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });
 		
 	}
+//	NSLog(@"end setEditText:");
+
 }
 - (void)setEditEnable:(BOOL)ee
 {
@@ -312,7 +311,7 @@
 	ObjcQPDFObjectHandle* parent = [node parent];
 	NSString* name = [node name];  // dictionary key or array index value
 
-	NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
+	// NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
 	// something else is changing...
 	// NSLog(@"not doing anything");
 	
@@ -364,7 +363,7 @@
 	{
 		[container addObject:obj];
 	} else if ([container isDictionary]) {
-		// find unique name
+		//TODO: find unique name
 		NSString* uniqueName = @"/Untitled";
 		int version=1;
 		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
@@ -414,6 +413,7 @@
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
+	// NSLog(@"selectRow...");
 	// setOV, setRow
 	[self setSelectedRow:sr];
 	[self setSelectedView:qov];
@@ -422,6 +422,38 @@
 	// setText
 	[self setEditText:[self textForSelectedObject]];
 
+	QPDFNode *thisNode = [self selectedNode];
+	if ([[thisNode object] isDictionary])
+	{
+		ObjcQPDFObjectHandle* obj = [thisNode object];
+		// so which page have we selected ?
+		ObjcQPDFObjectHandle* objType =[obj objectForKey:@"/Type"];
+
+		if (objType)
+		{
+			if ([[objType name] isEqualToString:@"/Page"])
+			{
+				QPDFDocument* doc = [self document];
+				ObjcQPDF* qDoc = [doc doc];
+				NSString* objGen = [obj objectGenerationID];
+				
+				NSLog(@"selected page... um. %@ ",objGen);
+				
+				NSUInteger nPage = [[qDoc pageIndexForIndirect:objGen] unsignedLongValue];
+				
+				if (nPage != self.selectedPage)
+				{
+					// OK, now what page is it?  // Ha Ha, sucks to be you, I found it.
+					self.selectedPage = nPage;
+					PDFDocument* doc = [[self document] pdfDocumentPage:nPage];  // arrays are zero indexed...
+					[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+
+				}
+				
+			}
+		}
+	}
+	
 	// ena Text edit
 	[self setEditEnable:[self canEditSelectedObject]];
 
@@ -430,7 +462,7 @@
 	//[self setRemoveEnabled:[self isSelected]];
 	
 	[self updateOutlineAddRemove];
-	
+	// NSLog(@"end selectRow");
 }
 
 // MARK: interface events
@@ -440,7 +472,7 @@ void printView (NSView* n)
 	NSArray<NSView*>* ch = [n subviews];
 	for (NSView *v in ch)
 	{
-		NSRect rr = [v visibleRect];
+		NSRect rr = [v frame];
 		NSArray<NSView*>* cha = [v subviews];
 		
 		NSLog(@"%@ (%lu) [%@]",v,(unsigned long)[cha count],NSStringFromRect(rr));
@@ -451,23 +483,28 @@ void printView (NSView* n)
 	
 }
 
-// this happens after each keypres..?
+// this happens after each keypress.
 - (void)textDidChange:(NSNotification *)notification
 {
+	// would like to capture the keydown event... not update if space is pressed.
 	// NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
 	// QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
-	PDFView* pv = [qwin documentView];
+	QPDFView* pv = [qwin documentView];
 	
 	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-	
 	NSRect saveRect = [visRect visibleRect];
+
+//	NSView* pdfSize = [[visRect subviews] objectAtIndex:1];
+//	NSRect pdfDim = [pdfSize frame];
+//	NSLog(@"save rect: %@",NSStringFromRect(saveRect));
 	
-	NSTextView* notifview = [notification object];
+	QPDFTextView* notifview = [notification object];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	[self setDocumentEdited:YES];
+
 	// [[self document] setDocumentEdited:YES];
 	
 	NSRange editRange = [notifview rangeForUserTextChange];
@@ -486,16 +523,15 @@ void printView (NSView* n)
 	// so which page???
 	
 	if (selectedNode != nil) {
+		
 		[[self document] replaceQPDFNode:selectedNode withString:editor];
 		//PDFDocument* doc = [[self document] pdfdocument];
-		PDFDocument* doc = [[self document] pdfDocumentPage:0];  // arrays are zero indexed...
-
-
-		//NSLog(@"before: %@",NSStringFromRect(saveRect));
-		
-		// printView (pv);
-		
+		PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
+// getting desperate
+		[visRect scrollRectToVisible:saveRect];
 		[pv setDocument:doc];
+		[visRect scrollRectToVisible:saveRect];
+
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
 		
@@ -516,15 +552,14 @@ void printView (NSView* n)
 	NSLog(@"textDidEndEditing");
 	
 	selectedView = [aNotification object];
-	NSTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
+	QPDFTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
 	
 	if (fieldEditor)
 	{
-		
+		NSLog(@"textDidEndEditing fieldEditor");
 		selectedRow = [selectedView editedRow];
 		selectedColumn = [selectedView editedColumn];
 
-		
 		selectedNode = [selectedView itemAtRow:selectedRow];
 		
 		NSString * editor = [[fieldEditor textStorage] string];
@@ -535,13 +570,14 @@ void printView (NSView* n)
 		[selectedView reloadItem:[selectedNode parentNode] reloadChildren:YES];
 	//	[selectedView expandItem:[selectedNode parentNode]];
 		
+		// this is not causing the space scrolling issue.
 		PDFDocument* doc = [[self document] pdfdocument];
 		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+		
+		
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
 		// [[self document] setDocumentEdited:YES];
-
-
 	}
 //	NSLog(@"<<< textDidEndEditing %@",ov);  // from outline
 
@@ -698,7 +734,9 @@ void printView (NSView* n)
 	
 		// set Text
 		// set the textView with text for the current selected object or stream
+		NSLog(@"addType: setEditText");
 		[self setEditText:[self textForSelectedObject]];  // seems kind of superfluous, there must be some better named logical expression for this.  almost sorted.
+		NSLog(@"addType: end setEditText");
 
 		// ena A R
 		// enable the add/Remove buttons depending on what's selected.
@@ -738,8 +776,10 @@ void printView (NSView* n)
 	
 	[self updateOutlineAddRemove];
 	
+	NSLog(@"deleteRow: setEditText");
 	[self setEditText:[self textForSelectedObject]];
-	
+	NSLog(@"deleteRow: end setEditText");
+
 	PDFDocument* doc = [[self document] pdfdocument];
 	[win.documentView setDocument:doc];
 	

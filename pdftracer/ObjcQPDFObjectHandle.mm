@@ -53,6 +53,8 @@
 
 -(BOOL)isNull { return qObject.isNull(); }
 -(BOOL)isStream { return qObject.isStream(); }
+-(BOOL)isString { return qObject.isString(); }
+-(BOOL)isName { return qObject.isName(); }
 -(BOOL)isArray { return qObject.isArray(); }
 -(BOOL)isIndirect { return qObject.isIndirect(); }
 -(BOOL)isDictionary { return qObject.isDictionary(); }
@@ -344,6 +346,7 @@
 	
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf])];
 }
+
 + (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)oQpdf withData:(NSData*)data
 {
 	
