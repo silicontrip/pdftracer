@@ -1,5 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
+#import "QPDFTextView.h"
 
 @interface QPDFSyntaxHighlighter : NSObject
 {
@@ -11,7 +12,7 @@
 
 }
 
-@property (nonatomic,strong) NSTextView* asyncView;
+@property (nonatomic,strong) QPDFTextView* asyncView;
 /*
 @property (nonatomic,strong) NSTextStorage* theStorage;
 @property (nonatomic,strong) NSTextContainer* theContainer;

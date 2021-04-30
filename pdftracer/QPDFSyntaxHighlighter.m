@@ -205,7 +205,7 @@
 - (void)colouriseAll
 {
 	NSString* storageString = [[_asyncView textStorage] string];
-	// NSLog(@"colorize all -> %@",storageString);
+	NSLog(@"colorize all -> %@",storageString);
 	NSAssert((storageString != nil), @" colourise all storage string null");
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString]; } );
@@ -298,14 +298,16 @@
 	// but unfortunately not enough.
 	
 	//I don't care how you do it, as long as its not a complete muppet
+	/*
 	for (Colourise* cr in colourInstruct)
 	{
-	dispatch_async(dispatch_get_main_queue(), ^{
+		dispatch_async(dispatch_get_main_queue(), ^{
 			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
 	});
 	}
+	 */
 	//	[_theStorage endEditing];
-
+	NSLog(@"syntaxer end highlighting");
 }
 
 -(void)colouriseRange:(NSRange)editedRange
