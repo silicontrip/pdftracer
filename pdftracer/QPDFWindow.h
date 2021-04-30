@@ -4,6 +4,8 @@
 #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 #import "QPDFWindowController.h"
+#import "QPDFView.h"
+#import "QPDFTextView.h"
 
 @class QPDFOutlineView;
 
@@ -21,9 +23,6 @@
 @interface QPDFWindow : NSWindow
 {
 
-//	NSTextView* textView;
-//	PDFView *documentView;
-
 	NSTextStorage * textStorage;
 	QPDFOutlineView* outlines[3];
 	NSSegmentedControl* segments[3];
@@ -36,16 +35,16 @@
 
 @property (nonatomic,strong) NSTextContainer* textContainer;
 @property (nonatomic,strong) NSLayoutManager* layout;
-@property (nonatomic,strong) NSTextView* textView;
+@property (nonatomic,strong) QPDFTextView* textView;
 @property (nonatomic,strong) NSScrollView* scrollTextView;
-@property (nonatomic,strong) PDFView* documentView;
+@property (nonatomic,strong) QPDFView* documentView;
 @property (nonatomic,strong) NSFont* textFont;
 
 -(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing;
 
 -(void)setDocument:(PDFDocument*)pdf;
 
--(NSTextView*)textView;
+-(QPDFTextView*)textView;
 //-(NSString*)text;
 //-(void)setText:(NSString*)text;
 //-(void)setFont:(NSFont*)font;

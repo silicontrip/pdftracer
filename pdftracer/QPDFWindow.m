@@ -141,29 +141,26 @@
 	return scsView;
 }
 
-+(NSTextView*)textEditorView // WithContainer:(NSTextContainer*)tCon
++(QPDFTextView*)textEditorView // WithContainer:(NSTextContainer*)tCon
 {
 	
 	NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
 	
 	// See NSRulerView
+	// NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect textContainer:tCon] autorelease];
 	
-	//NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect textContainer:tCon] autorelease];
-	NSTextView *tView = [[[NSTextView alloc] initWithFrame:vRect] autorelease];
+	QPDFTextView *tView = [[[QPDFTextView alloc] initWithFrame:vRect] autorelease];
 
-	
-	//[tView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	// [tView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
 	[tView setTextContainerInset:NSMakeSize(8.0, 8.0)];
-	[tView setEditable:NO];
+	[tView setEditable:NO];  // custom to indicate un editable PDF object
 	[tView setRichText:NO];
 	[tView setAllowsUndo:YES];
 	[tView setSelectable:YES];
 	
-	//[tView setUsesRuler:YES];
-	//[tView setRulerVisible:YES];
-	
-	// [tView setFont:tfont];  // user prefs
+	[tView setHorizontallyResizable:YES];
+	[tView setVerticallyResizable:YES];
 	[tView setAutoresizingMask:NSViewHeightSizable|NSViewWidthSizable];
 	
 	return tView;
@@ -251,10 +248,10 @@
 		[self.scrollTextView setDocumentView:self.textView];
 		[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
-		self.documentView = [[[PDFView alloc] init] autorelease];
-		[self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+		self.documentView = [[[QPDFView alloc] init] autorelease];
+		// [self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
-		[self.documentView setDisplayMode:kPDFDisplaySinglePage];
+	//	[self.documentView setDisplayMode:kPDFDisplaySinglePage];
 
 		NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
 
@@ -274,7 +271,11 @@
 		[sView[0] addArrangedSubview:sView[1]];
 		[sView[0] addArrangedSubview:self.scrollTextView];
 		[sView[0] addArrangedSubview:self.documentView];
+		
+		[sView[1] adjustSubviews];
+		[sView[0] adjustSubviews];
 
+		
 		NSWindowCollectionBehavior behavior = [self collectionBehavior];
 		behavior |= NSWindowCollectionBehaviorFullScreenPrimary;
 		[self setCollectionBehavior:behavior];
@@ -284,6 +285,13 @@
 	
 	return self;
 }
+- (void)mouseDown:(NSEvent *)event
+{
+	
+	NSLog(@"Window Mouse Down: %@",event);
+	
+}
+
 /*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {
