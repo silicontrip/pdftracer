@@ -205,21 +205,33 @@
 - (void)colouriseAll
 {
 	NSString* storageString = [[_asyncView textStorage] string];
-	NSLog(@"colorize all -> %@",storageString);
+	// NSLog(@"colorize all -> %@",storageString);
 	NSAssert((storageString != nil), @" colourise all storage string null");
 	
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString]; } );
 }
 
+- (void)colouriseRange:(NSRange)r
+{
+	NSString* storageString = [[_asyncView textStorage] string];
+	NSAssert((storageString != nil), @" colourise all storage string null");
+	
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString forRange:r]; } );
+	
+}
 
-
--(void)colouriseQueueString:(NSString*)searchText
+-(void)colouriseQueueString:(NSString*)s
 {
 
 	NSRange area;
 	area.location = 0;
-	area.length = [searchText length];
+	area.length = [s length];
 
+	[self colouriseQueueString:s forRange:area];
+}
+
+-(void)colouriseQueueString:(NSString*)searchText forRange:(NSRange)area
+{
 	NSAssert(searchText!=nil,@"searchText nil");
 	
 	NSMutableArray<Colourise*>* colourInstruct = [NSMutableArray arrayWithCapacity:16];
@@ -298,18 +310,22 @@
 	// but unfortunately not enough.
 	
 	//I don't care how you do it, as long as its not a complete muppet
-	/*
+	
+	NSLog(@"colour Instructions: %lu",(unsigned long)[colourInstruct count]);
+	
+	
 	for (Colourise* cr in colourInstruct)
 	{
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
 	});
 	}
-	 */
+	 
 	//	[_theStorage endEditing];
 	NSLog(@"syntaxer end highlighting");
 }
 
+/*
 -(void)colouriseRange:(NSRange)editedRange
 {
 	//NSString* codeText = [_theStorage string];
@@ -381,6 +397,8 @@
 	
 //	[_theStorage endEditing];
 }
+*/
+
 
 /*
 - (NSAttributedString*) colouriseString:(NSString*)searchText inRange:(NSRange)editedRange
@@ -462,7 +480,7 @@
 	sc.charactersToBeSkipped =[NSCharacterSet whitespaceAndNewlineCharacterSet];
 	sc.caseSensitive = YES;
 	
-	
+
 }
 
 @end

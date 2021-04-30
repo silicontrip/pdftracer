@@ -182,11 +182,11 @@
 		[ntv setString:s]; // yeah getting desperate now
 		[ntv checkTextInDocument:nil];
 		
-		//NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect];
+		// NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect];
 		// [syntaxer colouriseRange:glyphRange];
 							  
 	//	NSLog(@"begin colouriseAll");
-		//[syntaxer colouriseAll];
+		[syntaxer colouriseAll];
 	//	NSLog(@"end colouriseAll");
 
 		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });
@@ -527,7 +527,8 @@ void printView (NSView* n)
 		[[self document] replaceQPDFNode:selectedNode withString:editor];
 		//PDFDocument* doc = [[self document] pdfdocument];
 		PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
-// getting desperate
+		
+// getting desperate, curse you spacebar bug...
 		[visRect scrollRectToVisible:saveRect];
 		[pv setDocument:doc];
 		[visRect scrollRectToVisible:saveRect];
