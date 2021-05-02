@@ -240,6 +240,8 @@
 		[self.textView setInsertionPointColor:[NSColor whiteColor]];
 		[self.textView setFont:self.textFont];
 		[self.textView setDrawsBackground:YES];
+		[self.textView setPostsBoundsChangedNotifications:YES];
+
 
 		self.scrollTextView = [[[NSScrollView alloc] init] autorelease];
 		self.scrollTextView.translatesAutoresizingMaskIntoConstraints = NO;

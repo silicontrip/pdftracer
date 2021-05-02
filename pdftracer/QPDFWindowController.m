@@ -120,7 +120,9 @@
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
 	
 	// not enough performance
-	// [dc addObserver:self selector:@selector(textViewScrollNotification:) name:NSViewBoundsDidChangeNotification object:[w.scrollTextView contentView]] ;
+	[dc addObserver:self selector:@selector(textViewScrollNotification:) name:NSViewBoundsDidChangeNotification object:[w.scrollTextView contentView]] ;
+	// [dc addObserver:self selector:@selector(boundsDidChange:) name:NSViewBoundsDidChangeNotification object:contentView];
+
 }
 
 /*
@@ -184,9 +186,16 @@
 		
 		// NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect];
 		// [syntaxer colouriseRange:glyphRange];
-							  
+		
+		// NSTextStorage *textStorage = w.textView.textStorage;
+		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+																	inTextContainer:w.textView.textContainer];
+		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+
+		// NSLog(@"visible range... %@ ll.. %lu",NSStringFromRange(editedRange),[s length]);
+		
 	//	NSLog(@"begin colouriseAll");
-		[syntaxer colouriseAll];
+		[syntaxer colouriseRange:visRange];
 	//	NSLog(@"end colouriseAll");
 
 		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });

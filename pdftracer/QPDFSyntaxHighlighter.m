@@ -204,6 +204,8 @@
 
 - (void)colouriseAll
 {
+	NSLog(@"%@",[NSThread callStackSymbols]);
+	
 	NSString* storageString = [[_asyncView textStorage] string];
 	// NSLog(@"colorize all -> %@",storageString);
 	NSAssert((storageString != nil), @" colourise all storage string null");
@@ -213,6 +215,7 @@
 
 - (void)colouriseRange:(NSRange)r
 {
+	// NSLog(@"%@",[NSThread callStackSymbols]);
 	NSString* storageString = [[_asyncView textStorage] string];
 	NSAssert((storageString != nil), @" colourise all storage string null");
 	
@@ -311,18 +314,19 @@
 	
 	//I don't care how you do it, as long as its not a complete muppet
 	
-	NSLog(@"colour Instructions: %lu",(unsigned long)[colourInstruct count]);
+//	NSLog(@"colour Instructions: %lu",(unsigned long)[colourInstruct count]);
 	
-	
-	for (Colourise* cr in colourInstruct)
-	{
-		dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async(dispatch_get_main_queue(), ^{
+		[_asyncView.textStorage beginEditing];
+		for (Colourise* cr in colourInstruct)
+		{
 			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
+		}
+		[_asyncView.textStorage endEditing];
 	});
-	}
-	 
+
 	//	[_theStorage endEditing];
-	NSLog(@"syntaxer end highlighting");
+	 // NSLog(@"syntaxer end highlighting");
 }
 
 /*
