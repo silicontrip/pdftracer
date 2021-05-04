@@ -248,7 +248,7 @@
 
 		[self.scrollTextView setHasVerticalScroller:YES];
 		[self.scrollTextView setDocumentView:self.textView];
-		[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
+	//	[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
 		self.documentView = [[[QPDFView alloc] init] autorelease];
 		// [self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];

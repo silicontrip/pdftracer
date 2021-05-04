@@ -184,18 +184,21 @@
 		[ntv setString:s]; // yeah getting desperate now
 		[ntv checkTextInDocument:nil];
 		
-		// NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect];
-		// [syntaxer colouriseRange:glyphRange];
-		
-		// NSTextStorage *textStorage = w.textView.textStorage;
+	
+	
+		// this one for quickly colouring the displayed text
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
 																	inTextContainer:w.textView.textContainer];
 		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+		[syntaxer colouriseRange:visRange];
 
+		
+		// and then this one to do the whole document
+		[syntaxer colouriseAll];  // more efficient than before...
+		
 		// NSLog(@"visible range... %@ ll.. %lu",NSStringFromRange(editedRange),[s length]);
 		
 	//	NSLog(@"begin colouriseAll");
-		[syntaxer colouriseRange:visRange];
 	//	NSLog(@"end colouriseAll");
 
 		// CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{ [syntaxer colouriseAll]; });

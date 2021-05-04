@@ -204,7 +204,7 @@
 
 - (void)colouriseAll
 {
-	NSLog(@"%@",[NSThread callStackSymbols]);
+	// NSLog(@"%@",[NSThread callStackSymbols]);
 	
 	NSString* storageString = [[_asyncView textStorage] string];
 	// NSLog(@"colorize all -> %@",storageString);
@@ -314,8 +314,6 @@
 	
 	//I don't care how you do it, as long as its not a complete muppet
 	
-//	NSLog(@"colour Instructions: %lu",(unsigned long)[colourInstruct count]);
-	
 	dispatch_async(dispatch_get_main_queue(), ^{
 		[_asyncView.textStorage beginEditing];
 		for (Colourise* cr in colourInstruct)
@@ -325,157 +323,10 @@
 		[_asyncView.textStorage endEditing];
 	});
 
-	//	[_theStorage endEditing];
-	 // NSLog(@"syntaxer end highlighting");
+
 }
 
-/*
--(void)colouriseRange:(NSRange)editedRange
-{
-	//NSString* codeText = [_theStorage string];
-	
-	//NSString* codeText = [_theView string];
-	//NSString *searchText = [codeText stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
-	
-	//NSLog(@"number of glyphs: %lu", [_theView.layoutManager numberOfGlyphs]);
-	//NSLog(@"glyphrange: %@",NSStringFromRange(editedRange));
-	
-	
-	NSString* searchText = [_asyncView string];
-	
-	NSArray<NSTextCheckingResult*>* matchbox;
-	NSArray<NSTextCheckingResult*>* colourbox;
-
-	for (NSRegularExpression *re in pdf_keyword_re)
-	{
-		matchbox = [re matchesInString:searchText
-							   options:0
-								 range:editedRange];
-		
-		for (NSTextCheckingResult* cr in matchbox)
-		{
-			NSRange fr = [cr range];
-			
-			// NSLog(@"colouring... %@ to %@",[searchText substringWithRange:fr],keywordColour);
-			
-			[_asyncView setTextColor:keywordColour range:fr];
-			
-		//	NSLog(@"range length: %lu",fr.length);
-			
-			for (NSUInteger av=0; av < [colourre_arr count]; ++av)
-			{
-				NSRegularExpression* hire = [colourre_arr objectAtIndex:av];
-			//	NSLog(@"scanning %@ in %@",hire,[searchText substringWithRange:fr]);
-				colourbox = [hire matchesInString:searchText
-									   options:0
-										 range:fr];
-				
-				NSColor * matchColour = [colour_arr objectAtIndex:av];
-				for (NSTextCheckingResult* dr in colourbox)
-				{
-					NSRange gr = [dr range];
-					[_asyncView setTextColor:matchColour range:gr];
-				}
-			}
-		}
-	}
-	
-	//NSRegularExpression* commentRe;
-	NSError* error;
-	NSRegularExpression* commentRe=[NSRegularExpression regularExpressionWithPattern:@"%.*" options:0 error:&error];
-
-	NSArray<NSTextCheckingResult*>* commentBox = [commentRe matchesInString:searchText
-							  options:0
-								range:editedRange];
-	
-	//NSColor * matchColour = [colour_arr objectAtIndex:6];
-	NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];  // settings settings settings
-
-	
-	for (NSTextCheckingResult* dr in commentBox)
-	{
-//		NSRange gr = [dr range];
-		[_asyncView setTextColor:commentColour range:[dr range]];
-	}
-
-	
-//	[_theStorage endEditing];
-}
-*/
-
-
-/*
-- (NSAttributedString*) colouriseString:(NSString*)searchText inRange:(NSRange)editedRange
-{
-	// I'm copying this code quite a bit, but I can't seem to paramatise the differences
-	NSArray<NSTextCheckingResult*>* matchbox;
-	NSArray<NSTextCheckingResult*>* colourbox;
-	
-	NSMutableAttributedString* colourMe = [[[NSMutableAttributedString alloc] initWithString:searchText] autorelease];
-	
-	for (NSRegularExpression *re in pdf_keyword_re) // not something that should be static.
-	{
-		matchbox = [re matchesInString:searchText
-							   options:0
-								 range:editedRange];
-		
-		for (NSTextCheckingResult* cr in matchbox)
-		{
-			NSRange fr = [cr range];
-			
-			// NSLog(@"colouring... %@ to %@",[searchText substringWithRange:fr],keywordColour);
-			
-	//		[_theView setTextColor:keywordColour range:fr];
-			
-			// getting desperate for optimisations
-			NSDictionary<NSAttributedStringKey,NSColor*>* colourTribs = @{ @"CTForegroundColor" : keywordColour };
-			[colourMe setAttributes:colourTribs range:fr];
-			
-			//	NSLog(@"range length: %lu",fr.length);
-			
-			for (NSUInteger av=0; av < [colourre_arr count]; ++av)
-			{
-				NSRegularExpression* hire = [colourre_arr objectAtIndex:av];
-				//	NSLog(@"scanning %@ in %@",hire,[searchText substringWithRange:fr]);
-				colourbox = [hire matchesInString:searchText
-										  options:0
-											range:fr];
-				
-				NSColor * matchColour = [colour_arr objectAtIndex:av];
-				for (NSTextCheckingResult* dr in colourbox)
-				{
-					NSDictionary<NSAttributedStringKey,NSColor*>* colourMatchTribs = @{ @"CTForegroundColor" : matchColour };
-					[colourMe setAttributes:colourMatchTribs range:[dr range]];
-					// [_theView setTextColor:matchColour range:gr];
-				}
-			}
-		}
-	}
-	
-	//NSRegularExpression* commentRe;
-	NSError* error;
-	NSRegularExpression* commentRe=[NSRegularExpression regularExpressionWithPattern:@"%.*" options:0 error:&error];  // this needs to be before the string colouriser
-	
-	NSArray<NSTextCheckingResult*>* commentBox = [commentRe matchesInString:searchText
-																	options:0
-																	  range:editedRange];
-	
-	//NSColor * matchColour = [colour_arr objectAtIndex:6];
-	NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];  // settings settings settings
-	
-	
-	for (NSTextCheckingResult* dr in commentBox)
-	{
-		//		NSRange gr = [dr range];
-		
-		NSDictionary<NSAttributedStringKey,NSColor*>* colourCommentTribs = @{ @"CTForegroundColor" : commentColour };
-		
-		[colourMe setAttributes:colourCommentTribs range:[dr range]];
-		// [_theView setTextColor:commentColour range:[dr range]];
-	}
-	return [colourMe copy];
-}
-*/
+// toying with the idea of using NSScanner
 
 - (void)scanStreamString:(NSString *)s
 {
