@@ -57,9 +57,10 @@
 	
 }
 */
-
+/*  Handled in super???
 - (void)openDocument:(id)sender
 {
+	[super openDocument:sender];
 	NSLog(@"QDocControl: openDocument sender: %@",sender);  // open document menu is failing
 
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
@@ -83,22 +84,18 @@
 			[self addDocument:newDoc];
 			[newDoc makeWindowControllers];
 			[newDoc showWindows];
-
-			// return newDoc;
- 
- 
-			//QPDFDocument* newDoc = [[[QPDFDocument alloc] initWithContentsOfURL:url ofType:@"" error:&theError] autorelease];
-			//[self addDocument:newDoc];
-			//[newDoc makeWindowControllers];
-			//[newDoc showWindows];
 			 
 		}
 	}];
 
 }
+*/
+
 
 - (void)newDocument:(id)sender
 {
+	[super newDocument:sender];
+
 	NSLog(@"QDocControl: newDocument");
 
 	NSError* theError;

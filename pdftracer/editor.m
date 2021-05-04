@@ -17,7 +17,7 @@
 //make this class the app delegate and split the pdf editing/ textviewdelegate into another class
 @interface pdfApp : NSObject <NSApplicationDelegate>
 {
-	QPDFDocumentController* docControl;
+	// QPDFDocumentController* docControl;
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification;
@@ -27,16 +27,20 @@
 
 @implementation pdfApp
 
--(instancetype)initWithController:(QPDFDocumentController*)qDoc
+// -(instancetype)initWithController:(QPDFDocumentController*)qDoc
+// Document controller is a singleton, it shouldn't need passing or storing in an instance variable
+/*
+-(instancetype)init
 {
 	self = [super init];
 	if (self)
 	{
-		docControl = qDoc;
+		// docControl = qDoc;
 		// openDocuments = [[NSMutableArray alloc] initWithCapacity:2];
 	}
 	return self;
 }
+*/
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	// Insert code here to initialize your application
@@ -72,27 +76,29 @@ int main (int argc, char * const argv[])
 
 	NSAutoreleasePool *splash=[NSAutoreleasePool new];
 	
-	[NSApplication sharedApplication];
-	QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
+	NSApplication* qpdfapp = [NSApplication sharedApplication];
+	// QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
 	
 	// QPDFDocumentController* docControl = [[QPDFDocumentController alloc] init];
 
 	
-	NSMenu* appMenu = [[QPDFMenu alloc] initWithMenu];
-	[appMenu setDelegate:docControl];
+	QPDFMenu* appMenu = [[QPDFMenu alloc] initMenu];
+	[appMenu setDelegate:[QPDFDocumentController sharedDocumentController]];
 	
-	[NSApp setMainMenu:appMenu];
+	[qpdfapp setMainMenu:appMenu];
+	[qpdfapp setWindowsMenu:appMenu.windowsMenu];
 	
-	
-	pdfApp *mm = [[[pdfApp alloc] initWithController:docControl] autorelease];
+	pdfApp *mm = [[[pdfApp alloc] init] autorelease];
 
 	QPDFHelp* hh = [[QPDFHelp alloc] init];
-	[NSApp registerUserInterfaceItemSearchHandler:hh];
+	[qpdfapp registerUserInterfaceItemSearchHandler:hh];
 	
-	[NSApp setDelegate:mm];
+	[qpdfapp setDelegate:mm];
 	
-	[NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
+	[qpdfapp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
+	NSLog(@"windows menu: %@",[qpdfapp windowsMenu]);
+	
 	Arguments* aa = [Arguments argumentsWithCount:argc values:argv];
 	
 	if ([aa countPositionalArguments] == 1)
@@ -105,17 +111,15 @@ int main (int argc, char * const argv[])
 		NSURL *fu = [NSURL fileURLWithPath:fn];
 	//	NSError *errorError;
 		// [docControl makeDocumentWithContentsOfURL:fu ofType:@"PDF" error:&errorError];
-		[docControl openDocumentWithContentsOfURL:fu display:YES completionHandler:^(NSDocument *document, BOOL alreadyOpen, NSError *error){
+		[[QPDFDocumentController sharedDocumentController] openDocumentWithContentsOfURL:fu display:YES completionHandler:^(NSDocument *document, BOOL alreadyOpen, NSError *error){
 			NSLog(@"main loop: %@",document);
 		}];
-	//	[docControl openDocument:nil];
-	// [docControl openDocument:fu];
 
 	}
 	
-	[NSApp run];
+	[qpdfapp run];
 
-	[splash release];
+	[splash release];  // gurgle gurgle ;-)
 
 }
 

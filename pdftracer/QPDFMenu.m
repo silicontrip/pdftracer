@@ -10,10 +10,13 @@
 
 @implementation QPDFMenu
 
-- (instancetype)initWithMenu
+@synthesize windowsMenu;
+
+- (instancetype)initMenu
 {
 	
 	self = [super init];
+	
 	if (self)
 	{
 		NSNull* tnil  = [NSNull null];
@@ -67,7 +70,6 @@
 		for (NSUInteger i=0; i<[menutitle count]; ++i)
 		{
 			
-			
 			NSString* title = [menutitle objectAtIndex:i];
 			NSArray* items = [menuItems objectAtIndex:i];
 			NSArray* keyquiv = [keyEquivalents objectAtIndex:i];
@@ -92,7 +94,11 @@
 				[self addItem:appMenuItem];
 				
 			} else {
-				[self addItem:[[QPDFMenu newMenuBar:title with:items keys:keyquiv selectors:select] autorelease]];
+				NSMenuItem* currentMenuItem = [[QPDFMenu newMenuBar:title with:items keys:keyquiv selectors:select] autorelease];
+				if ([title isEqualToString:@"Window"])
+					self.windowsMenu = [currentMenuItem submenu];
+				
+				[self addItem:currentMenuItem];
 			}
 		}
 	}
