@@ -190,11 +190,12 @@
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
 																	inTextContainer:w.textView.textContainer];
 		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-		[syntaxer colouriseRange:visRange];
 
+		[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
 		
+		// [syntaxer colouriseRange:visRange];
 		// and then this one to do the whole document
-		[syntaxer colouriseAll];  // more efficient than before...
+		// [syntaxer colouriseAll];  // more efficient than before...
 		
 		// NSLog(@"visible range... %@ ll.. %lu",NSStringFromRange(editedRange),[s length]);
 		
@@ -541,14 +542,17 @@ void printView (NSView* n)
 		PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
 		
 // getting desperate, curse you spacebar bug...
-		[visRect scrollRectToVisible:saveRect];
-		[pv setDocument:doc];
-		[visRect scrollRectToVisible:saveRect];
+	//	[visRect scrollRectToVisible:saveRect];
+	//	[pv setDocument:doc];
+	//	[visRect scrollRectToVisible:saveRect];
 
+		[NSObject cancelPreviousPerformRequestsWithTarget:self];
+		[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:1];
+		
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
 		
-		[visRect scrollRectToVisible:saveRect];
+	//	[visRect scrollRectToVisible:saveRect];
 		
 		//NSRect save2Rect = [visRect visibleRect];
 		//NSLog(@"after: %@",NSStringFromRect(save2Rect));
@@ -557,6 +561,24 @@ void printView (NSView* n)
 
 
 	}
+}
+
+- (void)updateDoc:(PDFDocument*)doc
+{
+	// [syntaxer colouriseRange:lineRange];
+
+	QPDFWindow* qwin = (QPDFWindow*)[self window];
+	QPDFView* pv = [qwin documentView];
+	
+	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
+	NSRect saveRect = [visRect visibleRect];
+	
+
+	
+	[visRect scrollRectToVisible:saveRect];
+	[pv setDocument:doc];
+	[visRect scrollRectToVisible:saveRect];
+	
 }
 
 // This notification is sent when enter is pressed after editing a text cell

@@ -178,39 +178,20 @@
 	}
 	return self;
 }
-/*
-- (void)textStorageDidProcessEditing:(NSNotification *)notification
-{
-	_theStorage = [notification object];
-	_theLayout = [[_theStorage layoutManagers] firstObject];
-	
-	NSRange glyphRange = [self.theLayout glyphRangeForBoundingRect:self.theScroll.documentVisibleRect inTextContainer:self.theContainer];
-	NSRange editedRange = [self.theLayout characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-	
-	[self colouriseRange:editedRange];
-	
-}
-*/
-// try not to call this... resource hungry
-/*
--(void)colouriseAll
-{
-	NSRange area;
-	area.location = 0;
-	area.length = [[_theView string] length];
-	[self colouriseRange:area];
-}
-*/
 
 - (void)colouriseAll
 {
-	// NSLog(@"%@",[NSThread callStackSymbols]);
-	
 	NSString* storageString = [[_asyncView textStorage] string];
-	// NSLog(@"colorize all -> %@",storageString);
+	NSRange all = NSMakeRange(0, [storageString length]);
+
 	NSAssert((storageString != nil), @" colourise all storage string null");
 	
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString]; } );
+	// this async queue is not the cause of the crash but I'm leaving it out for the moment
+	
+	// dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString forRange:all]; } );
+	
+	[self colouriseQueueString:storageString forRange:all]; // is the dispatch_async the cause of all this crashing
+	
 }
 
 - (void)colouriseRange:(NSRange)r
@@ -219,10 +200,30 @@
 	NSString* storageString = [[_asyncView textStorage] string];
 	NSAssert((storageString != nil), @" colourise all storage string null");
 	
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString forRange:r]; } );
+	// dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString forRange:r]; } );
+	
+	[self colouriseQueueString:storageString forRange:r];
+}
+
+// hoping this one works better and doesn't crash.
+- (void)colouriseRangeThenAll:(NSRange)viewRange
+{
+	NSString* storageString = [[_asyncView textStorage] string];
+	NSRange all = NSMakeRange(0, [storageString length]);
+
+	NSAssert((storageString != nil), @" colourise all storage string null");
+	/*
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		[self colouriseQueueString:storageString forRange:viewRange];
+		[self colouriseQueueString:storageString forRange:all];
+	} );
+	*/
+	[self colouriseQueueString:storageString forRange:viewRange];
+	[self colouriseQueueString:storageString forRange:all];
 	
 }
 
+/*
 -(void)colouriseQueueString:(NSString*)s
 {
 
@@ -232,6 +233,7 @@
 
 	[self colouriseQueueString:s forRange:area];
 }
+*/
 
 -(void)colouriseQueueString:(NSString*)searchText forRange:(NSRange)area
 {
