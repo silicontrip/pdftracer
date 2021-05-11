@@ -542,12 +542,17 @@ void printView (NSView* n)
 		PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
 		
 // getting desperate, curse you spacebar bug...
-	//	[visRect scrollRectToVisible:saveRect];
-	//	[pv setDocument:doc];
-	//	[visRect scrollRectToVisible:saveRect];
+	//[visRect scrollRectToVisible:saveRect];
+	//[pv setDocument:doc];
+	//[visRect scrollRectToVisible:saveRect];
 
-		[NSObject cancelPreviousPerformRequestsWithTarget:self];
-		[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:1];
+	//	[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:0.1];
+		
+		
+		[self updateDoc:doc];
+		
+//		[NSObject cancelPreviousPerformRequestsWithTarget:self];
+//		[self performSelector:@selector(restoreDocRect:) withObject:[NSValue valueWithRect:saveRect] afterDelay:1];
 		
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
@@ -563,22 +568,39 @@ void printView (NSView* n)
 	}
 }
 
-- (void)updateDoc:(PDFDocument*)doc
+- (void)restoreDocRect:(NSValue*)nsrect
 {
-	// [syntaxer colouriseRange:lineRange];
-
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
 	QPDFView* pv = [qwin documentView];
 	
 	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-	NSRect saveRect = [visRect visibleRect];
 	
+	// PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
 
+	[visRect scrollRectToVisible:[nsrect rectValue]];
+
+}
+
+- (void)updateDoc:(PDFDocument*)doc
+{
+	// [syntaxer colouriseRange:lineRange];
+
+	// probably a bad idea
+	// dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+	// maybe a better idea?
+//		dispatch_async(dispatch_get_main_queue(), ^{
+
+		QPDFWindow* qwin = (QPDFWindow*)[self window];
+		QPDFView* pv = [qwin documentView];
 	
-	[visRect scrollRectToVisible:saveRect];
-	[pv setDocument:doc];
-	[visRect scrollRectToVisible:saveRect];
+		NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
+		NSRect saveRect = [visRect visibleRect];
 	
+	 [visRect scrollRectToVisible:saveRect];
+		[pv setDocument:doc];
+		[visRect scrollRectToVisible:saveRect];
+//	} );
+
 }
 
 // This notification is sent when enter is pressed after editing a text cell
@@ -703,7 +725,15 @@ void printView (NSView* n)
 - (void)addType:(id)sender
 {
 	NSInteger osr = self.selectedRow;
+	
+	// How did this become a textview?
+	
+	NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
+	NSLog(@"selected view is a: %@",[self.selectedView className]);
+	
 	QPDFOutlineView* ov = self.selectedView;
+	
+	
 	
 	// NSLog (@"Adding Type to: %lu",self.selectedRow);
 	
