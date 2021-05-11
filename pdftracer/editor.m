@@ -77,10 +77,6 @@ int main (int argc, char * const argv[])
 	NSAutoreleasePool *splash=[NSAutoreleasePool new];
 	
 	NSApplication* qpdfapp = [NSApplication sharedApplication];
-	// QPDFDocumentController* docControl = [QPDFDocumentController sharedDocumentController];
-	
-	// QPDFDocumentController* docControl = [[QPDFDocumentController alloc] init];
-
 	
 	QPDFMenu* appMenu = [[QPDFMenu alloc] initMenu];
 	[appMenu setDelegate:[QPDFDocumentController sharedDocumentController]];
@@ -97,20 +93,19 @@ int main (int argc, char * const argv[])
 	
 	[qpdfapp setActivationPolicy:NSApplicationActivationPolicyRegular];
 
-	NSLog(@"windows menu: %@",[qpdfapp windowsMenu]);
+//	NSLog(@"windows menu: %@",[qpdfapp windowsMenu]);
 	
 	Arguments* aa = [Arguments argumentsWithCount:argc values:argv];
 	
 	if ([aa countPositionalArguments] == 1)
 	{
 		// read file
-		// QPDFEditor *pa = [[QPDFEditor alloc] initWithRect:NSMakeRect(0,0,1440,600)];  // size settings
 
+		// loop to open all files
 		NSString *fn = [aa positionalArgumentAt:0];  // filename from arg
 
 		NSURL *fu = [NSURL fileURLWithPath:fn];
-	//	NSError *errorError;
-		// [docControl makeDocumentWithContentsOfURL:fu ofType:@"PDF" error:&errorError];
+
 		[[QPDFDocumentController sharedDocumentController] openDocumentWithContentsOfURL:fu display:YES completionHandler:^(NSDocument *document, BOOL alreadyOpen, NSError *error){
 			NSLog(@"main loop: %@",document);
 		}];
