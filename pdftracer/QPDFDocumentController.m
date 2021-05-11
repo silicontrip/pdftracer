@@ -57,10 +57,11 @@
 	
 }
 */
-/*  Handled in super???
+//  Handled in super???
+// yeah but not without crashing.
 - (void)openDocument:(id)sender
 {
-	[super openDocument:sender];
+	// [super openDocument:sender];
 	NSLog(@"QDocControl: openDocument sender: %@",sender);  // open document menu is failing
 
 	NSOpenPanel* openDlg = [NSOpenPanel openPanel];  // nsopenpanel *opn = NSOpenPanel::openPanel();
@@ -89,7 +90,7 @@
 	}];
 
 }
-*/
+
 
 
 - (void)newDocument:(id)sender

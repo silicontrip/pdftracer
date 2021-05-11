@@ -8,6 +8,7 @@
 {
 	return YES;
 }
+/*
 - (BOOL)becomeFirstResponder
 {
 	
@@ -27,7 +28,7 @@
 	
 	return YES;
 }
-
+*/
 /*
 - (void)keyDown:(NSEvent*)event
 {
