@@ -17,10 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (strong) NSMenu* windowsMenu;
 
-- (instancetype)initMenu;  // calling this init causes infinite recursion (or enough to exhaust the resource stack)
-- (NSMenu*)windowsMenu;
-+ (NSMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select;
-+ (NSMenuItem*)newMenuBar:(NSString*)menutitle with:(NSArray*)menus keys:(NSArray*)keys selectors:(NSArray*)select;
+//- (instancetype)initMenu;  // naming this init causes infinite recursion (or enough to exhaust the resource stack)
+- (instancetype)init;  // getting brave since the menu re-factor
 
 @end
 

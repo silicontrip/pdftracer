@@ -78,7 +78,9 @@ int main (int argc, char * const argv[])
 	
 	NSApplication* qpdfapp = [NSApplication sharedApplication];
 	
-	QPDFMenu* appMenu = [[QPDFMenu alloc] initMenu];
+	//NSLog(@"existing menu: %@",[[[NSApp mainMenu] itemAtIndex: 0] submenu]);
+
+	QPDFMenu* appMenu = [[QPDFMenu alloc] init];
 	[appMenu setDelegate:[QPDFDocumentController sharedDocumentController]];
 	
 	[qpdfapp setMainMenu:appMenu];

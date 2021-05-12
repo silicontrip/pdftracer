@@ -8,156 +8,176 @@
 
 #import "QPDFMenu.h"
 
+// might have to be its own object
+struct QPDFMenuItem {
+	NSString* menuTitle;
+	NSString* keyEquiv;
+	NSString* selector;
+	NSValue* subMenu;
+};
+
 @implementation QPDFMenu
 
 @synthesize windowsMenu;
 
-- (instancetype)initMenu
++(NSMenuItem*)itemWithSubmenu:(nullable NSMenu*)menu
 {
+	return 	 [QPDFMenu itemWithTitle:@"" keyEquiv:nil selector:nil submenu:menu modifier:0];
+
+}
++ (NSMenuItem*)itemWithTitle:(NSString*)title submenu:(nullable NSMenu*)menu
+{
+	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:nil submenu:menu modifier:0];
+}
++ (NSMenuItem*)itemWithTitle:(NSString*)title selector:(NSString*)selstr
+{
+	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:selstr submenu:nil modifier:0];
+}
+
++ (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey  modifier:(NSEventModifierFlags)keyMod selector:(NSString*)selstr
+{
+	return [QPDFMenu itemWithTitle:title keyEquiv:thisKey selector:selstr submenu:nil modifier:keyMod];
+}
+
++ (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey selector:(NSString*)selstr submenu:(nullable NSMenu*)menu modifier:(NSEventModifierFlags)keyMod
+{
+	NSMenuItem* mi = [[[NSMenuItem alloc] init ] autorelease];
+	mi.title = title;
+	mi.submenu = menu;
+	mi.enabled = YES;
+	mi.keyEquivalentModifierMask = keyMod;
 	
-	self = [super init];
+	if (thisKey)
+		mi.keyEquivalent=thisKey;
+	if (selstr)
+		mi.action=NSSelectorFromString(selstr);
+	return mi;
+}
+
+- (instancetype)init
+{
+	self = [super self];
 	
+	NSEventModifierFlags cmd = NSEventModifierFlagCommand;
+	NSEventModifierFlags opt = NSEventModifierFlagOption;
+	NSEventModifierFlags ctrl = NSEventModifierFlagControl;
+	NSString *bkspace = [NSString stringWithFormat:@"%c",8];
+
 	if (self)
 	{
-		NSNull* tnil  = [NSNull null];
+		
+		
+		NSMenu* appMenu = [[NSMenu new] autorelease];
+		[appMenu setAutoenablesItems:YES];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"About pdfTracer" selector:@"orderFrontStandardAboutPanel:"]];
+		[appMenu addItem:[NSMenuItem separatorItem]];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"Preferences..." keyEquiv:@"," modifier:cmd selector:nil]];
+		[appMenu addItem:[NSMenuItem separatorItem]];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"Hide pdfTracer" keyEquiv:@"h" modifier:cmd selector:@"hide:"]];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"Hide Others" keyEquiv:@"h" modifier:cmd|opt selector:@"hideOtherApplications:" ]];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"Show All" selector:@"unhideAllApplications:"]];
+		[appMenu addItem:[NSMenuItem separatorItem]];
+		[appMenu addItem:[QPDFMenu itemWithTitle:@"Quit" keyEquiv:@"q" modifier:cmd selector:@"terminate:" ]];
+		[self addItem:[QPDFMenu itemWithSubmenu:appMenu]];
+		
+		
+		NSMenu* fileMenu = [[NSMenu new] autorelease];
+		[fileMenu setAutoenablesItems:YES];
+		[fileMenu setTitle:@"File"];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"New" keyEquiv:@"n" modifier:cmd selector:@"newDocument:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open" keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
+		[fileMenu addItem:[NSMenuItem separatorItem]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Close" keyEquiv:@"w" modifier:cmd selector:@"performClose"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Save..." keyEquiv:@"s" modifier:cmd selector:@"saveDocument:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Save As..." keyEquiv:@"S" modifier:cmd selector:@"saveDocumentAs:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Revert to Saved" keyEquiv:@"r" modifier:cmd selector:@"revertDocumentToSaved:"]];
+		[fileMenu addItem:[NSMenuItem separatorItem]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Page Setup..." keyEquiv:@"P" modifier:cmd selector:@"runPageLayout:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Print..." keyEquiv:@"p" modifier:cmd selector:@"print:"]];
+		[self addItem:[QPDFMenu itemWithSubmenu:fileMenu]];
 
-		NSArray* menutitle = @[@"app",@"File",@"Edit",@"Insert",@"View",@"Tools",@"Window",@"Help"];
 		
-		NSArray* menuItems = @[
-							   @[@"About",@"Quit PDFTracer"],
-							   @[@"New",@"Open...",@"-",@"Close",@"Save",@"Save As...",@"Revert to Saved",@"Export Text"],
-							   @[@"Undo",@"Redo",@"-",@"Cut",@"Copy",@"Paste",@"Delete",@"Select All",@"-",@"Format",@"Find"],
-							   @[@"Font...",@"Image..."],
-							   @[@"Actual Size",@"Zoom to Fit",@"Zoom In",@"Zoom Out",@"Zoom to Selection"],
-							   @[@"Insert",@"Text Box",@"Pointer",@"Font Finder"],
-							   @[@"Minimize",@"Zoom",@"-",@"Bring All to Front",@"-"],
-							   @[@"PDF Documentation"]
-							   ];
-		
-		
-		NSString *bkspace = [NSString stringWithFormat:@"%c",8];
-		
-		NSArray* keyEquivalents = @[
-									@[tnil,@"q"],
-									@[@"n", @"o",tnil,@"w",@"s",@"S",@"r",tnil],
-									@[@"z",@"Z",tnil,@"x",@"c",@"v",bkspace,@"a",tnil,@"T",@"f"],
-									@[tnil,tnil],
-									@[@"0",@"9",@"+",@"-",@"*"],
-									@[tnil,tnil,tnil,tnil],
-									@[@"m",tnil,tnil,tnil,tnil],
-									@[@")"]
-									];
-		
-		NSArray* targets = @[
-							 @[@"orderFrontStandardAboutPanel:", @"terminate:"],
-							 @[@"newDocument:", @"openDocument:",tnil, @"performClose:" , @"saveDocument:", @"saveDocumentAs:",@"revertDocumentToSaved:",@"exportText:"],
-							 @[@"undo:", @"redo:", tnil, @"cut:",@"copy:",@"paste:",@"delete:",@"selectAll:",tnil,@"orderFrontFontPanel:",@"performFindPanelAction:"],
-							 @[tnil,tnil],
-							 // @[@"orderFrontFontPanel:"],
-							 @[@"zoomAct:",@"zoomFit:",@"zoomIn:",@"zoomOut:",@"zoomSel:"],
-							 @[tnil,tnil,tnil,tnil],
-							 @[@"performMiniturize:",@"performZoom:",tnil,tnil,tnil],
-							 @[tnil]
-							 ];
-		
-		NSUInteger mCount = [menutitle count];
-	//	NSLog(@"%lu = %lu = %lu = %lu",mCount,[menuItems count],[keyEquivalents count],[targets count]);
-		NSAssert(mCount == [menuItems count], @"menuItems mismatch");
-		NSAssert(mCount == [keyEquivalents count], @"keyEquivalents mismatch");
-		NSAssert(mCount == [targets count], @"target mismatch");
-		
-		//NSMenu *menubar = [NSMenu new];
-		for (NSUInteger i=0; i<[menutitle count]; ++i)
-		{
-			
-			NSString* title = [menutitle objectAtIndex:i];
-			NSArray* items = [menuItems objectAtIndex:i];
-			NSArray* keyquiv = [keyEquivalents objectAtIndex:i];
-			NSArray* select = [targets objectAtIndex:i];
-			
-			// NSLog(@"%lu = %lu = %lu",[items count],[keyquiv count],[select count]);
-			
-			// NSLog(@"item: %lu",i);
-			NSAssert([items count] == [keyquiv count],@"items != keyequiv");
-			NSAssert([select count] == [keyquiv count],@"targets != keyequiv");
+		NSMenu* findMenu = [[NSMenu new] autorelease];
+		[findMenu setAutoenablesItems:YES];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find..." keyEquiv:@"f" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find and Replace..." keyEquiv:@"f" modifier:cmd|opt selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Next" keyEquiv:@"g" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Previous" keyEquiv:@"G" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Use Selection for Find" keyEquiv:@"e" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Jump to Selection" keyEquiv:@"j" modifier:cmd selector:@"centerSelectioninVisibleArea:"]];
 
-			// conditional menus.
-			if ([title isEqualToString:@"FONT"])
-			{
-				NSFontManager *fontManager = [NSFontManager sharedFontManager];
-				NSMenu *fontMenu = [fontManager fontMenu:YES];
-				
-				NSMenuItem *appMenuItem;
-				appMenuItem = [NSMenuItem new];
+		
+		NSMenu* transMenu = [[NSMenu new] autorelease];
+		[transMenu setAutoenablesItems:YES];
+		[transMenu addItem:[QPDFMenu itemWithTitle:@"Make Upper Case" selector:@"uppercaseWord:"]];
+		[transMenu addItem:[QPDFMenu itemWithTitle:@"Make Lower Case" selector:@"lowercaseWord:"]];
+		[transMenu addItem:[QPDFMenu itemWithTitle:@"Capitalise" selector:@"capitalizeWord:"]]; // you say tom-ay-toe and I say tom-ar-toe
 
-				[appMenuItem setSubmenu:fontMenu];
-				[self addItem:appMenuItem];
-				
-			} else {
-				NSMenuItem* currentMenuItem = [[QPDFMenu newMenuBar:title with:items keys:keyquiv selectors:select] autorelease];
-				if ([title isEqualToString:@"Window"])
-					self.windowsMenu = [currentMenuItem submenu];
-				
-				[self addItem:currentMenuItem];
-			}
-		}
+		
+		NSMenu* formatMenu = [[NSMenu new] autorelease];
+		[formatMenu setAutoenablesItems:YES];
+		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Show Fonts" keyEquiv:@"T" modifier:cmd|ctrl  selector:@"orderFrontFontPanel:"]];
+		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Bigger" keyEquiv:@"+" modifier:cmd|opt selector:@"modifyFont:"]];
+		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Smaller" keyEquiv:@"-" modifier:cmd|opt selector:@"modifyFont:"]];
+		[formatMenu addItem:[NSMenuItem separatorItem]];
+		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Transformation" submenu:transMenu]];
+
+
+		NSMenu* editMenu = [[NSMenu new] autorelease];
+		[editMenu setAutoenablesItems:YES];
+		[editMenu setTitle:@"Edit"];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Undo" keyEquiv:@"z" modifier:cmd selector:@"undo:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Redo" keyEquiv:@"Z" modifier:cmd selector:@"redo:"]];
+		[editMenu addItem:[NSMenuItem separatorItem]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Cut" keyEquiv:@"x" modifier:cmd selector:@"cut:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Copy" keyEquiv:@"c" modifier:cmd selector:@"copy:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Paste" keyEquiv:@"v" modifier:cmd selector:@"paste:"]]; // or maybe pasteAsPlainText:
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Delete"  keyEquiv:bkspace modifier:cmd selector:@"delete:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Select All" keyEquiv:@"a" modifier:cmd selector:@"selectAll:"]];
+		[editMenu addItem:[NSMenuItem separatorItem]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Find" submenu:findMenu]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Format" submenu:formatMenu]];
+		[self addItem:[QPDFMenu itemWithSubmenu:editMenu]];
+
+		
+		NSMenu* viewMenu = [[NSMenu new] autorelease];
+		[viewMenu setAutoenablesItems:YES];
+		[viewMenu setTitle:@"View"];
+		[viewMenu addItem:[QPDFMenu itemWithTitle:@"Actual Size" keyEquiv:@"0" modifier:cmd selector:@"zoomAct:"]];
+		[viewMenu addItem:[QPDFMenu itemWithTitle:@"Zoom to Fit" keyEquiv:@"9" modifier:cmd selector:@"zoomAct:"]];
+		[viewMenu addItem:[QPDFMenu itemWithTitle:@"Zoom In" keyEquiv:@"+" modifier:cmd selector:@"zoomIn:"]];
+		[viewMenu addItem:[QPDFMenu itemWithTitle:@"Zoom Out" keyEquiv:@"-" modifier:cmd selector:@"zoomOut:"]];
+		[self addItem:[QPDFMenu itemWithSubmenu:viewMenu]];
+
+		
+		NSMenu* toolMenu = [[NSMenu new] autorelease];
+		[toolMenu setAutoenablesItems:YES];
+		[toolMenu setTitle:@"Tools"];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert" submenu:nil]];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Tool Box" keyEquiv:@"" modifier:cmd selector:@""]];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Pointer" keyEquiv:@"" modifier:cmd selector:@""]];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Font Finder" keyEquiv:@"" modifier:cmd selector:@""]];
+		[self addItem:[QPDFMenu itemWithSubmenu:toolMenu]];
+
+		
+		NSMenu* windowMenu = [[NSMenu new] autorelease];
+		[windowMenu setAutoenablesItems:YES];
+		[windowMenu setTitle:@"Window"];
+		[self setWindowsMenu:windowMenu];
+		[windowMenu addItem:[QPDFMenu itemWithTitle:@"Minimize" keyEquiv:@"m" modifier:cmd selector:@"performMiniturize:"]];
+		[windowMenu addItem:[QPDFMenu itemWithTitle:@"Zoom" selector:@"performZoom:"]];
+		[windowMenu addItem:[NSMenuItem separatorItem]];
+		[windowMenu addItem:[QPDFMenu itemWithTitle:@"Bring All to Front" selector:@"arrangeInFront:"]];
+		[self addItem:[QPDFMenu itemWithSubmenu:windowMenu]];
+
+		NSMenu* helpMenu = [[NSMenu new] autorelease];
+		[helpMenu setAutoenablesItems:YES];
+		[helpMenu setTitle:@"Help"];		
+		[helpMenu addItem:[QPDFMenu itemWithTitle:@"PDF Documentation" keyEquiv:@")" modifier:cmd selector:@""]];
+		[self addItem:[QPDFMenu itemWithSubmenu:helpMenu]];
+
 	}
 	return self;
-}
-
-// NSMenu* newMenu(NSArray * menutitle)
-+ (QPDFMenu*)newMenu:(NSArray*)menutitle keys:(NSArray*)keyequiv selectors:(NSArray*)select
-{
-	// making this QPDFMenu causes infinite loop
-	QPDFMenu *myMenu = [QPDFMenu new];
-	
-	for (NSUInteger i=0; i<[menutitle count]; ++i)
-	{
-		NSMenuItem *mi;
-		NSString * menuTitle = [menutitle objectAtIndex:i];
-		if ([menuTitle isEqualToString:@"-"])
-		{
-			mi = [NSMenuItem separatorItem];
-		/*
-		} else if ([menuTitle isEqualToString:@"FONT"]) {
-			mi = [[NSMenuItem new] autorelease];
-			[mi setTitle:@"Font"];
-			NSFontManager *fontManager = [NSFontManager sharedFontManager];
-			NSMenu *fontMenu = [fontManager fontMenu:YES];
-			[mi setSubmenu:fontMenu];
-		*/
-		} else {
-			mi = [[NSMenuItem new] autorelease];
-			[mi setTitle:[NSString stringWithString:menuTitle]];
-			[mi setTarget:nil];
-			NSString* thisKey = [keyequiv objectAtIndex:i];
-			if (![thisKey isKindOfClass:[NSNull class]])
-				[mi setKeyEquivalent:thisKey];
-			NSString* selstr = [select objectAtIndex:i];
-			if (![selstr isKindOfClass:[NSNull class]])
-				[mi setAction:NSSelectorFromString(selstr)];
-		}
-		[mi setEnabled:YES];
-		[myMenu addItem:mi];
-	}
-	[myMenu setAutoenablesItems:YES];
-	return myMenu;
-	
-}
-
-//NSMenuItem* newMenuBar(NSString *menutitle, NSArray* menus)
-+ (NSMenuItem*)newMenuBar:(NSString*)menutitle with:(NSArray*)menus keys:(NSArray*)keys selectors:(NSArray*)select
-{
-	NSMenu* bar;
-	NSMenuItem *appMenuItem;
-	
-	appMenuItem = [NSMenuItem new];
-	bar = [[QPDFMenu newMenu:menus keys:keys selectors:select] autorelease];
-	[bar setAutoenablesItems:YES];
-	[bar setTitle:menutitle];
-	[appMenuItem setSubmenu:bar];
-	
-	return appMenuItem;
 }
 
 @end
