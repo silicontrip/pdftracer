@@ -38,7 +38,7 @@ public class test {
 	public static void main(String[] args) {
 		try {
 			Rulelist  rulelist  = new Rulelist();
-			Filelist fl = new Filelist(".");
+			final Filelist fl = new Filelist(".");
 			System.out.println("-- SCAN --");
 			// start this in thread
 

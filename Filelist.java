@@ -181,29 +181,41 @@ public class Filelist implements Runnable, Serializable {
 		
 		//toProcess.add(getScanDir());
 
+	//System.out.println("size: " + toProcess.size() + " item[0]: " + toProcess.get(0) +"<");
+	// System.out.println("filelist: " + toProcess.get(0).listFiles());
 		while (toProcess.size() > 0) {
-			for (File sourcefile: toProcess.get(0).listFiles()) {
-				//System.out.println(sourcefile.getAbsolutePath());
-				if (sourcefile.isFile()) {
-					Long fsize = new Long(sourcefile.length());
-					if (fsize > 0)  // use find -empty
-					{
-						if (flist.containsKey(fsize))
+		//	System.out.println("Processing... " + toProcess.get(0));
+		//System.out.println("toprocess: " + toProcess.size());
+			File testist[] =  testist = toProcess.get(0).listFiles();  // why is this returning null..?
+			if (testist != null) {
+		//		System.out.println("container array type: " + testist);
+		//		System.out.println("file list count: " + testist.length);
+				for (int idx=0; idx<testist.length; ++idx) {
+					File sourcefile = testist[idx];
+					//System.out.println(sourcefile.getAbsolutePath());
+					if (sourcefile.isFile()) {
+						Long fsize = new Long(sourcefile.length());
+						if (fsize > 0)  // use find -empty
 						{
-							flist.get(fsize).add(sourcefile);
-						} else {
-							HashSet<File> hs = new HashSet<File>();
-							hs.add(sourcefile);
-							flist.put(fsize,hs);
+							if (flist.containsKey(fsize))
+							{
+								flist.get(fsize).add(sourcefile);
+							} else {
+								HashSet<File> hs = new HashSet<File>();
+								hs.add(sourcefile);
+								flist.put(fsize,hs);
+							}
 						}
+					} else if ( sourcefile.isDirectory()) {
+						//	System.out.println("adding... " + sourcefile);
+							toProcess.add(sourcefile);
+					} else {
+						System.out.println ("Source is not a file.");
 					}
-				} else if ( sourcefile.isDirectory()) {
-				      toProcess.add(sourcefile);
-				} else {
-					System.out.println ("Source is not a file.");
 				}
 			}
 			toProcess.remove(0);
+
 		}
 		scanCompleted = true;
 

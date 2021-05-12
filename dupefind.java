@@ -4,7 +4,12 @@ import javax.lang.model.util.ElementScanner6;
 
 import java.io.*;
 
+
+//public Filelist fll;
+//public File fl;
+
 public class dupefind {
+
 
 	private static boolean findFile (ArrayList<File> sl, ArrayList<File> al)
 	{
@@ -60,13 +65,13 @@ public class dupefind {
 		if (al != null )
 		{
 		boolean first = true;
-		for (File fl : al)
+		for (File lfl : al)
 					{
 							if(!first)
 									System.out.print(" : ");
 							first=false;
 							try {
-									System.out.print(fl.getParent());
+									System.out.print(lfl.getParent());
 							} catch (Exception e) {
 									System.out.print("*ERROR*");
 							}
@@ -87,13 +92,13 @@ public class dupefind {
 			if (al != null )
 			{
 			boolean first = true;
-            for (File fl : al)
+            for (File lfl : al)
                         {
                                 if(!first)
                                         System.out.print(" : ");
                                 first=false;
                                 try {
-                                        System.out.print(fl.getCanonicalPath());
+                                        System.out.print(lfl.getCanonicalPath());
                                 } catch (Exception e) {
                                         System.out.print("*ERROR*");
                                 }
@@ -111,15 +116,14 @@ public class dupefind {
 	public static void main(String[] args) {
 		try {
 			Rulelist  rulelist  = new Rulelist();
-			//System.out.println("args len:" + args.length);
-			Filelist fl;
+			System.out.println("args len:" + args.length);
+			final Filelist fll = new Filelist();
 			if (args.length == 0)
-				fl = new Filelist(".");
+				fll.addScanDir(".");
 			else 
 			{
-				fl = new Filelist ();
 				for (String sd: args)
-					fl.addScanDir(sd);
+					fll.addScanDir(sd);
 			}
 
 			System.out.println("-- SCAN --");
@@ -127,20 +131,21 @@ public class dupefind {
 
 			new Thread(new Runnable() {
 				@Override
-				public void run() {
-					fl.filescan();
+				public void run() { 
+					// System.out.println("fll -> " + fll);
+					fll.filescan();
 				}
 			   }).start();
 
 			// loop progress...
-			while (!fl.getScanCompleted()) { 
+			while (!fll.getScanCompleted()) { 
 				try {
-					System.out.println("Files Remaining... " + fl.getScanRemain());
+					System.out.println("Files Remaining... " + fll.getScanRemain());
 					Thread.sleep(1000); 
 				} catch (InterruptedException ie) { ; }
 			}
 		
-			int totalfiles = fl.countfiles();
+			int totalfiles = fll.countfiles();
 
 			System.out.println("Files Remaining to Compare: " + totalfiles);
 			System.out.println("-- COMPARE --");
@@ -149,20 +154,20 @@ public class dupefind {
 			new Thread(new Runnable() {
 				@Override
 				public void run() {
-					fl.filecompare();
+					fll.filecompare();
 				}
 			   }).start();
 
 			// loop progress...
-			while (!fl.getCompareCompleted()) { 
+			while (!fll.getCompareCompleted()) { 
 				try {
-					System.out.println("comparing... " + fl.getProcessed() + "/" + totalfiles + " " + fl.getMatches());
+					System.out.println("comparing... " + fll.getProcessed() + "/" + totalfiles + " " + fll.getMatches());
 					Thread.sleep(1000); 
 				} catch (InterruptedException ie) { ; }
 			}
 
 		//	fl.print();
-			ArrayList<ArrayList<File>> allList = fl.getDuplicatelist();
+			ArrayList<ArrayList<File>> allList = fll.getDuplicatelist();
 
 			ArrayList<ArrayList<File>> currentList = allList;
 
@@ -174,7 +179,11 @@ public class dupefind {
 				// going to need a command parser class...
 				String[] arguments = argument.split(":");
 				if (arguments.length == 1) {
-					if ("reset".equals(arguments[0]))
+					if (("help".equals(arguments[0]) || ("?".equals(arguments[0])) ))
+					{
+
+					} 
+					else if ("reset".equals(arguments[0]))
 					{
 						currentList = allList;
 					} else if ("delete".equals(arguments[0])) {
