@@ -329,11 +329,25 @@
 }
 + (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect
 {
-	return [ObjcQPDFObjectHandle newArrayWithArray:@[]];
+	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
+	[par addObject:[ObjcQPDFObjectHandle newReal:rect.origin.x]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:rect.origin.y]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:rect.size.width]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:rect.size.height]];
+
+	return par;
 }
-+ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(id)matrix
++ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(CGAffineTransform)matrix
 {
-	return [ObjcQPDFObjectHandle newArrayWithArray:@[]];
+	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.a]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.b]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.c]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.d]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.tx]];
+	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.tx]];
+
+	return par;
 }
 + (ObjcQPDFObjectHandle*)newDictionary
 {

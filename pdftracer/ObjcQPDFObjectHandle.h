@@ -88,7 +88,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 + (ObjcQPDFObjectHandle*)newArray;
 + (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array;
 + (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect;
-+ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(id)matrix;
++ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(CGAffineTransform)matrix;
 + (ObjcQPDFObjectHandle*)newDictionary;
 + (ObjcQPDFObjectHandle*)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict;
 
