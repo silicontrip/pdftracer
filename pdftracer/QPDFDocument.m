@@ -154,6 +154,30 @@
 	return [blank document];
 }
 
+- (void)setSize:(NSString*)size forPage:(NSUInteger)page
+{
+	NSArray<NSString*>*com = [size componentsSeparatedByString:@","];
+	
+	if ([com count] == 2)
+	{
+
+		ObjcQPDFObjectHandle* e1 = [ObjcQPDFObjectHandle newReal:0];
+		ObjcQPDFObjectHandle* e2 = [ObjcQPDFObjectHandle newReal:[[com objectAtIndex:0] doubleValue]];
+		ObjcQPDFObjectHandle* e3 = [ObjcQPDFObjectHandle newReal:[[com objectAtIndex:1] doubleValue]];
+
+		NSArray<ObjcQPDFObjectHandle*>* mbox = @[e1,e1,e2,e3];
+		
+		NSLog(@"mbox -> %@",mbox);
+		
+		ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithArray:mbox];
+		
+		NSLog(@"pdf mbox -> %@",pdfmbox);
+		
+		ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+		[pageObj replaceObject:pdfmbox forKey:@"/MediaBox"];
+	}
+}
+
 -(void)makeWindowControllers
 {
 	// NSLog(@"QPDFDoc makeWindowControllers");
@@ -246,9 +270,7 @@
 				 NSString *modifiedString = [regex stringByReplacingMatchesInString:string options:0 range:NSMakeRange(0, [string length]) withTemplate:@""];
 				*/
 				NSString* safeUnparse = [indirectRegex stringByReplacingMatchesInString:editor options:0 range:editRange withTemplate:@"($0)"];
-				// rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
-				//NSLog(@"indirect Replace ##########");
-				//NSLog(@"%@",safeUnparse);
+
 				
 				rePDFObj = [[[ObjcQPDFObjectHandle alloc] initWithString:safeUnparse] autorelease];
 				// walk the object and turn back into indirects
@@ -292,6 +314,111 @@
 			}
 		}
 	}
+}
+
+// could possibly be static
+- (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
+{
+	if ([container isArray])
+	{
+		[container addObject:obj];
+	} else if ([container isDictionary]) {
+		//TODO: find unique name
+		NSString* uniqueName = @"/Untitled";
+		int version=1;
+		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
+		while (found) {
+			uniqueName = [NSString stringWithFormat:@"/Untitled-%d",version++];
+			found = [container objectForKey:uniqueName];
+		}
+		
+		[container replaceObject:obj forKey:uniqueName];
+	} else {
+		NSLog(@"Adding to unknown type");
+	}
+	
+}
+
+- (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj
+{
+	ObjcQPDFObjectHandle* newobj = nil;
+	// if adding to dictionary auto highlight edit /Name
+	// if adding to array auto highlight edit value
+	switch (type) {
+		case ot_null:
+			newobj = [ObjcQPDFObjectHandle newNull];
+			break;;
+		case ot_boolean:
+			newobj=[ObjcQPDFObjectHandle newBool:NO];
+			break;;
+		case ot_integer:
+			newobj=[ObjcQPDFObjectHandle newInteger:0];
+			break;;
+		case ot_real:
+			newobj=[ObjcQPDFObjectHandle newInteger:0.0];
+			break;;
+		case ot_string:
+			newobj=[ObjcQPDFObjectHandle newString:@""];
+			break;;
+		case ot_name:
+			newobj=[ObjcQPDFObjectHandle newName:@"/Name"];
+			break;;
+		case ot_array:
+			newobj=[ObjcQPDFObjectHandle newArray];
+			break;;
+		case ot_dictionary:
+			newobj=[ObjcQPDFObjectHandle newDictionary];
+			break;;
+		case ot_stream:
+			NSLog(@"creating stream");
+			
+			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:qDocument withString:@""];
+			break;
+		default:
+			NSLog(@"You're creating a wha-?");
+	}
+	if (newobj)
+	{
+		[self addObject:newobj to:obj];  // Add Row
+		return YES;
+	}
+	return NO;
+}
+
+- (void)newPageAtEnd
+{
+	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
+	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+	
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	
+	[newpage replaceObject:type forKey:@"/Type"];
+	[newpage replaceObject:mbox forKey:@"/MediaBox"];
+	
+	[qDocument addPage:newpage atStart:NO];
+
+}
+
+- (void)newPageBefore:(ObjcQPDFObjectHandle*)existingPage
+{
+	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
+	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+	
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	
+	[newpage replaceObject:type forKey:@"/Type"];
+	[newpage replaceObject:mbox forKey:@"/MediaBox"];
+	
+	[qDocument addPage:newpage before:YES page:existingPage];
+
 }
 
 - (void)deleteNode:(QPDFNode*)nd

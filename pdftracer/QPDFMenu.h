@@ -19,6 +19,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 //- (instancetype)initMenu;  // naming this init causes infinite recursion (or enough to exhaust the resource stack)
 - (instancetype)init;  // getting brave since the menu re-factor
++ (NSArray<NSString*>*)pageSizes;
+
 
 @end
 

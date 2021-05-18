@@ -315,13 +315,17 @@
 }
 + (ObjcQPDFObjectHandle*)newArray
 {
-	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()];
+	return [[[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()] autorelease];
 }
 + (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array
 {
 	// std::vector<QPDFObjectHandle> const& items);
 
-	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()];
+	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
+	for (ObjcQPDFObjectHandle* ai in array)
+		[par addObject:ai];
+	
+	return par;
 }
 + (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect
 {

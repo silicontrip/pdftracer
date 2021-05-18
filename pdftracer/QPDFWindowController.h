@@ -1,6 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import "QPDFDocument.h"
+#import "QPDFMenu.h"
 #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 #import "QPDFSyntaxHighlighter.h"

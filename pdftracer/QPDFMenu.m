@@ -16,36 +16,83 @@ struct QPDFMenuItem {
 	NSValue* subMenu;
 };
 
+/*
+** A1 .59460355750136053335 .84089641525371454303
+** A2 .42044820762685727151 .59460355750136053335
+** A3 .29730177875068026667 .42044820762685727151
+** A4 .21022410381342863575 .29730177875068026667
+** A5 .14865088937534013333 .21022410381342863575
+**
+** B0 1 1.41
+** B1 .70710678118654752440 1
+** B2 .5 .707
+** B3 .35355339059327376220 .5
+** B4 .250 .353
+** B5 .17677669529663688110 .25
+** B6 .125 .176
+**
+** C0 .91700404320467123174 1.29683955465100966592
+** C1 .64841977732550483296 .91700404320467123174
+** C2 .45850202160233561587 .64841977732550483296
+** C3 .32420988866275241648 .45850202160233561587 919.02,1299.69
+** C4 .22925101080116780793 .32420988866275241648 649.85,919.02
+** C5 .16210494433137620824 .22925101080116780793
+**
+** DL .22 .11 623.62,311.81
+** DLX .235 .12 666.14,340.16
+
+** Letter 8.5 x 11
+** legal 8.5 x 14
+** tabloid 11 x 17
+** junior legal 5 x 8
+**
+** No10 9.5 x 4.1
+** A2 lady grey 5.7 x 4.4
+** A9 diplomat 8.7 x 5.7
+ 
+ */
+
 @implementation QPDFMenu
 
 @synthesize windowsMenu;
 
 +(NSMenuItem*)itemWithSubmenu:(nullable NSMenu*)menu
 {
-	return 	 [QPDFMenu itemWithTitle:@"" keyEquiv:nil selector:nil submenu:menu modifier:0];
-
+	return 	 [QPDFMenu itemWithTitle:@"" keyEquiv:nil selector:nil submenu:menu modifier:0 tag:0];
 }
 + (NSMenuItem*)itemWithTitle:(NSString*)title submenu:(nullable NSMenu*)menu
 {
-	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:nil submenu:menu modifier:0];
+	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:nil submenu:menu modifier:0 tag:0];
 }
 + (NSMenuItem*)itemWithTitle:(NSString*)title selector:(NSString*)selstr
 {
-	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:selstr submenu:nil modifier:0];
+	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:selstr submenu:nil modifier:0 tag:0];
 }
+
++ (NSMenuItem*)itemWithTitle:(NSString*)title selector:(NSString*)selstr tag:(NSInteger)tag
+{
+	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:selstr submenu:nil modifier:0 tag:tag];
+}
+
 
 + (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey  modifier:(NSEventModifierFlags)keyMod selector:(NSString*)selstr
 {
-	return [QPDFMenu itemWithTitle:title keyEquiv:thisKey selector:selstr submenu:nil modifier:keyMod];
+	return [QPDFMenu itemWithTitle:title keyEquiv:thisKey selector:selstr submenu:nil modifier:keyMod tag:0];
 }
 
-+ (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey selector:(NSString*)selstr submenu:(nullable NSMenu*)menu modifier:(NSEventModifierFlags)keyMod
++ (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey  modifier:(NSEventModifierFlags)keyMod selector:(NSString*)selstr tag:(NSInteger)tag
+{
+	return [QPDFMenu itemWithTitle:title keyEquiv:thisKey selector:selstr submenu:nil modifier:keyMod tag:tag];
+}
+
++ (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey selector:(NSString*)selstr submenu:(nullable NSMenu*)menu modifier:(NSEventModifierFlags)keyMod tag:(NSInteger)tag
 {
 	NSMenuItem* mi = [[[NSMenuItem alloc] init ] autorelease];
 	mi.title = title;
 	mi.submenu = menu;
 	mi.enabled = YES;
 	mi.keyEquivalentModifierMask = keyMod;
+	mi.tag=tag;
 	
 	if (thisKey)
 		mi.keyEquivalent=thisKey;
@@ -149,11 +196,31 @@ struct QPDFMenuItem {
 		[viewMenu addItem:[QPDFMenu itemWithTitle:@"Zoom Out" keyEquiv:@"-" modifier:cmd selector:@"zoomOut:"]];
 		[self addItem:[QPDFMenu itemWithSubmenu:viewMenu]];
 
+		NSMenu* sizeMenu = [[NSMenu new] autorelease];
+		[sizeMenu setAutoenablesItems:NO];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A3" selector:@"setMediabox:" tag:0]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A4" selector:@"setMediabox:" tag:1]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A5" selector:@"setMediabox:" tag:2]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"B3" selector:@"setMediabox:" tag:3]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"B4" selector:@"setMediabox:" tag:4]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"C3" selector:@"setMediabox:" tag:5]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"C4" selector:@"setMediabox:" tag:6]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"DL" selector:@"setMediabox:" tag:7]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"DLX" selector:@"setMediabox:" tag:8]];
+		[sizeMenu addItem:[NSMenuItem separatorItem]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"Letter" selector:@"setMediabox:" tag:9]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"Legal" selector:@"setMediabox:" tag:10]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"Tabloid" selector:@"setMediabox:" tag:11]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"Number 10" selector:@"setMediabox:" tag:12]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A2 Lady Grey" selector:@"setMediabox:" tag:13]];
+		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A9 Diplomat" selector:@"setMediabox:" tag:14]];
 		
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];
-		[toolMenu setTitle:@"Tools"];
+		[toolMenu setTitle:@"Page"];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"PageSize" submenu:sizeMenu]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert" submenu:nil]];
+	
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Tool Box" keyEquiv:@"" modifier:cmd selector:@""]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Pointer" keyEquiv:@"" modifier:cmd selector:@""]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Font Finder" keyEquiv:@"" modifier:cmd selector:@""]];
@@ -172,12 +239,33 @@ struct QPDFMenuItem {
 
 		NSMenu* helpMenu = [[NSMenu new] autorelease];
 		[helpMenu setAutoenablesItems:YES];
-		[helpMenu setTitle:@"Help"];		
+		[helpMenu setTitle:@"Help"];
 		[helpMenu addItem:[QPDFMenu itemWithTitle:@"PDF Documentation" keyEquiv:@")" modifier:cmd selector:@""]];
 		[self addItem:[QPDFMenu itemWithSubmenu:helpMenu]];
 
 	}
 	return self;
+}
+
++ (NSArray<NSString*>*)pageSizes
+{
+	return @[@"842.75,1191.82",
+			 @"595.91,842.75",
+			 @"421.27,595.91",
+			 @"708.67,1002.2",
+			 @"501.1,708.67",
+			 @"919.02,1299.69",
+			 @"649.85,919.02",
+			 @"623.62,311.81",
+			 @"666.14,340.16",
+			 @"612,792",
+			 @"612,1008",
+			 @"792,1224",
+			 @"360,576",
+			 @"684,295.2",
+			 @"410.4,316.8",
+			 @"626.4,410.4"
+			 ];
 }
 
 @end

@@ -33,10 +33,8 @@
 
 				if (optarg==NULL)
 				{
-
 					[toptions setObject:@"" forKey:strarg];
 				} else {
-
 					NSString* stropt = [NSString stringWithUTF8String:optarg];
 					[toptions setObject:stropt forKey:strarg];
 				}

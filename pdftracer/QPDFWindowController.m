@@ -370,27 +370,7 @@
 	}
 }
 
-- (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
-{
-	if ([container isArray])
-	{
-		[container addObject:obj];
-	} else if ([container isDictionary]) {
-		//TODO: find unique name
-		NSString* uniqueName = @"/Untitled";
-		int version=1;
-		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
-		while (found) {
-			uniqueName = [NSString stringWithFormat:@"/Untitled-%d",version++];
-			found = [container objectForKey:uniqueName];
-		}
-		
-		[container replaceObject:obj forKey:uniqueName];
-	} else {
-		NSLog(@"Adding to unknown type");
-	}
-	
-}
+
 
 /*
 - (void)addRow:(NSInteger)row forSource:(QPDFOutlineView*)qov ofType:(object_type_e)type
@@ -420,51 +400,58 @@
 }
 */
 
-
-
 // selectRow -> #setOV, #setRow, #setText, enaEdit, #enaAddRemove;
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
-	// NSLog(@"selectRow...");
+	NSLog(@"W.C. selectRow -> %ld",(long)sr);
+	
 	// setOV, setRow
 	[self setSelectedRow:sr];
 	[self setSelectedView:qov];
-	[self setSelectedNode:[qov itemAtRow:[self selectedRow]]];
+	[self setSelectedNode:[qov itemAtRow:[self selectedRow]]];  // selected row can be -1
+	//Parameter is NSInteger. no mention of out of range value, assume returns nil
 
 	// setText
 	[self setEditText:[self textForSelectedObject]];
 
 	QPDFNode *thisNode = [self selectedNode];
-	if ([[thisNode object] isDictionary])
-	{
-		ObjcQPDFObjectHandle* obj = [thisNode object];
-		// so which page have we selected ?
-		ObjcQPDFObjectHandle* objType =[obj objectForKey:@"/Type"];
-
-		if (objType)
+	if (thisNode) {
+		if ([[thisNode object] isDictionary])
 		{
-			if ([[objType name] isEqualToString:@"/Page"])
-			{
-				QPDFDocument* doc = [self document];
-				ObjcQPDF* qDoc = [doc doc];
-				NSString* objGen = [obj objectGenerationID];
-				
-				NSLog(@"selected page... um. %@ ",objGen);
-				
-				NSUInteger nPage = [[qDoc pageIndexForIndirect:objGen] unsignedLongValue];
-				
-				if (nPage != self.selectedPage)
-				{
-					// OK, now what page is it?  // Ha Ha, sucks to be you, I found it.
-					self.selectedPage = nPage;
-					PDFDocument* doc = [[self document] pdfDocumentPage:nPage];  // arrays are zero indexed...
-					[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+			ObjcQPDFObjectHandle* obj = [thisNode object];
+			// so which page have we selected ?
+			ObjcQPDFObjectHandle* objType =[obj objectForKey:@"/Type"];
 
+			if (objType)
+			{
+				if ([[objType name] isEqualToString:@"/Page"])
+				{
+					QPDFDocument* doc = [self document];
+					ObjcQPDF* qDoc = [doc doc];
+					NSString* objGen = [obj objectGenerationID];
+					
+					// NSLog(@"selected page... um. %@ ",objGen);
+					
+					NSUInteger nPage = [[qDoc pageIndexForIndirect:objGen] unsignedLongValue];
+					
+					if (nPage != self.selectedPage)
+					{
+						// OK, now what page is it?  // Ha Ha, sucks to be you, I found it.
+						self.selectedPage = nPage;
+						PDFDocument* doc = [[self document] pdfDocumentPage:nPage];  // arrays are zero indexed...
+						[[(QPDFWindow*)[self window] documentView] setDocument:doc];
+					}
 				}
-				
+			} else {
+				NSLog(@"unselect page (wrong objType)");
+
+				self.selectedPage = -1;
 			}
 		}
+	} else {
+		NSLog(@"unselect page (null obj)");
+		self.selectedPage = -1;
 	}
 	
 	// ena Text edit
@@ -477,6 +464,23 @@
 	[self updateOutlineAddRemove];
 	// NSLog(@"end selectRow");
 }
+
+- (void)setMediabox:(id)sender
+{
+	NSMenuItem* nmi = (NSMenuItem*)sender;
+	
+	NSString * sz =[[QPDFMenu pageSizes] objectAtIndex:[nmi tag]];
+
+	
+	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
+	NSLog(@"Page size: %@", sz);
+
+	NSLog(@"selected Page: %lu",self.selectedPage);
+	
+	[[self document] setSize:sz forPage:self.selectedPage];
+	
+}
+
 
 // MARK: interface events
 
@@ -507,7 +511,7 @@ void printView (NSView* n)
 	QPDFView* pv = [qwin documentView];
 	
 	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-	NSRect saveRect = [visRect visibleRect];
+	// NSRect saveRect = [visRect visibleRect];
 
 //	NSView* pdfSize = [[visRect subviews] objectAtIndex:1];
 //	NSRect pdfDim = [pdfSize frame];
@@ -645,9 +649,8 @@ void printView (NSView* n)
 	// NSLog(@"WinCon scrolly: %@",nn);
 	QPDFWindow* w = (QPDFWindow*)[self window];
 
-	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-															 inTextContainer:w.textView.textContainer];
-	
+	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect inTextContainer:w.textView.textContainer];
+
 	[syntaxer colouriseRange:glyphRange];
 }
 
@@ -733,55 +736,12 @@ void printView (NSView* n)
 	
 	QPDFOutlineView* ov = self.selectedView;
 	
-	
-	
-	// NSLog (@"Adding Type to: %lu",self.selectedRow);
-	
 	QPDFNode *item = [ov itemAtRow:osr];
 	ObjcQPDFObjectHandle *toObj = [item object];
-//	ObjcQPDF* toQPDF = [toObj owner];
 	
 	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
-	
-// NSLog(@"ADD sender: %@ %d",sender,(int)((NSMenuItem*)sender).tag);
-	
-	ObjcQPDFObjectHandle* newobj = nil;
-// if adding to dictionary auto highlight edit /Name
-	// if adding to array auto highlight edit value
-	switch (type) {
-		case ot_null:
-			newobj = [ObjcQPDFObjectHandle newNull];
-			break;;
-		case ot_boolean:
-			newobj=[ObjcQPDFObjectHandle newBool:NO];
-			break;;
-		case ot_integer:
-			newobj=[ObjcQPDFObjectHandle newInteger:0];
-			break;;
-		case ot_real:
-			newobj=[ObjcQPDFObjectHandle newInteger:0.0];
-			break;;
-		case ot_string:
-			newobj=[ObjcQPDFObjectHandle newString:@""];
-			break;;
-		case ot_name:
-			newobj=[ObjcQPDFObjectHandle newName:@"/Name"];
-			break;;
-		case ot_array:
-			newobj=[ObjcQPDFObjectHandle newArray];
-			break;;
-		case ot_dictionary:
-			newobj=[ObjcQPDFObjectHandle newDictionary];
-			break;;
-		case ot_stream:
-			NSLog(@"creating stream");
-			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[item owner] withString:@""];
-			break;
-		default:
-			NSLog(@"You're creating a wha-?");
-	}
 
-	if (newobj)
+	if ([[self document] addItemOfType:type toObject:toObj])
 	{
 		QPDFWindow *win = (QPDFWindow*)[self window];
 	
@@ -789,7 +749,6 @@ void printView (NSView* n)
 
 		[ov beginUpdates];
 		
-		[self addObject:newobj to:toObj];  // Add Row
 		[ov reloadItem:item reloadChildren:YES]; // refresh Outline
 		item = [ov itemAtRow:[ov selectedRow]];
 	//	[self selectRow:[ov selectedRow] forSource:ov]; // setRow
@@ -854,8 +813,9 @@ void printView (NSView* n)
 	[self setDocumentEdited:YES];
 //	[[self document] setDocumentEdited:YES];
 
-
 }
+
+// This should probably go into the QPDFDocument class.
 
 - (void)addRemove:(id)sender
 {
@@ -866,12 +826,15 @@ void printView (NSView* n)
 	NSInteger outlineTag = [sc tag];
 	NSInteger selectedSegment = [sc selectedSegment];
 
+	
 	QPDFOutlineView* sv = [(QPDFWindow*)[self window] outlineAtIndex:outlineTag];
 	[self selectRow:[sv selectedRow] forSource:sv];
 	
 	// this seems to work for all outlines
 	if (selectedSegment == 1)  // remove
 	{
+		// silly question, but does the Document get a reference in this?
+
 		NSInteger osr = self.selectedRow;
 		QPDFNode* pnode = nil;
 		if (outlineTag == 0)
@@ -892,27 +855,14 @@ void printView (NSView* n)
 				//NSLog(@"outline Page add... row: %ld",(long)selectedRow);
 				// add page
 				
-				ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
-				ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
-				ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
-				
-				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-				[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-				
-				[newpage replaceObject:type forKey:@"/Type"];
-				[newpage replaceObject:mbox forKey:@"/MediaBox"];
-				
 				if (selectedRow == -1)
 				{
-					[[[self document] doc] addPage:newpage atStart:NO];
+					[[self document] newPageAtEnd];
 				} else {
 					ObjcQPDFObjectHandle* existingPage = [selectedNode object];
-					[[[self document] doc] addPage:newpage before:YES page:existingPage];
+					[[self document] newPageBefore:existingPage];
 				}
-			//	NSLog(@"reloadinating the outline side");
-			//	[sv reloadItem:nil reloadChildren:YES];
+				
 				[sv reloadData];
 				
 				// QPDFOutlineView* tree = [(QPDFWindow*)[self window] outlineAtIndex:0];
@@ -922,15 +872,6 @@ void printView (NSView* n)
 				[object reloadData];  // this doesn't move the view
 				// [object reloadItem:nil]; // this one moves
 				[page reloadData];
-				
-				//[[(QPDFWindow*)[self window] outlineAtIndex:2] reloadData];
-				//[[(QPDFWindow*)[self window] outlineAtIndex:1] reloadData];
-				//[[(QPDFWindow*)[self window] outlineAtIndex:0] reloadData];
-
-				//[[(QPDFWindow*)[self window] outlineAtIndex:1] reloadItem:nil reloadChildren:YES];
-				//[[(QPDFWindow*)[self window] outlineAtIndex:2] reloadItem:nil reloadChildren:YES];
-				//[[(QPDFWindow*)[self window] outlineAtIndex:0] reloadItem:nil reloadChildren:YES];
-
 			}
 		}
 	}
@@ -957,6 +898,7 @@ void printView (NSView* n)
 	// return [super validateUserInterfaceItem:anItem];
 	return YES;
 }
+
 
 
 - (void)zoomAct:(id)sender
