@@ -154,27 +154,47 @@
 	return [blank document];
 }
 
+//- (NSPrintOperation*)print:(id)sender
+
+- (NSPrintOperation *)printOperationWithSettings:(NSDictionary<NSPrintInfoAttributeKey, id> *)printSettings
+										   error:(NSError * _Nullable *)outError;
+{
+	PDFPrintScalingMode scale = kPDFPrintPageScaleDownToFit;
+
+	NSPrintInfo *printInfo = [NSPrintInfo sharedPrintInfo];
+	[printInfo setTopMargin:0.0];
+	[printInfo setBottomMargin:0.0];
+	[printInfo setLeftMargin:0.0];
+	[printInfo setRightMargin:0.0];
+	[printInfo setHorizontalPagination:NSFitPagination];
+	[printInfo setVerticalPagination:NSFitPagination];
+	
+// Grab the returned print operation.
+	return [[qDocument document] printOperationForPrintInfo:printInfo scalingMode:scale autoRotate:YES];
+}
+
 - (void)setSize:(NSString*)size forPage:(NSUInteger)page
 {
 	NSArray<NSString*>*com = [size componentsSeparatedByString:@","];
-	
+
 	if ([com count] == 2)
 	{
 
-		ObjcQPDFObjectHandle* e1 = [ObjcQPDFObjectHandle newReal:0];
-		ObjcQPDFObjectHandle* e2 = [ObjcQPDFObjectHandle newReal:[[com objectAtIndex:0] doubleValue]];
-		ObjcQPDFObjectHandle* e3 = [ObjcQPDFObjectHandle newReal:[[com objectAtIndex:1] doubleValue]];
+		CGFloat width = [[com objectAtIndex:0] doubleValue];
+		CGFloat height = [[com objectAtIndex:1] doubleValue];
 
-		NSArray<ObjcQPDFObjectHandle*>* mbox = @[e1,e1,e2,e3];
+		if (width > 0 and height > 0 )
+		{
 		
-		NSLog(@"mbox -> %@",mbox);
+			//ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithArray:mbox];
 		
-		ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithArray:mbox];
+			ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithRectangle:NSMakeRect(0,0, width, height)];
 		
-		NSLog(@"pdf mbox -> %@",pdfmbox);
+			// NSLog(@"pdf mbox -> %@",pdfmbox);
 		
-		ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
-		[pageObj replaceObject:pdfmbox forKey:@"/MediaBox"];
+			ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+			[pageObj replaceObject:pdfmbox forKey:@"/MediaBox"];
+		}
 	}
 }
 

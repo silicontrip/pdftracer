@@ -471,16 +471,27 @@
 	
 	NSString * sz =[[QPDFMenu pageSizes] objectAtIndex:[nmi tag]];
 
-	
-	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
-	NSLog(@"Page size: %@", sz);
-
-	NSLog(@"selected Page: %lu",self.selectedPage);
+//	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
+//	NSLog(@"Page size: %@", sz);
+//	NSLog(@"selected Page: %lu",self.selectedPage);
 	
 	[[self document] setSize:sz forPage:self.selectedPage];
-	
+	[self updateCurrentPage];
+
 }
 
+- (void)printPDF:(id)sender
+{
+	[[self document] print:sender];
+}
+
+/* - (void)saveDocumentAs:(id)sender
+{
+	NSLog(@"save as:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
+
+	[[self nextResponder] saveDocumentAs:sender];
+}
+*/
 
 // MARK: interface events
 
@@ -510,7 +521,7 @@ void printView (NSView* n)
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
 	QPDFView* pv = [qwin documentView];
 	
-	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
+	// NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
 	// NSRect saveRect = [visRect visibleRect];
 
 //	NSView* pdfSize = [[visRect subviews] objectAtIndex:1];
@@ -543,7 +554,6 @@ void printView (NSView* n)
 		
 		[[self document] replaceQPDFNode:selectedNode withString:editor];
 		//PDFDocument* doc = [[self document] pdfdocument];
-		PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
 		
 // getting desperate, curse you spacebar bug...
 	//[visRect scrollRectToVisible:saveRect];
@@ -552,8 +562,9 @@ void printView (NSView* n)
 
 	//	[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:0.1];
 		
-		
-		[self updateDoc:doc];
+		[self updateCurrentPage];
+
+//		[self updateDoc:doc];
 		
 //		[NSObject cancelPreviousPerformRequestsWithTarget:self];
 //		[self performSelector:@selector(restoreDocRect:) withObject:[NSValue valueWithRect:saveRect] afterDelay:1];
@@ -583,6 +594,12 @@ void printView (NSView* n)
 
 	[visRect scrollRectToVisible:[nsrect rectValue]];
 
+}
+
+- (void)updateCurrentPage
+{
+	PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
+	[self updateDoc:doc];
 }
 
 - (void)updateDoc:(PDFDocument*)doc
@@ -632,9 +649,9 @@ void printView (NSView* n)
 	//	[selectedView expandItem:[selectedNode parentNode]];
 		
 		// this is not causing the space scrolling issue.
-		PDFDocument* doc = [[self document] pdfdocument];
-		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
-		
+		[self updateCurrentPage];
+//		PDFDocument* doc = [[self document] pdfdocument];
+//		[[(QPDFWindow*)[self window] documentView] setDocument:doc];
 		
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
@@ -768,8 +785,9 @@ void printView (NSView* n)
 		[self setRemoveEnabled:[self isSelected]];
 		
 		// refresh PDF
-		PDFDocument* doc = [[self document] pdfdocument];
-		[win.documentView setDocument:doc];
+		// PDFDocument* doc = [[self document] pdfdocument];
+		// [win.documentView setDocument:doc];
+		[self updateCurrentPage];
 
 		//documentChanged
 		[[self document] updateChangeCount:NSChangeDone];

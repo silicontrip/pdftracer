@@ -140,7 +140,7 @@ struct QPDFMenuItem {
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Revert to Saved" keyEquiv:@"r" modifier:cmd selector:@"revertDocumentToSaved:"]];
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Page Setup..." keyEquiv:@"P" modifier:cmd selector:@"runPageLayout:"]];
-		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Print..." keyEquiv:@"p" modifier:cmd selector:@"print:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Print..." keyEquiv:@"p" modifier:cmd selector:@"printDocument:"]];
 		[self addItem:[QPDFMenu itemWithSubmenu:fileMenu]];
 
 		

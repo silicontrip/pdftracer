@@ -4,6 +4,11 @@
 
 @synthesize relatedSegment;
 
+- (void)print:(id)sender
+{
+	[[self nextResponder] print:sender];
+}
+
 - (BOOL)acceptsFirstResponder
 {
 	[super acceptsFirstResponder];
@@ -11,15 +16,14 @@
 }
 - (BOOL)becomeFirstResponder
 {
-	
 	[super becomeFirstResponder];
-	/*
+	
 	NSResponder* fr = [[self window] firstResponder];
 	do {
-		NSLog(@"resp: %@",fr);
+		NSLog(@"OUTLINEVIEW RC: %@",fr);
 		fr = [fr nextResponder];
 	} while (fr != nil);
-	*/
+	
 	//NSWindow* w = [self window];
 	//NSWindowController* wc = [w windowController];
 	

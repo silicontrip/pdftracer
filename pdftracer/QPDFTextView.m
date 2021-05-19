@@ -8,7 +8,13 @@
 {
 	return YES;
 }
-/*
+
+- (void)print:(id)sender
+{
+	[[self nextResponder] print:sender];
+}
+
+
 - (BOOL)becomeFirstResponder
 {
 	
@@ -16,7 +22,7 @@
 	
 	NSResponder* fr = [[self window] firstResponder];
 	do {
-		NSLog(@"QPDFTextView R.C.: %@",fr);
+		NSLog(@"TEXTVIEW RC: %@",fr);
 		fr = [fr nextResponder];
 	} while (fr != nil);
 	
@@ -28,7 +34,7 @@
 	
 	return YES;
 }
-*/
+
 
 /*
 - (void)keyDown:(NSEvent*)event
