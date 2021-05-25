@@ -20,7 +20,7 @@
 	
 	NSResponder* fr = [[self window] firstResponder];
 	do {
-		NSLog(@"OUTLINEVIEW RC: %@",fr);
+		NSLog(@"OUTLINEVIEW ResChain: %@",fr);
 		fr = [fr nextResponder];
 	} while (fr != nil);
 	

@@ -1,0 +1,20 @@
+
+subclass NSTextView
+keyDown: 
+-> discard: no entered characters. no scroll.
+-> pass to nextResponder: system beep. no characters. no scroll.
+-> pass to super. entered characters. pdf scroll.
+
+subclass PDFView
+keyDown: no event received
+
+enter space in different (outline) view. no scroll.
+
+Removed code to update PDFView.  no scroll.
+
+
+non scroll visible rect:  
+
+save rect: {{177.49659549115052, 323.47788257012604}, {257.47412344277444, 242.90572615789796}}
+save rect: {{177.49659549115935, 323.47788257014128}, {257.4741234427745, 242.90572615789796}}
+scroll:    {{177.49659549115935, 323.47788257014128}, {257.4741234427745, 242.90572615789796}}

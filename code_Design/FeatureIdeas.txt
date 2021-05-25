@@ -4,13 +4,13 @@
 - change / remove characters from font.
 
 - PDF document current point cursor at current text edit cursor.  probably requires: Get Current Matrix transform.
-- convert back to standard transform. (i've heard that inverting matricies is hard)
+- convert back to standard transform. (i've heard that inverting matricies is hard, but probably not CTmatricies)
 
 - Add Font from file
 - Add Image
 
 New Page. - done
-Remove page - done
+Remove page - done DEBUG
 New Object. - done
 Remove Object - Done
 New primative. - Done
@@ -18,30 +18,9 @@ Remove primative - Done
 Export Stream. - Done
 
 - Highlight mediabox, select page size from menu. 
-- Rotate layout [0 0 595 842] -> [0 0 842 595]
-- Or Highlight Page "Add MediaBox"
+- Rotate layout [0 0 595 842] -> [0 0 842 595] ??? there is a rotate property in the page
+- Or Highlight Page "Add MediaBox" - Done
 
-Page Sizes in point units 
-(72pt = 1inch)
-(1mm = 2+ 106/127pt)
-
-Letter 612 792
-Legal 612 1008
-Tabloid 792 1224
-A3 842 1191
-A4 595 842
-A5 421 595
-B3 1001 1417
-B4 709 1001
-B5 499 709
-C4 649 916
-C5 459 649
-C6 323 459
-DL 312 624
-C5/6 323 649
-personal envelope 261 468
-monarch 279 540
-postcard 432 288
 
 insert IDE style template text, select from dropdown "m: move pen to point" (X) (Y) m - command search available.
 (X) and (Y) are highlighted in a parameter needs filling in style (eg xcode)

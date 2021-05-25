@@ -1,0 +1,80 @@
+b   : closepath, fill, stroke : CGContextClosePath,CGContextStrokePath,CGContextFillPath
+B   : fill, stroke : CGContextStrokePath,CGContextFillPath
+b*  : closepath, eofill, stroke : CGContextEOFillPath
+BDC : begin marked content sequence with plist
+BI  : begin inline image
+BMC : begin marked content sequence
+BT  : begin text
+BX  : begin compatibility
+c   : curveto : CGContextAddCurveToPoint
+cm  : concat : CGContextConcatCTM
+CS  : setcolorspace (stroking) : CGContextSetStrokeColorSpace
+cs  : setcolorspace (non-stroking) : CGContextSetFillColorSpace
+d   : setdash : CGContextSetLineDash
+d0  : setcharwidth :
+d1  : setcachedevice :
+Do  : invoke XObject : (CGContextDrawImage)
+DP  : define marked content point :
+EI  : end inline image
+EMC : end marked content point
+ET  : end text
+EX  : end compatibility section
+f   : fill : CGContextFillPath
+F   : fill : deprecated
+f*  : eorill : CGContextEOFillPath
+G   : setgray : CGContextSetGrayStrokeColor
+g   : setgray (non-stroke) : CGContextSetGrayFillColor
+gs  : set graphic state parameters /resource
+h   : closepath : CGContextClosePath
+i   : setflat : CGContextSetFlatness
+ID  : begin inline image data :
+j   : setlinejoin : CGContextSetLineJoin 
+J   : setlinecap : CGContextSetLineCap
+K   : setcmykcolor (stroking) :
+k   : setcmykcolor (non-stroking) : 
+l   : lineto : CGContextAddLineToPoint
+m   : moveto : CGContextMoveToPoint
+M   : setmiterlimit : CGContextSetMiterLimit
+MP  : define marked-content point
+n   : end path : (CGContextBeginPath)
+q   : gsave : CGContextSaveGState
+Q   : grestore : CGContextRestoreGState
+re  : add rectangle : CGContextAddRect / CGContextAddRects
+RG  : setrgbcolor (stroke) : CGContextSetRGBStrokeColor
+rg  : setrgbcolor (non-stroking) : CGContextSetRGBFillColor
+ri  : colour rendering intent : CGContextSetRenderingIntent
+s   : closepath, stroke : CGContextClosePath,CGContextStrokePath
+S   : stroke : CGContextStrokePath
+SC  : setcolor (stroke) : CGContextSetStrokeColor
+sc  : setcolor (non-stroke) : CGContextSetFillColor
+SCN : setcolor (stroke, ICC) : CGColorSpaceCreateICCBased
+scn : setcolor (non-stroke, ICC) :
+sh  : shfill :
+T*  : move to start of next text line :
+Tc  : set character spacing : CGContextSetCharacterSpacing
+Td  : move text position : CGContextSetTextPosition
+TD  : move text and set leading :
+Tf  : selectfont : CGContextSelectFont
+Tj  : show : CGContextShowText
+TJ  : show with glyph positioning : CGContextShowGlyphsAtPositions
+TL  : set text leading :
+Tm  : set text matrix : CGContextSetTextMatrix
+Tr  : set text rendering intent :
+Ts  : set text rise :
+Tw  : set word spacing :
+Tz  : set horizontal text scaling :
+v   : curveto (initial point duped) :
+w   : setlinewidth : CGContextSetLineWidth
+W   : clip : CGContextClip
+W*  : eoclip : CGContextEOClip
+y   : curveto (final point duped) :
+'   : moveto next text line, show :
+"   : set word and character spacing, move to next line, show :
+
+
+MATRIX
+
+- Translations shall be specified as [1 0 0 1 tx ty], where tx and ty shall be the distances to translate the origin of the coordinate system in the horizontal and vertical dimensions, respectively.
+- Scaling shall be obtained by [sx 0 0 sy 0 0]. This scales the coordinates so that 1 unit in the horizontal and vertical dimensions of the new coordinate system is the same size as sx and sy units, respectively, in the previous coordinate system.
+- Rotations shall be produced by [cos q sin q -sin q cos q 0 0], which has the effect of rotating the coordinate system axes by an angle q counter clockwise.
+- Skew shall bei specified by [1 tan a tan b 1 0 0], which skews the x axis by an angle a and the y axis by an angle b.

@@ -1,0 +1,56 @@
+
+TRAILER
+/Root (reference to the Root object)
+/Size (number of indirect objects)
+
+ROOT
+/Pages (reference to the Pages root object
+/Type /Catalog
+- /Rotate
+
+PAGES
+/Count (number of pages)
+/Kids (reference to array of pages)
+/Type /Pages
+/MediaBox (array of page dimensions) 
+
+PAGE
+Required:- /Contents (reference to stream object)
+Required:- /MediaBox (array of this page size)
+/ArtBox
+/BleedBox
+/CropBox
+/TrimBox
+
+Required:- /Parent (reference to Pages object immediately above us)
+Required:- /Type /Page
+Required:- /Resources (reference to Resources dictionary for this page)
+- /Rotate
+- /Annots (array)
+
+
+RESOURCES
+Required:- /ProcSet (array of "libraries" needed for the page) /PDF, /Text /ImageC, /ImageB /ImageI
+- /Font (reference to font object, if needed)
+- /XObject (reference to xobject PDF image, if needed)
+- /ExtGState (Extended Graphic state???)
+- /ColorSpace
+
+FONT
+/$FONTNAME (name of font referenced in /Contents stream)
+
+$FONTNAME
+/BaseFont
+/FirstChar (32 for normal fonts)
+/LastChar
+/Encoding
+/FontDescriptor (reference to dictionary)
+/Subtype (font format)
+/Type /Font
+/Widths (array of character spacing)
+
+FONTDESCRIPTOR
+/FontFile2 reference to font stream
+
+Image Dictionary
+<< /BitsPerComponent 8 /ColorSpace /DeviceRGB /Filter /FlateDecode /Height 50 /Length 1279 /SMask 17 0 R /Subtype /Image /Type /XObject /Width 50 >>

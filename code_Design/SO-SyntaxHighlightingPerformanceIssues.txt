@@ -1,0 +1,29 @@
+Hello,
+
+Again another person writing an IDE style editor.  I've currently have an almost working syntax highlighter using regex, except it's performance isn't enough for a modern app.  It can freeze the UI for a few seconds while it colourises.  
+
+I'm using `NSTextView`'s; `- (void)setTextColor:(nullable NSColor *)color range:(NSRange)range;` Which I found easier than dealing with the issues `NSTextStorage` and `NSLayoutManager` presented.
+
+However I've been unable to find a way to background this or improve performance.
+
+I've tried the following methods to try and improve performance;
+
+ - Limit colourisation to the current `NSScroll`'s `documentVisibleRect` and updating with just the edited range for new text. This resolved the initial display delay but impacted the live scrolling ability, as it updates the view for each `NSViewBoundsDidChangeNotification` received.
+ - Delay colourisation using `CFRunLoopPerformBlock` on the main thread but this simply froze the interface a bit later on.
+ - Run the initial colourisation in a background thread and build an `NSarray` of `NSrange`s and  `NScolor`s and run that in the main thread.  Still performance wasn't enough for `NSViewBoundsDidChangeNotification`s updating.
+- Run the colourise in the background thread.  (Need I say more)
+
+Currently I'm thinking that I could retrieve a copy of the `NSTextView`s `NSString` or `NSTextStorage`  However I'm worried about concurrency problems that I'm working on a copy of the views string, and when I set the textview with it, any user made changes in those few seconds will be gone.
+
+Or using `NSScanner` rather than `NSRegularExpression` none of the examples seem to fit the syntax I'm trying to colour.
+
+So, I cannot;
+
+ - Update the view in the background and it is freezing the UI in the foreground.
+ - Set attributes on a string in the background then have the textview set from that (as there would be two branches of the text during colourisation)
+
+I'm not really looking forward to digging into `CoreText` and other even lower level libraries and frameworks.
+
+What is the "best practises" way, have I made a false assumption or error in any implementations (IE you've read this and thought, hang on that way should've worked)  
+
+I'd like it in the bacground

@@ -1,0 +1,27 @@
+
+
+NSMenu (main menu) Delegate -> NSDocumentController
+
+NSApp mainMenu -> NSMenu
+NSApp shareDocumentController -> NSDocumentController
+NSApp delegate -> AppInstance
+
+NSDocumentController
+
+makeDocumentWithContentsOfURL -> NSDocument initWithContentsOfURL
+openUntitledDocumentAndDisplay 
+makeUntitledDocumentOfType -> NSDocument alloc init
+
+openDocument: open dialog 
+newDocument:
+openPDF:
+
+NSDocument
+
+initWithContentsOfURL -> initForURL:
+initForURL: -> QPDF initWithURL
+readFromURL: -> QPDF initWithURL
+addWindowController
+
+
+

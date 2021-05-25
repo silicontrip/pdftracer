@@ -862,7 +862,6 @@ void printView (NSView* n)
 		}
 		[self deleteRow:osr forSource:sv];
 		[sv reloadItem:pnode reloadChildren:YES];
-
 	}
 	else
 	{
