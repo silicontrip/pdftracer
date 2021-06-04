@@ -137,14 +137,14 @@
 	std::vector<QPDFObjectHandle> qohv = qDocument->getAllPages();
 	if (index <qohv.size()) {
 		QPDFObjectHandle qoh = qohv[index];
-		return [[ObjcQPDFObjectHandle alloc] initWithObject:qoh];
+		return [[[ObjcQPDFObjectHandle alloc] initWithObject:qoh] autorelease];
 	}
 	return nil;
 }
 
 -(BOOL)isIndirectPage:(NSString*)objectGeneration
 {
-	if ([pageDirects objectForKey:objectGeneration])
+	if ([pageDirects objectForKey:objectGeneration] != nil)
 		return YES;
 	return NO;
 }
@@ -155,7 +155,7 @@
 
 -(nullable ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration
 {
-	if([pageDirects objectForKey:objectGeneration])
+	if([pageDirects objectForKey:objectGeneration] != nil)
 		return [self pageAtIndex:[[pageDirects objectForKey:objectGeneration] unsignedLongValue]];
 	
 	return nil;
@@ -182,7 +182,7 @@
 		int genid = [[objElem objectAtIndex:1] intValue];
 		
 		QPDFObjectHandle oai = qDocument->getObjectByID(objid,genid);
-		return [[ObjcQPDFObjectHandle alloc] initWithObject:oai];
+		return [[[ObjcQPDFObjectHandle alloc] initWithObject:oai] autorelease];
 
 	}
 	return nil;

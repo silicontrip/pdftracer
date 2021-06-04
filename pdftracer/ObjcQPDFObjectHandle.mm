@@ -315,13 +315,14 @@
 }
 + (ObjcQPDFObjectHandle*)newArray
 {
-	return [[[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()] autorelease];
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newArray()];
 }
 + (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array
 {
 	// std::vector<QPDFObjectHandle> const& items);
 
 	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
+	
 	for (ObjcQPDFObjectHandle* ai in array)
 		[par addObject:ai];
 	
@@ -395,6 +396,19 @@
 									   //QPDFObjectHandle::newIndirect([qpdf qpdf], objid, genid)];
 
 }
+
++ (ObjcQPDFObjectHandle*)nullObject { return [[ObjcQPDFObjectHandle newNull] autorelease]; }
++ (ObjcQPDFObjectHandle*)boolWith:(BOOL)b { return [[ObjcQPDFObjectHandle newBool:b] autorelease]; }
++ (ObjcQPDFObjectHandle*)intWith:(NSInteger)b { return [[ObjcQPDFObjectHandle newInteger:b] autorelease]; }
++ (ObjcQPDFObjectHandle*)realWith:(double)b { return [[ObjcQPDFObjectHandle newReal:b] autorelease]; }
++ (ObjcQPDFObjectHandle*)stringWith:(NSString*)b { return [[ObjcQPDFObjectHandle newString:b] autorelease]; }
++ (ObjcQPDFObjectHandle*)nameWith:(NSString*)b { return [[ObjcQPDFObjectHandle newName:b] autorelease]; }
++ (ObjcQPDFObjectHandle*)arrayObject { return [[ObjcQPDFObjectHandle newArray] autorelease]; }
++ (ObjcQPDFObjectHandle*)arrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array { return [[ObjcQPDFObjectHandle newArrayWithArray:array] autorelease]; }
++ (ObjcQPDFObjectHandle*)arrayWithRectangle:(CGRect)rect { return [[ObjcQPDFObjectHandle newArrayWithRectangle:rect] autorelease]; }
++ (ObjcQPDFObjectHandle*)arrayWithMatrix:(CGAffineTransform)matrix { return [[ObjcQPDFObjectHandle newArrayWithMatrix:matrix] autorelease]; }
++ (ObjcQPDFObjectHandle*)dictionaryObject { return [[ObjcQPDFObjectHandle newDictionary] autorelease]; }
++ (ObjcQPDFObjectHandle*)dictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict { return [[ObjcQPDFObjectHandle newDictionaryWithDictionary:dict] autorelease]; }
 
 /*
 + (ObjcQPDFObjectHandle*)newIndirect:(NSString*)objGen usingReference:(ObjcQPDFObjectHandle*)qpdfoh

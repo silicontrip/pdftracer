@@ -43,7 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)makeWindowControllers;
 
 // All Document modifying methods should be here
-- (ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search;
+- (nullable ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search;
 - (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container;
 - (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj;
 - (void)newPageAtEnd;

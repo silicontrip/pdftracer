@@ -16,11 +16,20 @@
 @synthesize colour;
 @synthesize range;
 
+- (void)dealloc
+{
+	[self.colour release];
+	[super dealloc];
+}
+
+
 @end
 
 @implementation QPDFSyntaxHighlighter
 
-// It might be that this entire class is static...
+// It might be that this entire class is static...  oh you wish.
+
+// 15 seconds after last text edit, full screen highlight is performed.
 
 // - (NSArray<NSTextCheckingResult *> *)matchesInString:(NSString *)string options:(NSMatchingOptions)options range:(NSRange)range;
 
@@ -329,15 +338,17 @@
 }
 
 // toying with the idea of using NSScanner
-
+// but not anymore
+/*
 - (void)scanStreamString:(NSString *)s
 {
-	NSScanner* sc = [[NSScanner alloc] initWithString:s];
+	NSScanner* sc = [[NSScanner alloc] initWithString:s] ;
 	// whitespaceAndNewlineCharacterSet
 	sc.charactersToBeSkipped =[NSCharacterSet whitespaceAndNewlineCharacterSet];
 	sc.caseSensitive = YES;
 	
 
 }
+*/
 
 @end

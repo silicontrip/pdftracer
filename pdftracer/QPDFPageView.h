@@ -10,5 +10,5 @@
 
 -(void)drawRect:(NSRect)dirtyRect;
 -(void)mouseDown:(NSEvent*)ev;
-
+-(void)dealloc;
 @end

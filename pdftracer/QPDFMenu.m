@@ -9,12 +9,12 @@
 #import "QPDFMenu.h"
 
 // might have to be its own object
-struct QPDFMenuItem {
-	NSString* menuTitle;
-	NSString* keyEquiv;
-	NSString* selector;
-	NSValue* subMenu;
-};
+//struct QPDFMenuItem {
+//	NSString* menuTitle;
+//	NSString* keyEquiv;
+//	NSString* selector;
+//	NSValue* subMenu;
+//};
 
 /*
 ** A1 .59460355750136053335 .84089641525371454303
@@ -113,6 +113,10 @@ struct QPDFMenuItem {
 	if (self)
 	{
 		
+		// Would like to split these out
+		// maybe a composite class
+		// or just another method.
+		// I really don't like all of this menu design code in -(id)init
 		
 		NSMenu* appMenu = [[NSMenu new] autorelease];
 		[appMenu setAutoenablesItems:YES];
@@ -219,8 +223,11 @@ struct QPDFMenuItem {
 		[toolMenu setAutoenablesItems:YES];
 		[toolMenu setTitle:@"Page"];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"PageSize" submenu:sizeMenu]];
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert" submenu:nil]];
-	
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert Resource" submenu:nil]];  // from the procset array
+		// Text (font) /img and img subclasses
+		
+		
+		
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Tool Box" keyEquiv:@"" modifier:cmd selector:@""]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Pointer" keyEquiv:@"" modifier:cmd selector:@""]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Font Finder" keyEquiv:@"" modifier:cmd selector:@""]];
@@ -245,6 +252,12 @@ struct QPDFMenuItem {
 
 	}
 	return self;
+}
+
+- (void)dealloc
+{
+	[windowsMenu release];
+	[super dealloc];
 }
 
 + (NSArray<NSString*>*)pageSizes

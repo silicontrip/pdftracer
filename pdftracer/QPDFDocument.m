@@ -188,7 +188,7 @@
 		
 			//ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithArray:mbox];
 		
-			ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithRectangle:NSMakeRect(0,0, width, height)];
+			ObjcQPDFObjectHandle* pdfmbox = [[ObjcQPDFObjectHandle newArrayWithRectangle:NSMakeRect(0,0, width, height)] autorelease];
 		
 			// NSLog(@"pdf mbox -> %@",pdfmbox);
 		
@@ -227,7 +227,7 @@
 	return [fn lastPathComponent];
 }
 
-- (ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search
+- (nullable ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search
 {
 	
 	if ([search isArray])
@@ -400,6 +400,7 @@
 	if (newobj)
 	{
 		[self addObject:newobj to:obj];  // Add Row
+		[newobj autorelease];
 		return YES;
 	}
 	return NO;
@@ -407,9 +408,14 @@
 
 - (void)newPageAtEnd
 {
-	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
-	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
-	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+	ObjcQPDFObjectHandle* newpage = [[ObjcQPDFObjectHandle newDictionary] autorelease];
+	ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
+	ObjcQPDFObjectHandle* type = [[ObjcQPDFObjectHandle newName:@"/Page"] autorelease];
+	ObjcQPDFObjectHandle* resources = [[ObjcQPDFObjectHandle newDictionary] autorelease];
+	ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newArray] autorelease];
+
+	[proc addObject:[[ObjcQPDFObjectHandle newName:@"/PDF"] autorelease]]; // hmm wonder why the / isn't automatically added
+	[resources replaceObject:proc forKey:@"/ProcSet"];
 	
 	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
 	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
@@ -418,7 +424,8 @@
 	
 	[newpage replaceObject:type forKey:@"/Type"];
 	[newpage replaceObject:mbox forKey:@"/MediaBox"];
-	
+	[newpage replaceObject:resources forKey:@"/Resources"];
+
 	[qDocument addPage:newpage atStart:NO];
 
 }

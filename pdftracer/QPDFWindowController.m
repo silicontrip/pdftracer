@@ -518,8 +518,8 @@ void printView (NSView* n)
 	// NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
 	// QPDFNode* node = [selectedView itemAtRow:selectedRow];
 	
-	QPDFWindow* qwin = (QPDFWindow*)[self window];
-	QPDFView* pv = [qwin documentView];
+	// QPDFWindow* qwin = (QPDFWindow*)[self window];
+	// QPDFView* pv = [qwin documentView];
 	
 	// NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
 	// NSRect saveRect = [visRect visibleRect];
@@ -760,7 +760,7 @@ void printView (NSView* n)
 
 	if ([[self document] addItemOfType:type toObject:toObj])
 	{
-		QPDFWindow *win = (QPDFWindow*)[self window];
+		// QPDFWindow *win = (QPDFWindow*)[self window];
 	
 		// addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 

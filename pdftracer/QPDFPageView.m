@@ -37,5 +37,12 @@
 	[self display];
 }
 
+-(void)dealloc
+{
+	[pdfDocument release];
+	[super dealloc];
+}
+
+
 @end
 

@@ -91,8 +91,6 @@
 
 }
 
-
-
 - (void)newDocument:(id)sender
 {
 	[super newDocument:sender];

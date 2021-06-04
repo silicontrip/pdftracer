@@ -88,7 +88,7 @@ int main (int argc, char * const argv[])
 	
 	pdfApp *mm = [[[pdfApp alloc] init] autorelease];
 
-	QPDFHelp* hh = [[QPDFHelp alloc] init];
+	QPDFHelp* hh = [[[QPDFHelp alloc] init] autorelease];
 	[qpdfapp registerUserInterfaceItemSearchHandler:hh];
 	
 	[qpdfapp setDelegate:mm];

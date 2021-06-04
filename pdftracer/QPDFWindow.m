@@ -65,7 +65,7 @@
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];
 	[oSegment setTranslatesAutoresizingMaskIntoConstraints:NO];
-	QPDFSegmentedCell* csell = [[QPDFSegmentedCell alloc] init];
+	QPDFSegmentedCell* csell = [[[QPDFSegmentedCell alloc] init] autorelease];
 	oSegment.cell = csell;
 	
 	NSArray* newTypes = @[@"Null",@"Bool",@"Integer",
@@ -86,7 +86,7 @@
 	
 	// TEST CODE
 	if (menu) {
-		NSMenu *myMenu = [NSMenu new];
+		NSMenu *myMenu = [[NSMenu new] autorelease];
 
 	//[NSUserDefault setConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints];
 	// NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints to YES to have -[NSWindow visualizeConstraints:]
@@ -287,6 +287,13 @@
 	
 	return self;
 }
+
+- (void)dealloc
+{
+	[self.textContainer dealloc];
+	[super dealloc];
+}
+
 - (void)mouseDown:(NSEvent *)event
 {
 	
