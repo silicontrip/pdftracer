@@ -410,17 +410,17 @@
 {
 	ObjcQPDFObjectHandle* newpage = [[ObjcQPDFObjectHandle newDictionary] autorelease];
 	ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
-	ObjcQPDFObjectHandle* type = [[ObjcQPDFObjectHandle newName:@"/Page"] autorelease];
+	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
 	ObjcQPDFObjectHandle* resources = [[ObjcQPDFObjectHandle newDictionary] autorelease];
 	ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newArray] autorelease];
 
-	[proc addObject:[[ObjcQPDFObjectHandle newName:@"/PDF"] autorelease]]; // hmm wonder why the / isn't automatically added
+	[proc addObject:[ObjcQPDFObjectHandle nameWith:@"/PDF"]]; // hmm wonder why the / isn't automatically added
 	[resources replaceObject:proc forKey:@"/ProcSet"];
 	
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
 	
 	[newpage replaceObject:type forKey:@"/Type"];
 	[newpage replaceObject:mbox forKey:@"/MediaBox"];
@@ -432,14 +432,14 @@
 
 - (void)newPageBefore:(ObjcQPDFObjectHandle*)existingPage
 {
-	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle newDictionary];
-	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle newArray];
-	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle newName:@"/Page"];
+	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle dictionaryObject];
+	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle arrayObject];
+	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
 	
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle newInteger:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
 	
 	[newpage replaceObject:type forKey:@"/Type"];
 	[newpage replaceObject:mbox forKey:@"/MediaBox"];

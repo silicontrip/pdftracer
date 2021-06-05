@@ -24,7 +24,7 @@
 - (void)colouriseRange:(NSRange)r;
 - (void)colouriseAll;
 - (void)colouriseRangeThenAll:(NSRange)r;
-- (void)colouriseQueueString:(NSString*)searchText;
+// - (void)colouriseQueueString:(NSString*)searchText;
 - (void)colouriseQueueString:(NSString*)searchText forRange:(NSRange)area;
 
 

@@ -130,7 +130,7 @@
 
 +(NSStackView*)stackScroll:(NSView*)scroll andSegment:(NSView*)seg
 {
-	NSStackView* scsView = [[NSStackView alloc] init];
+	NSStackView* scsView = [[[NSStackView alloc] init] autorelease];
 	scsView.translatesAutoresizingMaskIntoConstraints = NO;
 	scsView.spacing = 0.0;
 	
@@ -290,7 +290,13 @@
 
 - (void)dealloc
 {
-	[self.textContainer dealloc];
+	[textContainer release];
+	[documentView release];
+	[layout release];
+	[textFont release];
+	[textView release];
+
+	[_scrollTextView release];
 	[super dealloc];
 }
 

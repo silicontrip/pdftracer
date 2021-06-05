@@ -18,7 +18,7 @@
 
 - (void)dealloc
 {
-	[self.colour release];
+	[colour release];
 	[super dealloc];
 }
 
@@ -335,6 +335,12 @@
 	});
 
 
+}
+
+- (void) dealloc
+{
+	[_asyncView release];
+	[super dealloc];
 }
 
 // toying with the idea of using NSScanner

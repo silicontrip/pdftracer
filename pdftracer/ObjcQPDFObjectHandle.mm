@@ -331,22 +331,22 @@
 + (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect
 {
 	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
-	[par addObject:[ObjcQPDFObjectHandle newReal:rect.origin.x]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:rect.origin.y]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:rect.size.width]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:rect.size.height]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:rect.origin.x]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:rect.origin.y]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:rect.size.width]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:rect.size.height]];
 
 	return par;
 }
 + (ObjcQPDFObjectHandle*)newArrayWithMatrix:(CGAffineTransform)matrix
 {
 	ObjcQPDFObjectHandle* par = [ObjcQPDFObjectHandle newArray];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.a]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.b]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.c]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.d]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.tx]];
-	[par addObject:[ObjcQPDFObjectHandle newReal:matrix.tx]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.a]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.b]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.c]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.d]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.tx]];
+	[par addObject:[ObjcQPDFObjectHandle realWith:matrix.tx]];
 
 	return par;
 }
