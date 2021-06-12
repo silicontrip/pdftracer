@@ -393,7 +393,7 @@
 	QPDFObjectHandle oh = [qpdf qpdf]->getObjectByObjGen(newGen);
 	
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:oh];
-									   //QPDFObjectHandle::newIndirect([qpdf qpdf], objid, genid)];
+	//QPDFObjectHandle::newIndirect([qpdf qpdf], objid, genid)];
 
 }
 

@@ -173,6 +173,32 @@
 	return [[qDocument document] printOperationForPrintInfo:printInfo scalingMode:scale autoRotate:YES];
 }
 
+- (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil)
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		ObjcQPDFObjectHandle* fontResource = [pageResource objectForKey:@"/Font"];
+		if (fontResource == nil)
+			fontResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		ObjcQPDFObjectHandle* fontDict = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		[fontDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Type1"] forKey:@"/Subtype"];
+		[fontDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Font"] forKey:@"/Type"];
+		[fontDict replaceObject:[ObjcQPDFObjectHandle nameWith:[NSString stringWithFormat:@"/%@",fontName]] forKey:@"/BaseFont"];
+
+		[QPDFDocument addObject:fontDict to:fontResource];
+		[pageResource replaceObject:fontResource forKey:@"/Font"];
+		[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		
+	}
+}
+
 - (void)setSize:(NSString*)size forPage:(NSUInteger)page
 {
 	NSArray<NSString*>*com = [size componentsSeparatedByString:@","];
@@ -337,7 +363,7 @@
 }
 
 // could possibly be static
-- (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
++ (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container
 {
 	if ([container isArray])
 	{
@@ -347,7 +373,7 @@
 		NSString* uniqueName = @"/Untitled";
 		int version=1;
 		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
-		while (found) {
+		while (found != nil) {
 			uniqueName = [NSString stringWithFormat:@"/Untitled-%d",version++];
 			found = [container objectForKey:uniqueName];
 		}
@@ -399,7 +425,7 @@
 	}
 	if (newobj)
 	{
-		[self addObject:newobj to:obj];  // Add Row
+		[QPDFDocument addObject:newobj to:obj];  // Add Row
 		[newobj autorelease];
 		return YES;
 	}

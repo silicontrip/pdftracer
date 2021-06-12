@@ -44,8 +44,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 // All Document modifying methods should be here
 - (nullable ObjcQPDFObjectHandle*)replaceIndirect:(ObjcQPDFObjectHandle*)search;
-- (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container;
++ (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container;
 - (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj;
+- (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
 - (void)newPageAtEnd;
 - (void)newPageBefore:(ObjcQPDFObjectHandle*)existingPage;
 - (void)deleteNode:(QPDFNode*)nd;

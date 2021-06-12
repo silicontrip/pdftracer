@@ -627,7 +627,7 @@ void printView (NSView* n)
 // This notification is sent when enter is pressed after editing a text cell
 - (void)textDidEndEditing:(NSNotification*)aNotification {
 	
-	NSLog(@"textDidEndEditing");
+	NSLog(@"windowcontroller textDidEndEditing: %@",aNotification);
 	
 	selectedView = [aNotification object];
 	QPDFTextView * fieldEditor = [[aNotification userInfo] objectForKey:@"NSFieldEditor"];
@@ -738,6 +738,32 @@ void printView (NSView* n)
 		}
 	}];
 	[p autorelease];
+}
+
+- (void)insertFont:(id)sender
+{
+	if (selectedPage >= 0)
+	{
+		// NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
+		// NSLog(@"selected view is a: %@",[self.selectedView className]);
+	
+		NSLog(@"WC -> insertFont: %@",sender);
+		
+		NSMenuItem* nmi = (NSMenuItem*)sender;
+		
+		NSString * sz =[[QPDFMenu standardFonts] objectAtIndex:[nmi tag]];
+		
+		//	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
+		NSLog(@"font : %@", sz);
+		//	NSLog(@"selected Page: %lu",self.selectedPage);
+		
+		[[self document] addStandardFont:sz toPage:self.selectedPage];
+
+		
+		// [[self document] setSize:sz forPage:self.selectedPage];
+		[self updateCurrentPage];
+		
+	}
 }
 
 // addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged

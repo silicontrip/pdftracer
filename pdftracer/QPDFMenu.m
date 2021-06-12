@@ -8,14 +8,6 @@
 
 #import "QPDFMenu.h"
 
-// might have to be its own object
-//struct QPDFMenuItem {
-//	NSString* menuTitle;
-//	NSString* keyEquiv;
-//	NSString* selector;
-//	NSValue* subMenu;
-//};
-
 /*
 ** A1 .59460355750136053335 .84089641525371454303
 ** A2 .42044820762685727151 .59460355750136053335
@@ -136,7 +128,7 @@
 		[fileMenu setAutoenablesItems:YES];
 		[fileMenu setTitle:@"File"];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"New" keyEquiv:@"n" modifier:cmd selector:@"newDocument:"]];
-		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open" keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open..." keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Close" keyEquiv:@"w" modifier:cmd selector:@"performClose"]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Save..." keyEquiv:@"s" modifier:cmd selector:@"saveDocument:"]];
@@ -219,18 +211,60 @@
 		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A2 Lady Grey" selector:@"setMediabox:" tag:13]];
 		[sizeMenu addItem:[QPDFMenu itemWithTitle:@"A9 Diplomat" selector:@"setMediabox:" tag:14]];
 		
+		NSMenu *fontMenu = [[NSMenu new] autorelease];
+		[fontMenu setAutoenablesItems:YES];
+		NSUInteger fontTag = 0;
+		for (NSString* fn in [QPDFMenu standardFonts])
+			[fontMenu addItem:[QPDFMenu itemWithTitle:fn selector:@"insertFont:" tag:fontTag++]];
+		
+		[fontMenu addItem:[NSMenuItem separatorItem]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"From File..."  selector:@"insertFontFile:"]];
+		
+		/*
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-Bold" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-Oblique" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-BoldOblique" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-Bold" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-Oblique" selector:@"insertFont:" tag:0]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"Courier-BoldOblique" selector:@"insertFont:" tag:0]];
+		 */
+/*
+ Courier
+ Courier-Bold
+ Courier-Oblique
+ Courier-BoldOblique
+ Helvetica
+ Helvetica-Bold
+ Helvetica-Oblique
+ Helvetica-BoldOblique
+ Times-Roman
+ Times-Bold
+ Times-Italic
+ Times-BoldItalic
+ Symbol
+ ZapfDingbats
+*/
+		
+		
+		NSMenu* resourceMenu = [[NSMenu new] autorelease];
+		//[resourceMenu setAutoenablesItems:YES];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
+
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];
 		[toolMenu setTitle:@"Page"];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"PageSize" submenu:sizeMenu]];
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert Resource" submenu:nil]];  // from the procset array
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert Resource" submenu:resourceMenu]];  // from the procset array
 		// Text (font) /img and img subclasses
+		[toolMenu addItem:[NSMenuItem separatorItem]];
+
 		
-		
-		
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Tool Box" keyEquiv:@"" modifier:cmd selector:@""]];
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Pointer" keyEquiv:@"" modifier:cmd selector:@""]];
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Font Finder" keyEquiv:@"" modifier:cmd selector:@""]];
+		// forgotten what these were supposed to do
+		// [toolMenu addItem:[QPDFMenu itemWithTitle:@"Tool Box" keyEquiv:@"" modifier:cmd selector:@""]];
+		// [toolMenu addItem:[QPDFMenu itemWithTitle:@"Pointer" keyEquiv:@"" modifier:cmd selector:@""]];
+		// [toolMenu addItem:[QPDFMenu itemWithTitle:@"Font Finder" keyEquiv:@"" modifier:cmd selector:@""]];
 		[self addItem:[QPDFMenu itemWithSubmenu:toolMenu]];
 
 		
@@ -260,6 +294,7 @@
 	[super dealloc];
 }
 
+// Config anyone?
 + (NSArray<NSString*>*)pageSizes
 {
 	return @[@"842.75,1191.82",
@@ -278,6 +313,24 @@
 			 @"684,295.2",
 			 @"410.4,316.8",
 			 @"626.4,410.4"
+			 ];
+}
++ (NSArray<NSString*>*)standardFonts
+{
+	return @[@"Courier",
+			 @"Courier-Bold",
+			 @"Courier-Oblique",
+			 @"Courier-BoldOblique",
+			 @"Helvetica",
+			 @"Helvetica-Bold",
+			 @"Helvetica-Oblique",
+			 @"Helvetica-BoldOblique",
+			 @"Times-Roman",
+			 @"Times-Bold",
+			 @"Times-Italic",
+			 @"Times-BoldItalic",
+			 @"Symbol",
+			 @"ZapfDingbats"
 			 ];
 }
 
