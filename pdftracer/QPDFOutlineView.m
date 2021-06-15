@@ -4,6 +4,37 @@
 
 @synthesize relatedSegment;
 
+- (instancetype)init
+{
+	NSLog(@"Outline view init");  // i have a suspicion that this is never called.
+	self = [super init];
+	if (self)
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+	}
+	return self;
+}
+
+- (void)dataReload:(NSNotification*)n
+{
+	ObjcQPDFObjectHandle* qp = (ObjcQPDFObjectHandle*)[n object];
+	NSDictionary* ud = [n userInfo];
+	bool rc = NO;
+	if (ud)
+	{
+		rc= [(NSNumber*)[ud valueForKey:@"reloadChildren"] boolValue];
+	}
+
+	if (qp)
+	{
+		[self reloadItem:qp reloadChildren:rc];
+		[self reloadItem:[qp parent] reloadChildren:rc];
+	} else {
+		[self reloadData];
+	}
+	
+}
+
 - (void)print:(id)sender
 {
 	[[self nextResponder] print:sender];
@@ -14,6 +45,7 @@
 	[super acceptsFirstResponder];
 	return YES;
 }
+/*
 - (BOOL)becomeFirstResponder
 {
 	[super becomeFirstResponder];
@@ -32,7 +64,7 @@
 	
 	return YES;
 }
-
+*/
 /*
 - (BOOL)respondsToSelector:(SEL)aSelector
 {

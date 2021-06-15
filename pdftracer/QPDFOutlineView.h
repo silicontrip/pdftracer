@@ -9,6 +9,7 @@
 @property (weak,nonatomic) NSSegmentedControl* relatedSegment;
 
 - (BOOL)acceptsFirstResponder;
-- (BOOL)becomeFirstResponder;
+// - (BOOL)becomeFirstResponder;
+- (void)dataReload:(NSNotification*)n;
 
 @end

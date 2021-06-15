@@ -2,7 +2,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "QPDFDocument.h"
 #import "QPDFMenu.h"
-#import "QPDFNode.h"
+//#import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 #import "QPDFSyntaxHighlighter.h"
 
@@ -27,7 +27,8 @@
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
 @property (weak,nonatomic) QPDFOutlineView* selectedView;
-@property (weak,nonatomic) QPDFNode* selectedNode;
+//@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedNode;
+@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedHandle;
 @property (assign) NSInteger selectedPage;  // unselected sentinel is -1
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw;
@@ -39,7 +40,9 @@
 
 // - (void)updatePDF;
 // - (void)updateOutlines:(QPDFNode*)node;
-- (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
+// - (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
+- (void)updateOutline:(QPDFOutlineView*)outline forHandle:(ObjcQPDFObjectHandle*)node;
+
 
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
@@ -49,16 +52,19 @@
 
 
 - (void)selectRow:(NSInteger)sr forSource:qov;
-- (NSString*)textForSelectedObject;
+//- (NSString*)textForSelectedObject;
 //- (BOOL)isEditable;
-- (BOOL)canEditSelectedObject;
+// - (BOOL)canEditSelectedObject;
 - (BOOL)canAddToSelectedObject;
 
 - (void)setAddEnabled:(BOOL)ena;
 - (void)setRemoveEnabled:(BOOL)ena;
+// - (void)setEditText:(NSString*)s;
 
 
-- (void)setEditText:(NSString*)s;
+- (void)documentChange:(NSNotification*)n;
+- (void)rowChangedContent:(NSNotification*)n;
+- (void)textSetContent:(NSNotification*)n;
 
 //- (void)changeRow:(NSInteger)row forSource:(NSOutlineView*)ov;
 //- (void)textStorageDidProcessEditing:(NSNotification *)notification;
