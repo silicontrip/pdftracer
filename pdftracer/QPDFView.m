@@ -1,8 +1,15 @@
 #import "QPDFView.h"
 
+
+// So we can handle special PDF Document UI stuff.
+// and so we can ignore regular PDF Document UI stuff.
+// it goes ding.
+
 @implementation QPDFView
 
 // @synthesize relatedSegment;
+
+
 
 - (void)mouseDown:(NSEvent*)event
 {

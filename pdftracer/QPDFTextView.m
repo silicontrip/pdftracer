@@ -3,6 +3,21 @@
 // #import "QPDFWindowController.h"
 
 @implementation QPDFTextView
+/*
+- (instancetype)init
+{
+	self = [super init];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(notificationSetText:) name:@"QPDFUpdateTextview" object:nil];
+	return self;
+}
+
+-(void)notificationSetText:(NSNotification*)n
+{
+	NSString* text = [n object];
+	[self sett]
+
+}
+*/
 
 - (BOOL)acceptsFirstResponder
 {
