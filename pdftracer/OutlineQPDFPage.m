@@ -54,7 +54,7 @@
 	if (item == nil) // NULL means Root node
 		return YES;
 	
-	return [[(QPDFNode*)item object] isExpandable];
+	return [(ObjcQPDFObjectHandle*)item isExpandable];
 	
 }
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
@@ -65,7 +65,7 @@
 		return [qpDocument countPages];
 		//return [pageArray count];
 	
-	return [[(QPDFNode*)item object] count];
+	return [(ObjcQPDFObjectHandle*)item count];
 	
 }
 - (id)outlineView:(NSOutlineView *)outlineView objectValueForTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
@@ -75,13 +75,13 @@
 	{
 		return @"Document";
 	} else {
-		QPDFNode* node = (QPDFNode*)item;
-		ObjcQPDFObjectHandle* pdfitem = [node object];
+		// QPDFNode* node = (QPDFNode*)item;
+		ObjcQPDFObjectHandle* pdfitem = (ObjcQPDFObjectHandle*)item;
 		
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
-			rs = [node name];
+			rs = [pdfitem elementName];
 		else if ([[tableColumn identifier] isEqualToString:@"Type"])
 			rs = [pdfitem typeName];
 		else
@@ -100,11 +100,13 @@
 		ObjcQPDFObjectHandle* pdfitem = [qpDocument pageAtIndex:index];
 		//QPDFObjectHandle pdfitem =  QPDFObjectHandle(pageArray[index]);
 		NSString* lindex = [NSString stringWithFormat:@"Page %d",(int)index+1];
-
-		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
-		return sindex;
+		[pdfitem setParent:item];
+		[pdfitem setElementName:lindex];
+		
+//		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
+		return pdfitem;
 	}
-	ObjcQPDFObjectHandle* pdfitem = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle* pdfitem = (ObjcQPDFObjectHandle*)item;
 	
 	if ([pdfitem isArray])
 	{
@@ -112,16 +114,21 @@
 		//QPDFObjectHandle thisObject =  QPDFObjectHandle( pdfitem.getArrayItem((int)index));
 		ObjcQPDFObjectHandle* thisObject =  [pdfitem objectAtIndex:index];
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
-		QPDFNode* sindex = [QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
+		// QPDFNode* sindex = [QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
+		[thisObject setElementName:lindex];
+		[thisObject setParent:item];
 		
-		return sindex;
+		return thisObject;
 		
 	} else if ([pdfitem isDictionary]) {
 		// NSLog(@"obj is dictionary. child:ofItem:");
 
 		NSString* keyIndex = [[pdfitem keys] objectAtIndex:index];
-		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:[pdfitem objectForKey:keyIndex]];
-		return nKey;
+		ObjcQPDFObjectHandle* keyHandle = [pdfitem objectForKey:keyIndex];
+		[keyHandle setParent:item];
+		[keyHandle setElementName:keyIndex];
+//		QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:keyIndex Handle:[pdfitem objectForKey:keyIndex]];
+		return keyHandle;
 
 	}
 	return nil;

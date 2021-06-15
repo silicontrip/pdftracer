@@ -1,7 +1,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Quartz/Quartz.h>
 
-#import "QPDFNode.h"
+// #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 #import "QPDFWindowController.h"
 #import "QPDFView.h"
@@ -54,9 +54,9 @@
 
 -(void)editorEnabled:(BOOL)ena;
 
-//-(void)updateAllOutlines:(QPDFNode*)node;
--(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
-//-(void)invalidateAll;
+// -(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
+-(void)updateOutline:(NSOutlineView*)ov forHandle:(ObjcQPDFObjectHandle*)nn;
+
 
 -(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
 -(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;

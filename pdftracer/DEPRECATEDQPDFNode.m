@@ -1,20 +1,21 @@
-#import "QPDFNode.h"
+#import "DEPRECATEDQPDFNode.h"
 
-@implementation QPDFNode
+// moving the minimal additional functionality this provides into the Object Handle class
+@implementation DEPRECATEDQPDFNode
 
-+ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm
++ (instancetype)nodeWithParent:(DEPRECATEDQPDFNode*)pa Named:(NSString *)nm
 {
-	return [[[QPDFNode alloc] initWithParent:pa Named:nm Handle:[ObjcQPDFObjectHandle newNull]] autorelease];
+	return [[[DEPRECATEDQPDFNode alloc] initWithParent:pa Named:nm Handle:[ObjcQPDFObjectHandle newNull]] autorelease];
 }
 
-+ (instancetype)nodeWithParent:(QPDFNode*)pa Named:(NSString *)nm Handle:(ObjcQPDFObjectHandle*)qp
++ (instancetype)nodeWithParent:(DEPRECATEDQPDFNode*)pa Named:(NSString *)nm Handle:(ObjcQPDFObjectHandle*)qp
 {
-	return [[[QPDFNode alloc] initWithParent:pa Named:nm Handle:qp] autorelease];
+	return [[[DEPRECATEDQPDFNode alloc] initWithParent:pa Named:nm Handle:qp] autorelease];
 }
 
-- (instancetype)initWithParent:(nullable QPDFNode*)pa Named:(nonnull NSString *)nm Handle:(nonnull ObjcQPDFObjectHandle*)qp
+- (instancetype)initWithParent:(nullable DEPRECATEDQPDFNode*)pa Named:(nonnull NSString *)nm Handle:(nonnull ObjcQPDFObjectHandle*)qp
 {
-	//NSLog(@"QPDFNode initWithParent: %@ Named: %@ ",pa,nm);
+	//NSLog(@"DEPRECATEDQPDFNode initWithParent: %@ Named: %@ ",pa,nm);
     self = [super init];
     if(self){
 		
@@ -54,7 +55,7 @@
 
 - (ObjcQPDFObjectHandle*)parent
 {
-	QPDFNode * qn = [self parentNode];
+	DEPRECATEDQPDFNode * qn = [self parentNode];
 	if (qn==nil)
 		return nil;
 	return [qn object];
@@ -63,7 +64,7 @@
 {
 	return ([self parentNode] != nil);
 }
-- (QPDFNode*)parentNode { return parentNode; }
+- (DEPRECATEDQPDFNode*)parentNode { return parentNode; }
 
 - (NSString*)name { return name; }
 
@@ -77,6 +78,14 @@
 	return [qpdfhandle unparseResolved];
 }
 
+- (NSString*)text
+{
+	if ([qpdfhandle isStream]) {
+		return [[[NSString alloc] initWithData:[qpdfhandle stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
+	} else {
+		return [qpdfhandle unparseResolved];
+	}
+}
 
 - (NSString*)description {
 	

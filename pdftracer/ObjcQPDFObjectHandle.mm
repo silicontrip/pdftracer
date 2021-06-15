@@ -276,6 +276,15 @@
 	return [[[NSArray alloc] initWithArray:tempObjectArray] autorelease];
 }
 
+- (NSString*)text
+{
+	if ([self isStream]) {
+		return [[[NSString alloc] initWithData:[self stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
+	} else {
+		return [self unparseResolved];
+	}
+}
+
 - (NSString*)description
 {
 	NSString* nn = [super description];

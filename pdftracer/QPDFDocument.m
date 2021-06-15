@@ -280,10 +280,10 @@
 
 // this is purely document changing code
 
-- (void)replaceQPDFNode:(QPDFNode*)node withString:(NSString*)editor
+- (void)replaceHandle:(ObjcQPDFObjectHandle*)qpdf withString:(NSString*)editor
 {
 	// NSLog(@"when does replaceQPDFNode get called?");  // looks like when the textview changes during live editing.
-	ObjcQPDFObjectHandle* qpdf = [node object];
+	// ObjcQPDFObjectHandle* qpdf = [node object];
 	
 	if ([editor length]>0)
 	{
@@ -345,13 +345,13 @@
 				for (ObjcQPDFObjectHandle* obj in objTable)
 					NSLog(@"Object: %@: %@",[obj name],[obj unparse]);
 			} else {
-				ObjcQPDFObjectHandle* parent = [node parent];
+				ObjcQPDFObjectHandle* parent = [qpdf parent];
 
 				if ([parent isArray])
 				{
-					[parent replaceObjectAtIndex:[[node name] integerValue] withObject:rePDFObj];
+					[parent replaceObjectAtIndex:[[qpdf elementName] integerValue] withObject:rePDFObj];
 				} else if ([parent isDictionary]) {
-					[parent replaceObject:rePDFObj forKey:[node name]];
+					[parent replaceObject:rePDFObj forKey:[qpdf elementName]];
 				} else  {
 					// oh no the dreaded child of neither a dictionary or array and isn't an indirect object either
 					NSLog(@"case on: %@",parent);
@@ -474,15 +474,15 @@
 
 }
 
-- (void)deleteNode:(QPDFNode*)nd
+- (void)deleteHandle:(ObjcQPDFObjectHandle*)nd
 {
-	QPDFNode* paNode = [nd parentNode];
+	ObjcQPDFObjectHandle* parent = [nd parent];
 	
 	//NSLog(@"deletenode:\n %@\nfrom %@",nd,paNode);
 	
-	if (paNode != nil)
+	if (parent != nil)
 	{
-		ObjcQPDFObjectHandle* parent = [paNode object];
+		// ObjcQPDFObjectHandle* parent = [paNode object];
 		
 	//	NSLog(@"delete from type:: %@",[parent typeName]);
 
@@ -517,9 +517,9 @@
 		}
 	} else {
 		// top level item.
-		ObjcQPDFObjectHandle* tn = [nd object];
-		if ([tn isIndirect]) {
-			NSString* gen = [tn objectGenerationID];
+		//ObjcQPDFObjectHandle* tn = [nd object];
+		if ([nd isIndirect]) {
+			NSString* gen = [nd objectGenerationID];
 			[qDocument removeID:gen];
 			[self updateChangeCount:NSChangeDone];
 

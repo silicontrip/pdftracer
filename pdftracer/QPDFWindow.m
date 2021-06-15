@@ -51,15 +51,26 @@
 	return nil;
 }
 
--(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn
+/* Use NSNotification */
+-(void)updateOutline:(NSOutlineView*)ov forHandle:(ObjcQPDFObjectHandle*)nn
 {
 	
 	NSLog(@"this Node: %@",nn);
-	QPDFNode * pp = [nn parentNode];
+	ObjcQPDFObjectHandle * pp = [nn parent];
 	NSLog(@"OutlineView: %@ parentQPDFNode: %@",ov,pp);
 	
 	[ov reloadItem:nn];
 }
+
+/*
+-(void)outlineNodeChanged:(NSNotification *)notification
+{
+	QPDFNode* nn = [notification object];
+	QPDFNode* pp = [nn parentNode];
+
+	// get all the outlines
+}
+*/
 
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
@@ -178,6 +189,11 @@
 		outlines[1] = [OutlineQPDFObj newView];
 		outlines[2] = [OutlineQPDFPage newView];
 	
+		[[NSNotificationCenter defaultCenter] addObserver:outlines[0] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:outlines[1] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+		[[NSNotificationCenter defaultCenter] addObserver:outlines[2] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+
+		
 		segments[0] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[0].relatedSegment = segments[0];
 		[segments[0] setTag:0];

@@ -48,15 +48,15 @@
 	} else {
 		// block cyclic tree branches here?
 		
-		QPDFNode* node = (QPDFNode*)item;
-		ObjcQPDFObjectHandle* pdfitem = [node object];
+		ObjcQPDFObjectHandle* pdfitem = (ObjcQPDFObjectHandle*)item;
+		//ObjcQPDFObjectHandle* pdfitem = [node object];
 
 		NSString *rs;
 		
 		NSString* colid = [tableColumn identifier];
 		
 		if ([colid isEqualToString:@"objref"]) {
-			rs = [node name];
+			rs = [pdfitem elementName];
 		} else if ([colid isEqualToString:@"type"]) {
 			if ([pdfitem isDictionary])
 			{
@@ -92,9 +92,11 @@
 	{
 		NSString* lindex = [NSString stringWithFormat:@"%d 0 R",(int)index+1];
 		ObjcQPDFObjectHandle* pdfitem = [qpDocument objectAtIndex:lindex];
-
-		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
-		return sindex;
+		[pdfitem setElementName:lindex];
+		[pdfitem setParent:item];
+		
+		// ObjcQPDFObjectHandle* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
+		return pdfitem;
 	}
 	
 	return nil;

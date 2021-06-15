@@ -3,7 +3,7 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "QPDFNode.h"
+//#import "QPDFNode.h"
 #import "ObjcQPDF.h"
 #import "QPDFOutlineView.h"
 
@@ -12,7 +12,7 @@
 	@private
 	//CGPDFDocumentRef  myDocument;
 	ObjcQPDF* qpDocument;
-	QPDFNode *catalog;
+	ObjcQPDFObjectHandle *catalog;
 	
 	//NSMutableDictionary<NSValue*,QPDFNode*>* pdfObjectCache;
 	// NSValue* pdfNull;

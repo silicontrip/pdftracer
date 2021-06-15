@@ -44,6 +44,10 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 	NSArray<ObjcQPDFObjectHandle*>* objectArray;
 }
 
+// these only make sense when they are attached to a PDF structure
+@property (nonatomic,assign) ObjcQPDFObjectHandle* parent;
+@property (nonatomic,strong) NSString* elementName;
+
 -(instancetype)initWithString:(NSString*)def;
 -(BOOL)isNull;
 -(BOOL)isStream;
@@ -76,6 +80,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 -(NSString*)unparse;
 -(NSString*)unparseResolved;
 -(NSString*)objectGenerationID;
+- (NSString*)text;
 
 -(BOOL)childrenContainIndirects;
 

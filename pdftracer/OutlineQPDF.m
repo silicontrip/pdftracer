@@ -9,8 +9,8 @@
 	if (self)
 	{
 		qpDocument = pdf;
-		ObjcQPDFObjectHandle* rootCatalog = [[qpDocument copyRootCatalog] autorelease];
-		catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
+		catalog = [qpDocument copyRootCatalog];
+		 // catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 	}
 	return self;
 }
@@ -18,8 +18,8 @@
 - (void)invalidate
 {
 	[catalog release];
-	ObjcQPDFObjectHandle* rootCatalog = [[qpDocument copyRootCatalog] autorelease];
-	catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
+	catalog = [qpDocument copyRootCatalog];
+
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
@@ -27,7 +27,7 @@
 	if (item == nil) // NULL means Root node
 		return YES;
 	
-	return [[(QPDFNode*)item object] isExpandable];
+	return [(ObjcQPDFObjectHandle*)item isExpandable];
 }
 
 - (NSUInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item
@@ -35,7 +35,7 @@
 	if (item == nil)
 		item = catalog;
 
-	ObjcQPDFObjectHandle*  pdfitem  = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle*  pdfitem  = (ObjcQPDFObjectHandle*)item;
 	
 	if ([pdfitem isArray])
 	{
@@ -58,14 +58,14 @@
 	} else {
 		// block cyclic tree branches here?
 		
-		QPDFNode* node = (QPDFNode*)item;
-		ObjcQPDFObjectHandle* pdfitem = [node object];
+		// QPDFNode* node = (QPDFNode*)item;
+		ObjcQPDFObjectHandle* pdfitem = (ObjcQPDFObjectHandle*)item;
 
 		NSString *rs;
 		
 		if ([[tableColumn identifier] isEqualToString:@"Name"])
 		{
-			rs = [node name];
+			rs = [pdfitem elementName];
 		}
 		else if ([[tableColumn identifier] isEqualToString:@"Type"]) {
 			rs = [pdfitem typeName];
@@ -89,16 +89,18 @@
 	if (item == nil)
 		item = catalog;
 	
-	ObjcQPDFObjectHandle* pdfitem = [(QPDFNode*)item object];
+	ObjcQPDFObjectHandle* pdfitem = (ObjcQPDFObjectHandle*)item;
 	
 	if ([pdfitem isArray])
 	{
 		ObjcQPDFObjectHandle* thisObject = [pdfitem objectAtIndex:index];
 		
 		NSString* lindex = [NSString stringWithFormat:@"%d",(int)index];
-		QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
+		[thisObject setElementName:lindex];
+		[thisObject setParent:pdfitem];
+		//QPDFNode* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:thisObject];
 		
-		return sindex;
+		return thisObject;
 	} else if ([pdfitem isDictionary]) {
 
 		int loopindex=0;
@@ -107,8 +109,10 @@
 			if (loopindex == index)
 			{
 				ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:iterKey];
-				QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
-				return nKey;
+				[thisObject setElementName:iterKey];
+				[thisObject setParent:pdfitem];
+				// QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
+				return thisObject;
 			}
 			++loopindex;
 		}
@@ -116,54 +120,6 @@
 	}
 	return nil;
 }
-
-/*  Most of this functionality is implemented in the textDidEndEditing 
-- (void)outlineView:(NSOutlineView *)outlineView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn byItem:(id)item
-{
-	
-	NSLog(@"OutlineQPDF: setObjectValue");
-	QPDFNode* node = (QPDFNode*)item;  // node item for selected row
-	
-	ObjcQPDFObjectHandle* parent = [node parent]; // parent object
-	NSString* col = [tableColumn identifier]; // which column was edited.
-	NSString* name = [node name];  // dictionary key or array index value
-	NSString* newValue = (NSString*)object;  // name, (type), value
-	
-	if ([col isEqualToString:@"Name"])
-	{
-			// this only makes sense if it's a dictionary
-			// keep old object,
-			// rs = object;
-		if ([parent isDictionary])
-		{
-			[parent removeObjectForKey:name];
-				[parent replaceObject:[node object] forKey:newValue];
-		} else {
-			NSLog(@"Not CHANGING");
-		}
-	}
-	else if ([col isEqualToString:@"Type"])
-	{
-			// can't do much about changing the type
-	}
-	else
-	{
-		ObjcQPDFObjectHandle* newobj = [[ObjcQPDFObjectHandle alloc] initWithString:newValue];
-		if (newobj) {
-			if ([parent isArray])
-			{
-				[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
-			} else if ([parent isDictionary]) {
-				[parent replaceObject:newobj forKey:name];
-			} else {
-				// who's your daddy?
-				NSLog(@"parent is not dictionary or array");  // so wtf is it?
-			}
-			[newobj autorelease];
-		}
-	}
-}
-*/
 
 + (QPDFOutlineView*)newView
 {

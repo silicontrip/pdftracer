@@ -2,7 +2,7 @@
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
 
-#import "QPDFNode.h"
+// #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 
 #import "ObjcQPDF.h"

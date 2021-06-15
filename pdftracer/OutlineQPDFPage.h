@@ -3,7 +3,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 #import "ObjcQPDF.h"
-#import "QPDFNode.h"
+// #import "QPDFNode.h"
 #import "QPDFOutlineView.h"
 
 @interface OutlineQPDFPage : NSObject <NSOutlineViewDataSource>
