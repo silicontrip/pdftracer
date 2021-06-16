@@ -60,6 +60,21 @@
 -(BOOL)isDictionary { return qObject.isDictionary(); }
 -(BOOL)isExpandable { return qObject.isArray() || qObject.isDictionary(); }
 
+-(BOOL)isPage {
+	if ([self isDictionary])
+	{
+		ObjcQPDFObjectHandle* type = [self objectForKey:@"/Type"];
+		if (type)
+		{
+			if ([type isName] && [[type name] isEqualToString:@"/Page"])
+			{
+				return YES;
+			}
+		}
+	}
+	return NO;
+}
+
 -(object_type_e)type { return (object_type_e)qObject.getTypeCode(); }
 
 -(NSUInteger)count

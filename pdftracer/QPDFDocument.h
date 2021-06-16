@@ -48,7 +48,9 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj;
 - (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
 - (void)newPageAtEnd;
-- (void)newPageBefore:(ObjcQPDFObjectHandle*)existingPage;
+- (void)newPageBeforePage:(ObjcQPDFObjectHandle*)existingPage;
+- (void)newPageBeforePageNumber:(NSUInteger)pageNumber;
+
 
 // - (void)deleteNode:(QPDFNode*)nd;
 - (void)deleteHandle:(ObjcQPDFObjectHandle*)nd;

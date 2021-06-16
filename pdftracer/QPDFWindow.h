@@ -40,7 +40,7 @@
 @property (nonatomic,strong) QPDFView* documentView;
 @property (nonatomic,strong) NSFont* textFont;
 
--(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing;
+-(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing notificationCenter:(NSNotificationCenter*)centre;
 
 -(void)setDocument:(PDFDocument*)pdf;
 

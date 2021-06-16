@@ -20,13 +20,14 @@
 @synthesize selectedView;
 @synthesize selectedHandle;
 
-- (instancetype)initWithWindow:(NSWindow*)nsw
+- (instancetype)initWithWindow:(NSWindow*)nsw notificationCenter:(NSNotificationCenter*)dc
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
 	if (self) {
 	// NSLog(@"win title: %@",[nsw title]);
 	
 		QPDFWindow* qpw = (QPDFWindow*)nsw;
+		documentCenter = dc;
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
 	//	syntaxer.theLayout = layout;
@@ -39,7 +40,8 @@
 		
 		// [layout addTextContainer:qpw.textContainer];
 		
-		NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
+		// NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
+		
 		[dc addObserver:self selector:@selector(documentChange:) name:@"QPDFUpdateDocument" object:nil];
 		[dc addObserver:self selector:@selector(rowChangedContent:) name:@"QPDFSelectOutlineRow" object:nil];
 		[dc addObserver:self selector:@selector(textSetContent:) name:@"QPDFUpdateTextview" object:nil];
@@ -71,7 +73,7 @@
 	[[w textView] setDelegate:self];
 	
 	//[qp pdfdocument];
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:@(0)];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(0)];
 	//PDFDocument* ppdf = [[self document] pdfDocumentPage:0];
 	// [w setDocument:ppdf];
 	
@@ -83,13 +85,19 @@
 	
 	NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 	
+	
+	// as we don't post these ourselves they must use the default centre
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:1]];
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:2]];
+
+	// [documentCenter addObserver:self selector:@selector(selectChangeNotification:) name:NSOutlineViewSelectionDidChangeNotification object:nil];
+// NSOutlineViewSelectionDidChangeNotification
 	
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:1]];
-	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
+	[dc addObserver:self selector:@selector(selectChangeNotification:) name:NSOutlineViewSelectionDidChangeNotification object:[w outlineAtIndex:2]];
+	
 	
 	// not enough performance
 	[dc addObserver:self selector:@selector(textViewScrollNotification:) name:NSViewBoundsDidChangeNotification object:[w.scrollTextView contentView]] ;
@@ -315,6 +323,7 @@
 		{
 			[parent removeObjectForKey:name];
 			[parent replaceObject:handle forKey:es];
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
 		} else {
 			NSLog(@"Cannot Change");
 		}
@@ -347,6 +356,8 @@
 				NSLog(@"parent is not dictionary or array");  // so wtf is it?
 			}
 			[newobj autorelease];
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
+
 		}
 	}
 	// update outlines
@@ -354,39 +365,9 @@
 	// update Document
 }
 
-
-
-/*
-- (void)addRow:(NSInteger)row forSource:(QPDFOutlineView*)qov ofType:(object_type_e)type
-{
-	QPDFNode *item = [qov itemAtRow:row];
-	
-//	QPDFNode *parent = [item parentNode];  // no not adding to parent, adding to selected branch object.
-//	ObjcQPDFObjectHandle* parentObject = [parent object];
-	
-	QPDFWindow *win = (QPDFWindow*)[self window];
-
-	if (parent) {
-	}
-	// do we tell document that something has been added
-//	NSLog(@"new parent: %@",[parent unparseResolved]);
-	
-	NSLog(@"chindex for parent %ld",(long)[qov childIndexForItem:parent]);
-	NSLog(@"chindex for  %ld",(long)[qov childIndexForItem:item]);
-
-	[qov reloadItem:parent reloadChildren:YES];
-	
-	PDFDocument* doc = [[self document] pdfdocument];
-	[win.documentView setDocument:doc];
-	
-	[self selectRow:[qov selectedRow] forSource:qov];
-
-}
-*/
-
 - (void)rowChangedContent:(NSNotification*)notification
 {
-	NSLog(@"RowChangedContent notification");
+	// NSLog(@"RowChangedContent notification");
 	
 	NSString* text = nil;
 	if (selectedRow >= 0)
@@ -424,7 +405,7 @@
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
-	NSLog(@"W.C. selectRow -> %ld",(long)sr);
+//	NSLog(@"W.C. selectRow -> %ld",(long)sr);
 	
 	// setOV, setRow
 	[self setSelectedRow:sr];
@@ -432,12 +413,9 @@
 	[self setSelectedHandle:[qov itemAtRow:[self selectedRow]]];  // selected row can be -1
 	//Parameter is NSInteger. no mention of out of range value, assume returns nil
 
-	// post NSnotification text
 	// setText
-	//[self setEditText:[self textForSelectedObject]];
 
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateTextview"
-														object:[selectedHandle text]];
+	[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
 	
 	if ([selectedHandle isStream])
 		[self setEditEnable:YES];
@@ -446,6 +424,9 @@
 
 	//ObjcQPDFObjectHandle *thisHandle = selectedHandle;  // think I could get text from here...  I did, see above
 	if (selectedHandle) {
+		
+		NSLog(@"what have we selected here: %@",[selectedHandle typeName]);
+		
 		if ([selectedHandle isDictionary])
 		{
 			// so which page have we selected ?
@@ -504,14 +485,19 @@
 
 //	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
 //	NSLog(@"Page size: %@", sz);
-//	NSLog(@"selected Page: %lu",self.selectedPage);
+	NSLog(@"selected Page: %ld",self.selectedPage);
 	
-	[[self document] setSize:sz forPage:self.selectedPage];
+	[[self document] setSize:sz forPage:self.selectedPage];  // data changes here.
+
+	// update outline page objects.
 	
 	// postNotificationName
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(self.selectedPage)];
+	[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+
+	// [documentCenter postNotificationName:@"QPDFUpdateDocument" object:];
 	
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:@(self.selectedPage)];
+	// and something to refresh the outlines showing the mediabox
 	// [self updateCurrentPage];
 
 }
@@ -589,7 +575,7 @@ void printView (NSView* n)
 	//	[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:0.1];
 		
 		// post NSNotification
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 
 //		[self updateCurrentPage];
 
@@ -636,7 +622,12 @@ void printView (NSView* n)
 
 - (void)documentChange:(NSNotification*)notification
 {
-	PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
+	NSNumber* page = [notification object];
+	int selPage = [page intValue];
+	
+	// NSLog(@"getting page: %d",selPage);
+	
+	PDFDocument* doc = [[self document] pdfDocumentPage:selPage];  // arrays are zero indexed...
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
 	QPDFView* pv = [qwin documentView];
 	
@@ -696,13 +687,13 @@ void printView (NSView* n)
 		NSLog(@"reloading: %@",selectedHandle);
 		// post NSNotification
 		NSDictionary* ui = @{@"reloadChildren": @(YES) };
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:ui];
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:ui];
 		
 		//[selectedView reloadItem:[selectedNode parentNode] reloadChildren:YES];
 	//	[selectedView expandItem:[selectedNode parentNode]];
 		
 		// this is not causing the space scrolling issue.
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 		
 	//	[self updateCurrentPage];
 //		PDFDocument* doc = [[self document] pdfdocument];
@@ -728,13 +719,15 @@ void printView (NSView* n)
 
 - (void)selectChangeNotification:(NSNotification*)nn
 {
-	//	NSLog(@"changeNotification: %@ UI:%@",nn,[nn userInfo]);
+	// NSLog(@"changeNotification: %@ UI:%@",nn,[nn userInfo]);
 	QPDFOutlineView* sv = [nn object];
 	[self selectRow:[sv selectedRow] forSource:sv];
 }
 
 - (void)selectObject:(id)sender
 {
+	// NSLog(@"select object: %@",sender);
+
 	QPDFOutlineView* evv = (QPDFOutlineView*)sender;
 	[self selectRow:[evv selectedRow] forSource:evv];
 }
@@ -819,8 +812,8 @@ void printView (NSView* n)
 		
 		// [[self document] setSize:sz forPage:self.selectedPage];
 		//[self updateCurrentPage];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 
 	}
 }
@@ -829,66 +822,47 @@ void printView (NSView* n)
 
 - (void)addType:(id)sender
 {
-	NSInteger osr = self.selectedRow;
+	// NSInteger osr = self.selectedRow;
 	
 	// How did this become a textview?
 	
-	NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
-	NSLog(@"selected view is a: %@",[self.selectedView className]);
+	// NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
+	// NSLog(@"selected view is a: %@",[self.selectedView className]);
 	
 	QPDFOutlineView* ov = self.selectedView;
 	
-	ObjcQPDFObjectHandle *toObj = [ov itemAtRow:osr];
-	//ObjcQPDFObjectHandle *toObj = [item object];
+	// ObjcQPDFObjectHandle *toObj = [ov itemAtRow:osr];
+	// ObjcQPDFObjectHandle *toObj = [item object];
+	// ObjcQPDFObjectHandle *toObj = self.selectedHandle;
 	
 	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
 
-	if ([[self document] addItemOfType:type toObject:toObj])
+	if ([[self document] addItemOfType:type toObject:selectedHandle])
 	{
-		// QPDFWindow *win = (QPDFWindow*)[self window];
 	
 		// addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 
 		[ov beginUpdates];
 	
 		// post NSNotification
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:toObj userInfo:@{@"reloadChildren":@(YES)}];
+		NSDictionary* user = @{@"reloadChildren":@(YES)};
+ 
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:user];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 
-	//	[ov reloadItem:item reloadChildren:YES]; // refresh Outline
-		
-		toObj = [ov itemAtRow:[ov selectedRow]];
-	//	[self selectRow:[ov selectedRow] forSource:ov]; // setRow
-
-		if ([ov isExpandable:toObj])
-			[ov expandItem:toObj];  // but not if it's an object
+//		toObj = [ov itemAtRow:[ov selectedRow]];
+		if ([ov isExpandable:selectedHandle])
+			[ov expandItem:selectedHandle];  // but not if it's an object
 	
-		// set Text
-		// set the textView with text for the current selected object or stream
-		NSLog(@"addType: setEditText");
-		// post NSNotification
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateTextview"
-															object:[selectedHandle text]];
-		// [self setEditText:[self textForSelectedObject]];  // seems kind of superfluous, there must be some better named logical expression for this.  almost sorted.
-		NSLog(@"addType: end setEditText");
-
-		// ena A R
 		// enable the add/Remove buttons depending on what's selected.
+		// I'm thinking another notification observer...
 		[self setAddEnabled:[self canAddToSelectedObject]]; // i'm seeing a pattern here
 		[self setRemoveEnabled:[self isSelected]];
-		
-		// refresh PDF
-		// PDFDocument* doc = [[self document] pdfdocument];
-		// [win.documentView setDocument:doc];
-		
-		// post NSNotification
-		// [self updateCurrentPage];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
-		[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:nil];
 		
 		//documentChanged
 		[[self document] updateChangeCount:NSChangeDone];
 		[self setDocumentEdited:YES];
-	//	[[self document] setDocumentEdited:YES];
 
 		[ov endUpdates];
 	}
@@ -919,9 +893,9 @@ void printView (NSView* n)
 //	NSLog(@"deleteRow: end setEditText");
 
 	// post NSNotification
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
-	[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateDocument" object:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	[self setDocumentEdited:YES];
@@ -933,7 +907,7 @@ void printView (NSView* n)
 
 - (void)addRemove:(id)sender
 {
-	NSLog(@"add / Remove clicked");
+	// NSLog(@"add / Remove clicked");
 	
 	// other non menu add buttons events end up here
 	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
@@ -942,7 +916,6 @@ void printView (NSView* n)
 	NSInteger outlineTag = [sc tag];
 	NSInteger selectedSegment = [sc selectedSegment];
 
-	
 	QPDFOutlineView* sv = [(QPDFWindow*)[self window] outlineAtIndex:outlineTag];
 	[self selectRow:[sv selectedRow] forSource:sv];
 	
@@ -972,7 +945,7 @@ void printView (NSView* n)
 				NSLog(@"outline Page add... row: %ld",(long)selectedRow);
 				// add page
 				
-				if (selectedRow == -1)
+				if (selectedPage == -1)
 				{
 					[[self document] newPageAtEnd];
 					// post NSNotification
@@ -980,13 +953,14 @@ void printView (NSView* n)
 				} else {
 					// post NSNotification
 
-					// ObjcQPDFObjectHandle* existingPage = [selectedHandle object];
-					[[self document] newPageBefore:selectedHandle];
+					// ObjcQPDFObjectHandle* existingPage = [(QPDFDocument*)[self document] pageAtIndex];
+					// what if the selected handle isn't a page?
+					[[self document] newPageBeforePageNumber:selectedPage];
 					
 				}
 				// post NSNotification
 				NSLog(@"Post Notification");
-				[[NSNotificationCenter defaultCenter] postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:nil];
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:nil];
 
 				/*
 				[sv reloadData];

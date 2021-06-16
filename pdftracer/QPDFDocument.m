@@ -230,8 +230,9 @@
 	
 	NSRect rr = NSMakeRect(10, 10, 1440, 480);  // want better defaults
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
-	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered];
-	QPDFWindowController* nwc = [[[QPDFWindowController alloc] initWithWindow:w] autorelease];
+	NSNotificationCenter* centre = [NSNotificationCenter new];
+	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered notificationCenter:centre];
+	QPDFWindowController* nwc = [[[QPDFWindowController alloc] initWithWindow:w notificationCenter:centre] autorelease];
 
 	// [w makeKeyAndOrderFront:self];
 	[self addWindowController:nwc];
@@ -456,7 +457,12 @@
 
 }
 
-- (void)newPageBefore:(ObjcQPDFObjectHandle*)existingPage
+- (void)newPageBeforePageNumber:(NSUInteger)pageNumber
+{
+	[self newPageBeforePage:[qDocument pageAtIndex:pageNumber]]; // is this really the most efficient way?
+}
+
+- (void)newPageBeforePage:(ObjcQPDFObjectHandle*)existingPage
 {
 	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle dictionaryObject];
 	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle arrayObject];

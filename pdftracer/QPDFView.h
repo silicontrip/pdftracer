@@ -9,7 +9,7 @@
 }
 
 - (BOOL)acceptsFirstResponder;
-- (BOOL)becomeFirstResponder;
+// - (BOOL)becomeFirstResponder;
 - (void)mouseDown:(NSEvent*)event;
 // - (void)keyDown:(NSEvent*)event;
 

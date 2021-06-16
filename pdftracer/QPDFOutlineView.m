@@ -4,6 +4,7 @@
 
 @synthesize relatedSegment;
 
+/*
 - (instancetype)init
 {
 	NSLog(@"Outline view init");  // i have a suspicion that this is never called.
@@ -14,6 +15,7 @@
 	}
 	return self;
 }
+*/
 
 - (void)dataReload:(NSNotification*)n
 {

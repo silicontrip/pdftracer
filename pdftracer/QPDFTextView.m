@@ -29,7 +29,7 @@
 	[[self nextResponder] print:sender];
 }
 
-
+/*
 - (BOOL)becomeFirstResponder
 {
 	
@@ -49,7 +49,7 @@
 	
 	return YES;
 }
-
+*/
 
 /*
 - (void)keyDown:(NSEvent*)event

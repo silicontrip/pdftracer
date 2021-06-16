@@ -177,7 +177,7 @@
 	return tView;
 }
 
--(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing
+-(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing notificationCenter:(NSNotificationCenter*)centre
 {
 	self = [super initWithContentRect:rect styleMask:style backing:backing defer:NO];
 
@@ -189,11 +189,10 @@
 		outlines[1] = [OutlineQPDFObj newView];
 		outlines[2] = [OutlineQPDFPage newView];
 	
-		[[NSNotificationCenter defaultCenter] addObserver:outlines[0] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:outlines[1] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
-		[[NSNotificationCenter defaultCenter] addObserver:outlines[2] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+		[centre addObserver:outlines[0] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+		[centre addObserver:outlines[1] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
+		[centre addObserver:outlines[2] selector:@selector(dataReload:) name:@"QPDFUpdateOutlineview" object:nil];
 
-		
 		segments[0] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[0].relatedSegment = segments[0];
 		[segments[0] setTag:0];
@@ -257,7 +256,6 @@
 		[self.textView setFont:self.textFont];
 		[self.textView setDrawsBackground:YES];
 		[self.textView setPostsBoundsChangedNotifications:YES];
-
 
 		self.scrollTextView = [[[NSScrollView alloc] init] autorelease];
 		self.scrollTextView.translatesAutoresizingMaskIntoConstraints = NO;

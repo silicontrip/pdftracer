@@ -107,7 +107,6 @@
 {
 	NSLog(@"QDocControl: openUntitledDocumentAndDisplay: %d",dd);
 
-	
 	QPDFDocument* newDoc = [self makeUntitledDocumentOfType:@"PDF" error:outError];
 	[self addDocument:newDoc];
 	if (dd) {

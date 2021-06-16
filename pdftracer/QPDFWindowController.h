@@ -23,6 +23,7 @@
 	NSTextStorage *textStore;
 	
 	QPDFSyntaxHighlighter *syntaxer;
+	NSNotificationCenter* documentCenter;  // really want to call this Centre
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
@@ -31,7 +32,7 @@
 @property (weak,nonatomic) ObjcQPDFObjectHandle* selectedHandle;
 @property (assign) NSInteger selectedPage;  // unselected sentinel is -1
 
-- (instancetype)initWithWindow:(QPDFWindow*)nsw;
+- (instancetype)initWithWindow:(QPDFWindow*)nsw notificationCenter:(NSNotificationCenter*)centre;
 - (void)initDataSource;
 
 - (BOOL)validateUserInterfaceItem:(id<NSValidatedUserInterfaceItem>)anItem;
@@ -42,7 +43,6 @@
 // - (void)updateOutlines:(QPDFNode*)node;
 // - (void)updateOutline:(QPDFOutlineView*)outline forNode:(QPDFNode*)node;
 - (void)updateOutline:(QPDFOutlineView*)outline forHandle:(ObjcQPDFObjectHandle*)node;
-
 
 - (void)textDidChange:(NSNotification *)notification;
 - (void)textDidEndEditing:(NSNotification*)notification;
