@@ -199,29 +199,29 @@
 	}
 }
 
-- (void)setSize:(NSString*)size forPage:(NSUInteger)page
+- (void)setSize:(NSString*)rectSize forPage:(NSUInteger)page
 {
-	NSArray<NSString*>*com = [size componentsSeparatedByString:@","];
 
-	if ([com count] == 2)
-	{
+	ObjcQPDFObjectHandle* pdfmbox = [[ObjcQPDFObjectHandle newArrayWithRectangle:NSRectFromString(rectSize)] autorelease];
 
-		CGFloat width = [[com objectAtIndex:0] doubleValue];
-		CGFloat height = [[com objectAtIndex:1] doubleValue];
+	// NSLog(@"pdf mbox -> %@",pdfmbox);
 
-		if (width > 0 and height > 0 )
-		{
-		
-			//ObjcQPDFObjectHandle* pdfmbox = [ObjcQPDFObjectHandle newArrayWithArray:mbox];
-		
-			ObjcQPDFObjectHandle* pdfmbox = [[ObjcQPDFObjectHandle newArrayWithRectangle:NSMakeRect(0,0, width, height)] autorelease];
-		
-			// NSLog(@"pdf mbox -> %@",pdfmbox);
-		
-			ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
-			[pageObj replaceObject:pdfmbox forKey:@"/MediaBox"];
-		}
-	}
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+	[pageObj replaceObject:pdfmbox forKey:@"/MediaBox"];
+}
+
+- (void)setPagesSize:(NSString*)rectSize 
+{
+	
+	ObjcQPDFObjectHandle* pdfmbox = [[ObjcQPDFObjectHandle newArrayWithRectangle:NSRectFromString(rectSize)] autorelease];
+	
+	// NSLog(@"pdf mbox -> %@",pdfmbox);
+	
+	ObjcQPDFObjectHandle* root = [[qDocument copyRootCatalog] autorelease];
+	ObjcQPDFObjectHandle* pages = [root objectForKey:@"/Pages"];
+	if (pages)
+		[pages replaceObject:pdfmbox forKey:@"/MediaBox"];
+	
 }
 
 -(void)makeWindowControllers
@@ -417,12 +417,12 @@
 			newobj=[ObjcQPDFObjectHandle newDictionary];
 			break;;
 		case ot_stream:
-			NSLog(@"creating stream");
-			
+			//NSLog(@"creating stream");
 			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:qDocument withString:@""];
 			break;
 		default:
-			NSLog(@"You're creating a wha-?");
+			NSAssert(NO, @"Creating unknown type"); // NSLog(@"You're creating a wha-?"); // assert
+
 	}
 	if (newobj)
 	{
@@ -433,28 +433,32 @@
 	return NO;
 }
 
-- (void)newPageAtEnd
++ (ObjcQPDFObjectHandle*)page
 {
 	ObjcQPDFObjectHandle* newpage = [[ObjcQPDFObjectHandle newDictionary] autorelease];
-	ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
+	//ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
 	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
 	ObjcQPDFObjectHandle* resources = [[ObjcQPDFObjectHandle newDictionary] autorelease];
 	ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newArray] autorelease];
-
+	
 	[proc addObject:[ObjcQPDFObjectHandle nameWith:@"/PDF"]]; // hmm wonder why the / isn't automatically added
 	[resources replaceObject:proc forKey:@"/ProcSet"];
 	
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
+	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
 	
 	[newpage replaceObject:type forKey:@"/Type"];
-	[newpage replaceObject:mbox forKey:@"/MediaBox"];
+	// [newpage replaceObject:mbox forKey:@"/MediaBox"];
 	[newpage replaceObject:resources forKey:@"/Resources"];
+	
+	return newpage;
+}
 
-	[qDocument addPage:newpage atStart:NO];
-
+- (void)newPageAtEnd
+{
+	[qDocument addPage:[QPDFDocument page] atStart:NO];
 }
 
 - (void)newPageBeforePageNumber:(NSUInteger)pageNumber
@@ -464,20 +468,7 @@
 
 - (void)newPageBeforePage:(ObjcQPDFObjectHandle*)existingPage
 {
-	ObjcQPDFObjectHandle* newpage = [ObjcQPDFObjectHandle dictionaryObject];
-	ObjcQPDFObjectHandle* mbox = [ObjcQPDFObjectHandle arrayObject];
-	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
-	
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
-	
-	[newpage replaceObject:type forKey:@"/Type"];
-	[newpage replaceObject:mbox forKey:@"/MediaBox"];
-	
-	[qDocument addPage:newpage before:YES page:existingPage];
-
+	[qDocument addPage:[QPDFDocument page] before:YES page:existingPage];
 }
 
 - (void)deleteHandle:(ObjcQPDFObjectHandle*)nd

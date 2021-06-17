@@ -61,7 +61,7 @@
 	{
 		qDocument = qpdf;
 		pageDirects = nil;
-		NSLog(@"(objc++) initWith QPDF %@ - %lx",self,(unsigned long)qDocument);
+		// NSLog(@"(objc++) initWith QPDF %@ - %lx",self,(unsigned long)qDocument);
 		[self makePageDirects];
 
 	}
@@ -221,6 +221,13 @@
 }
 
 -(ObjcQPDFObjectHandle*)copyRootCatalog
+{
+	QPDFObjectHandle root = qDocument->getRoot();
+	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
+	return rootObjc;
+}
+
+-(ObjcQPDFObjectHandle*)copyTrailer
 {
 	QPDFObjectHandle root = qDocument->getTrailer();
 	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];

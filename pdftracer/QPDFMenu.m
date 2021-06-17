@@ -237,8 +237,10 @@
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"PageSize" submenu:sizeMenu]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert Resource" submenu:resourceMenu]];  // from the procset array
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu]];
+		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Contents" submenu:nil]];
+
 		// Text (font) /img and img subclasses
-		[toolMenu addItem:[NSMenuItem separatorItem]];
+		// [toolMenu addItem:[NSMenuItem separatorItem]];
 
 		
 		// forgotten what these were supposed to do
@@ -277,22 +279,22 @@
 // Config anyone?
 + (NSArray<NSString*>*)pageSizes
 {
-	return @[@"842.75,1191.82",
-			 @"595.91,842.75",
-			 @"421.27,595.91",
-			 @"708.67,1002.2",
-			 @"501.1,708.67",
-			 @"919.02,1299.69",
-			 @"649.85,919.02",
-			 @"623.62,311.81",
-			 @"666.14,340.16",
-			 @"612,792",
-			 @"612,1008",
-			 @"792,1224",
-			 @"360,576",
-			 @"684,295.2",
-			 @"410.4,316.8",
-			 @"626.4,410.4"
+	return @[@"{{0, 0}, {842.75,1191.82}}",
+			 @"{{0, 0}, {595.91,842.75}}",
+			 @"{{0, 0}, {421.27,595.91}}",
+			 @"{{0, 0}, {708.67,1002.2}}",
+			 @"{{0, 0}, {501.1,708.67}}",
+			 @"{{0, 0}, {919.02,1299.69}}",
+			 @"{{0, 0}, {649.85,919.02}}",
+			 @"{{0, 0}, {623.62,311.81}}",
+			 @"{{0, 0}, {666.14,340.16}}",
+			 @"{{0, 0}, {612,792}}",
+			 @"{{0, 0}, {612,1008}}",
+			 @"{{0, 0}, {792,1224}}",
+			 @"{{0, 0}, {360,576}}",
+			 @"{{0, 0}, {684,295.2}}",
+			 @"{{0, 0}, {410.4,316.8}}",
+			 @"{{0, 0}, {626.4,410.4}}"
 			 ];
 }
 + (NSArray<NSString*>*)standardFonts

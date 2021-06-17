@@ -25,12 +25,14 @@
 	if (ud)
 	{
 		rc= [(NSNumber*)[ud valueForKey:@"reloadChildren"] boolValue];
+	//	NSLog(@"User Info present, reload: %d",rc);
 	}
 
 	if (qp)
 	{
+	//	NSLog(@"Reloading: %@",qp);
 		[self reloadItem:qp reloadChildren:rc];
-		[self reloadItem:[qp parent] reloadChildren:rc];
+		// [self reloadItem:[qp parent] reloadChildren:rc];
 	} else {
 		[self reloadData];
 	}

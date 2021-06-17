@@ -56,7 +56,11 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 -(BOOL)isExpandable;
 -(BOOL)isIndirect;
 -(BOOL)isName;
+
+- (nullable NSString*)dictionaryType;
+
 -(BOOL)isPage;
+-(NSInteger)pageNumber;
 
 -(NSUInteger)count;
 -(object_type_e)type;

@@ -60,19 +60,39 @@
 -(BOOL)isDictionary { return qObject.isDictionary(); }
 -(BOOL)isExpandable { return qObject.isArray() || qObject.isDictionary(); }
 
--(BOOL)isPage {
+- (nullable NSString*)dictionaryType
+{
 	if ([self isDictionary])
 	{
 		ObjcQPDFObjectHandle* type = [self objectForKey:@"/Type"];
 		if (type)
 		{
-			if ([type isName] && [[type name] isEqualToString:@"/Page"])
+			if ([type isName])
 			{
-				return YES;
+				return [type name];
 			}
 		}
 	}
+	return nil;
+}
+
+-(BOOL)isPage {
+	if ( [[self dictionaryType] isEqualToString:@"/Page"])
+	{
+		return YES;
+	}
 	return NO;
+}
+
+-(NSInteger)pageNumber
+{
+	if ([self isPage])
+	{
+		ObjcQPDF* qDoc = [self owner];
+		if (qDoc)
+			return [[qDoc pageIndexForIndirect:[self objectGenerationID]] longValue];
+	}
+	return -1;
 }
 
 -(object_type_e)type { return (object_type_e)qObject.getTypeCode(); }

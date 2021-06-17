@@ -34,6 +34,7 @@
 -(ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration;
 
 -(id<ObjcPDFObject>)copyRootCatalog; // naming convention for alloc
+-(ObjcQPDFObjectHandle*)copyTrailer;
 
 -(void)replaceID:(NSString*)objGen with:(id<ObjcPDFObject>)obj;
 -(void)removeID:(NSString*)objGen;

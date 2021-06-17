@@ -59,6 +59,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)replaceHandle:(ObjcQPDFObjectHandle*)node withString:(NSString*)editor;
 
 - (void)setSize:(NSString*)size forPage:(NSUInteger)page;
+- (void)setPagesSize:(NSString*)size;
 
 
 @end
