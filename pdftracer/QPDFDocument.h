@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString*)pdfString;
 - (PDFDocument*)pdfdocument;
 - (PDFDocument*)pdfDocumentPage:(NSUInteger)page;
+- (ObjcQPDFObjectHandle*)pageObject:(NSUInteger)page;
 - (ObjcQPDF*)doc;
 - (NSString*)displayName;
 - (void)makeWindowControllers;

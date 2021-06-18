@@ -154,6 +154,11 @@
 	return [blank document];
 }
 
+- (ObjcQPDFObjectHandle*)pageObject:(NSUInteger)page
+{
+	return [qDocument pageAtIndex:page];
+}
+
 //- (NSPrintOperation*)print:(id)sender
 
 - (NSPrintOperation *)printOperationWithSettings:(NSDictionary<NSPrintInfoAttributeKey, id> *)printSettings

@@ -866,6 +866,93 @@ void printView (NSView* n)
 	// now to highlight the new object...
 }
 
+- (void)setProc:(id)sender
+{
+	NSMenuItem* menuItem = sender;
+	if (selectedPage != -1)
+	{
+		
+		NSControlStateValue sstate = menuItem.state;
+		NSLog(@"menu item name: %@",menuItem.title);
+//		NSLog(@"menuitem state: %ld",menuItem.state);
+		
+		ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
+		if (pageDict)
+		{
+			ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
+			if (res) {
+				ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
+				if (procset)
+				{
+					NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
+					if (sstate == NSControlStateValueOn)
+					{
+
+						// add remove from procset array
+						int deleteIndex = -1;
+						for (int pe =0; pe < [procset count]; ++pe)
+						{
+							ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
+							if ([menuName isEqualToString:[pse name]]) {
+								// delete this element from
+								deleteIndex = pe;
+							}
+						}
+						if (deleteIndex>=0) {
+							[procset removeObjectAtIndex:deleteIndex];
+							[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:procset userInfo:@{@"ReloadChildren":@(YES)}];
+							[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+
+						}
+					} else {
+						ObjcQPDFObjectHandle* proc = [ObjcQPDFObjectHandle newName:menuName];
+						[procset addObject:proc];
+						[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:procset userInfo:@{@"ReloadChildren":@(YES)}];
+						[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+
+					}
+					
+				}
+			}
+		}
+	}
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem
+{
+	if (selectedPage == -1)
+	{
+		[menuItem setState:NSControlStateValueOff];
+		return NO;
+	}
+	// NSString* tt = [menuItem title];
+	
+	ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
+	if (pageDict)
+	{
+		ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
+		if (res) {
+			ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
+			if (procset)
+			{
+				NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
+				for (int pe =0; pe < [procset count]; ++pe)
+				{
+					ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
+					if ([menuName isEqualToString:[pse name]]) {
+						[menuItem setState:NSControlStateValueOn];
+						return YES;
+					}
+				}
+				
+			}
+		}
+	}
+	[menuItem setState:NSControlStateValueOff];
+	return YES;
+}
+
+
 //deleteRow -> deleteRow, refreshOutline, setRow, setText, enaAddRemove, refreshPDF, documentChanged
 
 - (void)deleteRow:(NSInteger)row forSource:(QPDFOutlineView*)qov

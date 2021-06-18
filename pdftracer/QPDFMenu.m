@@ -220,23 +220,30 @@
 		[fontMenu addItem:[NSMenuItem separatorItem]];
 		[fontMenu addItem:[QPDFMenu itemWithTitle:@"From File..."  selector:@"insertFontFile:"]];
 		
-		NSMenu* resourceMenu = [[NSMenu new] autorelease];
-		//[resourceMenu setAutoenablesItems:YES];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
-
 		NSMenu* procMenu =[[NSMenu new] autorelease];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"PDF" selector:@"setProc:" tag:0]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"Text" selector:@"setProc:" tag:1]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageB" selector:@"setProc:" tag:2]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageC" selector:@"setProc:" tag:3]];
+		
+		NSMenu* resourceMenu = [[NSMenu new] autorelease];
+		//[resourceMenu setAutoenablesItems:YES];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu ]];
+
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
+
+
 
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];
 		[toolMenu setTitle:@"Page"];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"PageSize" submenu:sizeMenu]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Insert Resource" submenu:resourceMenu]];  // from the procset array
-		[toolMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu]];
+		// [toolMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu]];
 		[toolMenu addItem:[QPDFMenu itemWithTitle:@"Contents" submenu:nil]];
 
 		// Text (font) /img and img subclasses
