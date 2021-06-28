@@ -14,6 +14,8 @@
 #import "OutlineQPDFObj.h"
 #import "OutlineQPDFPage.h"
 
+#import "NoodleLineNumber/NoodleLineNumberView.h"
+
 /*
 @class OutlineQPDF;
 @class OutlineQPDFObj;
