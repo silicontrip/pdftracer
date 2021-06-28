@@ -73,8 +73,13 @@
 				//[NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 			}
 		} else {
-			rs = [pdfitem unparseResolved]; // because having a list of indirect objects references saying that they are referencing the item that they are, is a bit pointless
+			if ( [pdfitem type] == ot_stream)
+			{
+				rs = [[pdfitem streamDictionary] unparse];
+			} else {
+				rs = [pdfitem unparseResolved]; // because having a list of indirect objects references saying that they are referencing the item that they are, is a bit pointless
 			// like object 2 0 R says "Hey I'm 2 0 R"
+			}
 		}
 
 		return rs;
