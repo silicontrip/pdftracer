@@ -30,17 +30,7 @@
 		documentCenter = dc;
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
-	//	syntaxer.theLayout = layout;
-	//	syntaxer.theStorage = textStore;
-	//	syntaxer.theContainer = qpw.textContainer;
 		syntaxer.asyncView = qpw.textView;
-		// syntaxer.theScroll = qpw.scrollTextView;
-		
-	//	[dc addObserver:syntaxer selector:@selector(textStorageDidProcessEditing:) name:@"NSTextStorageDidProcessEditingNotification" object:textStore];
-		
-		// [layout addTextContainer:qpw.textContainer];
-		
-		// NSNotificationCenter* dc = [NSNotificationCenter defaultCenter];
 		
 		[dc addObserver:self selector:@selector(documentChange:) name:@"QPDFUpdateDocument" object:nil];
 		[dc addObserver:self selector:@selector(rowChangedContent:) name:@"QPDFSelectOutlineRow" object:nil];
@@ -91,7 +81,6 @@
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:1]];
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:2]];
 
-	// [documentCenter addObserver:self selector:@selector(selectChangeNotification:) name:NSOutlineViewSelectionDidChangeNotification object:nil];
 // NSOutlineViewSelectionDidChangeNotification
 	
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
@@ -104,14 +93,6 @@
 	// [dc addObserver:self selector:@selector(boundsDidChange:) name:NSViewBoundsDidChangeNotification object:contentView];
 
 }
-
-/*
-- (NSString*)windowTitleForDocumentDisplayName:(NSString *)displayName
-{
-	return displayName;
-}
-*/
-
 
 // MARK: View state change
 /*
@@ -126,49 +107,6 @@
 {
 	[(QPDFWindow*)[self window] updateOutline:outline forHandle:handle];
 }
-
-// moved into QPDFNode
-// textForSelectedObject
-/*
-- (NSString*)textForSelectedObject
-{
-	if (selectedRow >= 0)
-	{
-		ObjcQPDFObjectHandle* qpdf = [selectedNode object];
-		
-		if ([qpdf isStream]) {
-			return [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
-		} else {
-			 return [qpdf unparseResolved];
-		}
-	}
-	return nil;
-}
-*/
-/*
-- (void)setEditText:(NSString*)s
-{
-
-	if (s)
-	{
-		QPDFWindow* w = (QPDFWindow*)[self window];
-		QPDFTextView* ntv = w.textView;
-		
-		// Now I discover that textView has a setColour forRange...
-		[ntv setString:s]; // yeah getting desperate now
-		[ntv checkTextInDocument:nil];
-	
-		// this one for quickly colouring the displayed text
-		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-																	inTextContainer:w.textView.textContainer];
-		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-
-		[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
-		
-	}
-
-}
-*/
 
 - (void)textSetContent:(NSNotification*)n
 {
@@ -588,6 +526,8 @@ void printView (NSView* n)
 	}
 }
 
+
+
 - (void)restoreDocRect:(NSValue*)nsrect
 {
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
@@ -671,7 +611,6 @@ void printView (NSView* n)
 	//	NSLog(@"textDidEndEditing fieldEditor");
 		selectedRow = [selectedView editedRow];
 		selectedColumn = [selectedView editedColumn];
-
 		selectedHandle = [selectedView itemAtRow:selectedRow];
 		
 	//	NSLog(@"selected Node: %@",selectedHandle);
@@ -744,7 +683,7 @@ void printView (NSView* n)
 		NSFont* nf = [fm convertFont:tf];
 		NSLog(@"new font: %@",nf);
 
-	//	[win setFont:nf];
+		[win setFont:nf];
 	}
 }
 
@@ -814,6 +753,16 @@ void printView (NSView* n)
 
 	}
 }
+
+- (void)insertFontFile:(id)sender
+{
+
+	// file dialog
+	// data from file
+	// stream from data
+	// insert into indirect
+}
+
 
 // addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 

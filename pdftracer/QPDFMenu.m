@@ -236,8 +236,6 @@
 
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
 
-
-
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];
 		[toolMenu setTitle:@"Page"];

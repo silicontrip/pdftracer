@@ -174,6 +174,8 @@
 	[tView setVerticallyResizable:YES];
 	[tView setAutoresizingMask:NSViewHeightSizable|NSViewWidthSizable];
 	
+	tView.usesFindBar=YES;
+	
 	return tView;
 }
 
@@ -245,7 +247,7 @@
 												  [[spcView widthAnchor] constraintEqualToAnchor:[spcsView widthAnchor]]
 												  ]];
 		
-		self.textFont = [NSFont fontWithName:@"AndaleMono" size:11]; // prefs...
+		self.textFont = [NSFont fontWithName:@"AndaleMono" size:12]; // prefs...
 		self.textView = [QPDFWindow textEditorView]; // WithContainer:self.textContainer];
 		
 		NSColor* backGround = [NSColor colorWithRed:0.157 green:0.169 blue:0.208 alpha:1.0];  // more prefs
@@ -262,6 +264,20 @@
 
 		[self.scrollTextView setHasVerticalScroller:YES];
 		[self.scrollTextView setDocumentView:self.textView];
+		
+		NoodleLineNumberView* nln = [[[NoodleLineNumberView alloc] initWithScrollView:self.scrollTextView] autorelease];
+		
+		//NSColor* backGround = [NSColor colorWithRed:0.157 green:0.169 blue:0.208 alpha:1.0];  // more prefs
+
+		[nln setBackgroundColor:backGround];
+		[nln setTextColor:[NSColor whiteColor]];
+		[nln setAlternateTextColor:[NSColor grayColor]];
+		 
+		
+		[self.scrollTextView setVerticalRulerView:nln];
+		self.scrollTextView.hasVerticalRuler=YES;
+		self.scrollTextView.rulersVisible = YES;
+		
 	//	[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
 		self.documentView = [[[QPDFView alloc] init] autorelease];

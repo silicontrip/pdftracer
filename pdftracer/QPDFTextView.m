@@ -26,8 +26,23 @@
 
 - (void)print:(id)sender
 {
-	[[self nextResponder] print:sender];
+	// [[self nextResponder] print:sender];
 }
+
+- (void)performTextFinderAction:(id)sender
+{
+	NSLog(@"Findernating the countryside: %@",sender);
+}
+
+/*
+- (void)paste:(id)sender
+{
+	
+	NSLog(@"paster; %@",sender);
+	
+	[super paste:sender];
+}
+*/
 
 /*
 - (BOOL)becomeFirstResponder
