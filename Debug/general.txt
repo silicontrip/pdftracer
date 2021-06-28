@@ -1,9 +1,0 @@
-## BUGS
-Outline view vertical scroll disappears won't respond to direct scrolling gesture.  After expanding nodes.
-requires moving the split view to bring it back. normal functionality returns.
-
- resolved, allow translating autoresizing into constraints.
-
-TextView scroller not appearing.  - only with textstorage version.
-
-remove Pages Object, then add page crashes. catch and report error.

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4D0DC5422678D1C800E99004 /* QPDFView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0DC5402678D1C800E99004 /* QPDFView.m */; };
 		4D114D982600CEBC00F8A6F1 /* libqpdf.28.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4D114D972600CEBC00F8A6F1 /* libqpdf.28.dylib */; };
 		4D147B9125AAA8A7001AB1A3 /* corepdf.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D36C04925A2CF75007E0EAD /* corepdf.m */; };
 		4D147B9925ADD824001AB1A3 /* parsepdf.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D147B9825ADD824001AB1A3 /* parsepdf.mm */; };
@@ -23,7 +24,6 @@
 		4D2BFD6525D3DE6000F8128E /* ObjcQPDFObjectHandle.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4D2BFD6325D3DE6000F8128E /* ObjcQPDFObjectHandle.mm */; };
 		4D36C05925A2D445007E0EAD /* genpdf.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D36C04C25A2CFDD007E0EAD /* genpdf.m */; };
 		4D36C05A25A2D49B007E0EAD /* Arguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163CF325987A1F00C8C7D3 /* Arguments.m */; };
-		4D3A6B9425BAADB500B22499 /* QPDFNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3A6B9325BAADB500B22499 /* QPDFNode.m */; };
 		4D3A6B9A25BD8E0600B22499 /* OutlineQPDFObj.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3A6B9925BD8E0600B22499 /* OutlineQPDFObj.m */; };
 		4D3A6B9D25BD98DD00B22499 /* OutlineQPDFPage.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3A6B9C25BD98DD00B22499 /* OutlineQPDFPage.m */; };
 		4D5450E025C5310800ED6F54 /* OutlineQPDF.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5450DF25C5310700ED6F54 /* OutlineQPDF.m */; };
@@ -35,7 +35,6 @@
 		4D638AE225C2C84200BAB433 /* QPDFDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D638AE125C2C84200BAB433 /* QPDFDocument.m */; };
 		4D638AE425C2DBBB00BAB433 /* QPDFDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D638AE325C2DBBB00BAB433 /* QPDFDocumentController.m */; };
 		4D7BAF3025FB43AA00432F33 /* QPDFSegmentedCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7BAF2E25FB43AA00432F33 /* QPDFSegmentedCell.m */; };
-		4D7D72B126342CA4007BDBC7 /* QPDFView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7D72AF26342CA3007BDBC7 /* QPDFView.m */; };
 		4D7D72B426358125007BDBC7 /* QPDFTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7D72B326358125007BDBC7 /* QPDFTextView.m */; };
 		4D8EE7012598A230008D2DA2 /* Arguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163CF325987A1F00C8C7D3 /* Arguments.m */; };
 		4D8EE71A2598A282008D2DA2 /* Arguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D163CF325987A1F00C8C7D3 /* Arguments.m */; };
@@ -48,6 +47,8 @@
 		4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */; };
 		4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */; };
 		4DA54A60261858AC00CFE719 /* QPDFSyntaxHighlighter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */; };
+		4DA55E60268A01200082039E /* NoodleLineNumberView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA55E5F268A01200082039E /* NoodleLineNumberView.m */; };
+		4DA55E63268A01410082039E /* NoodleLineNumberMarker.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA55E62268A01410082039E /* NoodleLineNumberMarker.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -99,6 +100,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4D0DC5402678D1C800E99004 /* QPDFView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFView.m; sourceTree = "<group>"; };
+		4D0DC5412678D1C800E99004 /* QPDFView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFView.h; sourceTree = "<group>"; };
+		4D0DC543267B724700E99004 /* ObjcPDFObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcPDFObject.h; sourceTree = "<group>"; };
+		4D0DC544267B724700E99004 /* ObjcPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcPDFDocument.h; sourceTree = "<group>"; };
 		4D114D9625FECACA00F8A6F1 /* TestConstrants.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TestConstrants.xib; sourceTree = "<group>"; };
 		4D114D972600CEBC00F8A6F1 /* libqpdf.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libqpdf.28.dylib; path = ../../../../../usr/local/Cellar/qpdf/10.3.1/lib/libqpdf.28.dylib; sourceTree = "<group>"; };
 		4D147B9825ADD824001AB1A3 /* parsepdf.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = parsepdf.mm; path = ../../parsepdf.mm; sourceTree = "<group>"; };
@@ -124,8 +129,6 @@
 		4D36C04925A2CF75007E0EAD /* corepdf.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = corepdf.m; sourceTree = "<group>"; };
 		4D36C04C25A2CFDD007E0EAD /* genpdf.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = genpdf.m; path = "/Users/mark/Documents/20200605-pdftext/pdftracerProject/../genpdf.m"; sourceTree = "<absolute>"; };
 		4D36C05225A2D43F007E0EAD /* genpdf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = genpdf; sourceTree = BUILT_PRODUCTS_DIR; };
-		4D3A6B9225BAADB500B22499 /* QPDFNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFNode.h; sourceTree = "<group>"; };
-		4D3A6B9325BAADB500B22499 /* QPDFNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFNode.m; sourceTree = "<group>"; };
 		4D3A6B9825BD8E0600B22499 /* OutlineQPDFObj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutlineQPDFObj.h; sourceTree = "<group>"; };
 		4D3A6B9925BD8E0600B22499 /* OutlineQPDFObj.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OutlineQPDFObj.m; sourceTree = "<group>"; };
 		4D3A6B9B25BD98DD00B22499 /* OutlineQPDFPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OutlineQPDFPage.h; sourceTree = "<group>"; };
@@ -148,8 +151,6 @@
 		4D638AE325C2DBBB00BAB433 /* QPDFDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QPDFDocumentController.m; path = pdftracer/QPDFDocumentController.m; sourceTree = SOURCE_ROOT; };
 		4D7BAF2E25FB43AA00432F33 /* QPDFSegmentedCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFSegmentedCell.m; sourceTree = "<group>"; };
 		4D7BAF2F25FB43AA00432F33 /* QPDFSegmentedCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFSegmentedCell.h; sourceTree = "<group>"; };
-		4D7D72AF26342CA3007BDBC7 /* QPDFView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFView.m; sourceTree = "<group>"; };
-		4D7D72B026342CA4007BDBC7 /* QPDFView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFView.h; sourceTree = "<group>"; };
 		4D7D72B226358125007BDBC7 /* QPDFTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFTextView.h; sourceTree = "<group>"; };
 		4D7D72B326358125007BDBC7 /* QPDFTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFTextView.m; sourceTree = "<group>"; };
 		4D8EE6F92598A21C008D2DA2 /* parsepdf */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = parsepdf; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -160,10 +161,12 @@
 		4D9CCA8825DFD5340003DF13 /* libqpdf.28.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libqpdf.28.dylib; path = ../../../../../usr/local/Cellar/qpdf/10.1.0/lib/libqpdf.28.dylib; sourceTree = "<group>"; };
 		4D9CCA8C25E51ADA0003DF13 /* QPDFHelp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFHelp.h; sourceTree = "<group>"; };
 		4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFHelp.m; sourceTree = "<group>"; };
-		4D9CCA9125E62B460003DF13 /* ObjcPDFDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ObjcPDFDocument.h; sourceTree = "<group>"; };
-		4D9CCA9225E62BB30003DF13 /* ObjcPDFObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjcPDFObject.h; sourceTree = "<group>"; };
 		4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QPDFSyntaxHighlighter.m; sourceTree = "<group>"; };
 		4DA54A5F261858AC00CFE719 /* QPDFSyntaxHighlighter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QPDFSyntaxHighlighter.h; sourceTree = "<group>"; };
+		4DA55E5E268A01200082039E /* NoodleLineNumberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoodleLineNumberView.h; sourceTree = "<group>"; };
+		4DA55E5F268A01200082039E /* NoodleLineNumberView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoodleLineNumberView.m; sourceTree = "<group>"; };
+		4DA55E61268A01410082039E /* NoodleLineNumberMarker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoodleLineNumberMarker.h; sourceTree = "<group>"; };
+		4DA55E62268A01410082039E /* NoodleLineNumberMarker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoodleLineNumberMarker.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -261,16 +264,15 @@
 		4D163CE9259879ED00C8C7D3 /* pdftracer */ = {
 			isa = PBXGroup;
 			children = (
-				4D7D72B026342CA4007BDBC7 /* QPDFView.h */,
-				4D7D72AF26342CA3007BDBC7 /* QPDFView.m */,
+				4DA55E5D268A00DE0082039E /* NoodleLineNumber */,
 				4D163CF425987A1F00C8C7D3 /* Arguments.h */,
 				4D163CF325987A1F00C8C7D3 /* Arguments.m */,
 				4D163D002598A0A000C8C7D3 /* editor.m */,
-				4D9CCA9125E62B460003DF13 /* ObjcPDFDocument.h */,
-				4D9CCA9225E62BB30003DF13 /* ObjcPDFObject.h */,
 				4D2BFD6025D3D22700F8128E /* ObjcQPDF.h */,
 				4D2BFD6625D486DA00F8128E /* ObjcQPDF.hh */,
 				4D2BFD6125D3D22700F8128E /* ObjcQPDF.mm */,
+				4D0DC544267B724700E99004 /* ObjcPDFDocument.h */,
+				4D0DC543267B724700E99004 /* ObjcPDFObject.h */,
 				4D2BFD6425D3DE6000F8128E /* ObjcQPDFObjectHandle.h */,
 				4D2BFD6725D486DA00F8128E /* ObjcQPDFObjectHandle.hh */,
 				4D2BFD6325D3DE6000F8128E /* ObjcQPDFObjectHandle.mm */,
@@ -288,22 +290,22 @@
 				4D9CCA8D25E51ADA0003DF13 /* QPDFHelp.m */,
 				4D5BEC6225D276AD006CBE02 /* QPDFMenu.h */,
 				4D5BEC6325D276AD006CBE02 /* QPDFMenu.m */,
-				4D3A6B9225BAADB500B22499 /* QPDFNode.h */,
-				4D3A6B9325BAADB500B22499 /* QPDFNode.m */,
+				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
+				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
+				4D5EEB93263980F300AF36E1 /* QPDFPageView.h */,
+				4D5EEB92263980F300AF36E1 /* QPDFPageView.m */,
 				4D7BAF2F25FB43AA00432F33 /* QPDFSegmentedCell.h */,
 				4D7BAF2E25FB43AA00432F33 /* QPDFSegmentedCell.m */,
 				4DA54A5F261858AC00CFE719 /* QPDFSyntaxHighlighter.h */,
 				4DA54A5E261858AC00CFE719 /* QPDFSyntaxHighlighter.m */,
-				4D5BEC3D25CEB443006CBE02 /* QPDFOutlineView.h */,
-				4D5BEC3C25CEB443006CBE02 /* QPDFOutlineView.m */,
-				4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */,
-				4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */,
 				4D7D72B226358125007BDBC7 /* QPDFTextView.h */,
 				4D7D72B326358125007BDBC7 /* QPDFTextView.m */,
+				4D0DC5412678D1C800E99004 /* QPDFView.h */,
+				4D0DC5402678D1C800E99004 /* QPDFView.m */,
+				4D9CCA8525DA7EA90003DF13 /* QPDFWindow.h */,
+				4D9CCA8625DA7EAA0003DF13 /* QPDFWindow.m */,
 				4D5450E225C535F500ED6F54 /* QPDFWindowController.h */,
 				4D5BEC2725C58A96006CBE02 /* QPDFWindowController.m */,
-				4D5EEB93263980F300AF36E1 /* QPDFPageView.h */,
-				4D5EEB92263980F300AF36E1 /* QPDFPageView.m */,
 				4D114D9625FECACA00F8A6F1 /* TestConstrants.xib */,
 			);
 			path = pdftracer;
@@ -370,6 +372,17 @@
 				4D36C04925A2CF75007E0EAD /* corepdf.m */,
 			);
 			path = psconverter;
+			sourceTree = "<group>";
+		};
+		4DA55E5D268A00DE0082039E /* NoodleLineNumber */ = {
+			isa = PBXGroup;
+			children = (
+				4DA55E61268A01410082039E /* NoodleLineNumberMarker.h */,
+				4DA55E62268A01410082039E /* NoodleLineNumberMarker.m */,
+				4DA55E5E268A01200082039E /* NoodleLineNumberView.h */,
+				4DA55E5F268A01200082039E /* NoodleLineNumberView.m */,
+			);
+			path = NoodleLineNumber;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -584,7 +597,7 @@
 				4D9CCA8725DA7EAA0003DF13 /* QPDFWindow.m in Sources */,
 				4D5BEC3E25CEB443006CBE02 /* QPDFOutlineView.m in Sources */,
 				4D3A6B9D25BD98DD00B22499 /* OutlineQPDFPage.m in Sources */,
-				4D7D72B126342CA4007BDBC7 /* QPDFView.m in Sources */,
+				4D0DC5422678D1C800E99004 /* QPDFView.m in Sources */,
 				4D5BEC6425D276AD006CBE02 /* QPDFMenu.m in Sources */,
 				4D9CCA8E25E51ADA0003DF13 /* QPDFHelp.m in Sources */,
 				4D7BAF3025FB43AA00432F33 /* QPDFSegmentedCell.m in Sources */,
@@ -595,11 +608,12 @@
 				4D163CF525987A1F00C8C7D3 /* Arguments.m in Sources */,
 				4D5EEB94263980F300AF36E1 /* QPDFPageView.m in Sources */,
 				4D8EE7222598A51F008D2DA2 /* editor.m in Sources */,
+				4DA55E63268A01410082039E /* NoodleLineNumberMarker.m in Sources */,
 				4D2BFD6525D3DE6000F8128E /* ObjcQPDFObjectHandle.mm in Sources */,
 				4D2BFD6225D3D22700F8128E /* ObjcQPDF.mm in Sources */,
 				4D638AE425C2DBBB00BAB433 /* QPDFDocumentController.m in Sources */,
 				4D3A6B9A25BD8E0600B22499 /* OutlineQPDFObj.m in Sources */,
-				4D3A6B9425BAADB500B22499 /* QPDFNode.m in Sources */,
+				4DA55E60268A01200082039E /* NoodleLineNumberView.m in Sources */,
 				4DA54A60261858AC00CFE719 /* QPDFSyntaxHighlighter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
