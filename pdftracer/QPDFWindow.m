@@ -72,6 +72,8 @@
 }
 */
 
+// Should move all these static UI creators to their own class.
+
 +(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu
 {
 	NSSegmentedControl* oSegment = [[NSSegmentedControl alloc] init];

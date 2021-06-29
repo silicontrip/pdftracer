@@ -343,8 +343,8 @@
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
-	NSLog(@"wincon selectRow -> %ld",(long)sr);
-	NSLog(@"wincon selectView -> %@",qov);
+//	NSLog(@"wincon selectRow -> %ld",(long)sr);
+//	NSLog(@"wincon selectView -> %@",qov);
 	
 	// setOV, setRow
 	[self setSelectedRow:sr];
@@ -353,7 +353,7 @@
 	//Parameter is NSInteger. no mention of out of range value, assume returns nil
 	// setText
 
-	NSLog(@"wincon selectHandle -> %@",selectedHandle);
+//	NSLog(@"wincon selectHandle -> %@",selectedHandle);
 
 	if (selectedHandle)
 	{

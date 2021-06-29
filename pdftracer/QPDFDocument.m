@@ -124,8 +124,8 @@
 		[p release];
 		//p=nil;
 	}];
-	if(p)
-		[p autorelease];
+	// if(p)
+	//	[p autorelease];
 	[self updateChangeCount:NSChangeCleared];
 }
 
@@ -495,9 +495,10 @@
 		if ([parent isArray])
 		{
 			NSLog(@"delete from Array");
-			NSLog(@"node name: %@",[nd name]);
+			
+			NSLog(@"node name: %@",[nd elementName]);
 
-			int element = [[nd name] intValue];
+			int element = [[nd elementName] intValue];
 			[parent removeObjectAtIndex:element];
 			[self updateChangeCount:NSChangeDone];
 			[[[self windowControllers] firstObject] setDocumentEdited:YES];
@@ -506,8 +507,8 @@
 		} else if ([parent isDictionary]) {
 			NSLog(@"delete from Dictionary");
 
-			NSLog(@"node name: %@",[nd name]);
-			[parent removeObjectForKey:[nd name]];
+			NSLog(@"node name: %@",[nd elementName]);
+			[parent removeObjectForKey:[nd elementName]];
 
 			[self updateChangeCount:NSChangeDone];
 			// delete from Dictionary
