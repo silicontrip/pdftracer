@@ -4,7 +4,7 @@
 
 @implementation ObjcQPDF
 
--(instancetype)init
+- (instancetype)init
 {
 	self = [super init];
 	if (self)
@@ -17,7 +17,7 @@
 	return self;
 }
 
--(instancetype)initWithURL:(NSURL*)fileURL
+- (instancetype)initWithURL:(NSURL*)fileURL
 {
 	self = [super init];
 //	NSLog(@"ObjcQPDF initWithURL url %@ self %@",fileURL,self);  // open document is failing.
@@ -36,8 +36,7 @@
 	return self;
 }
 
-
--(instancetype)initWithData:(NSData*)data
+- (instancetype)initWithData:(NSData* _Nonnull)data
 {
 	self = [super init];
 	if (self)
@@ -54,7 +53,7 @@
 }
 
 // obj-c++ only method
--(instancetype)initWithQPDF:(QPDF*)qpdf
+- (instancetype)initWithQPDF:(QPDF*)qpdf
 {
 	self = [super init];
 	if (self)
@@ -85,54 +84,56 @@
 		[pageIndex setObject:objVal forKey:objKey];
 	}
 	pageDirects = [pageIndex copy];  // is this retained?
+	// copy method convention says it is
 }
 
 
  // only for the other objc++ class
--(QPDF*)qpdf
+- (QPDF*)qpdf
 {
 	// NSLog(@"init QPDF %@ - %lx",self,(unsigned long)qDocument);
 
 	return qDocument;
 }
 
--(NSURL*)fileURL
+- (NSURL* _Nonnull)fileURL
 {
 	return [NSURL fileURLWithPath:[NSString stringWithUTF8String:qDocument->getFilename().c_str()]];
 }
 
--(NSString*)filename
+- (NSString* _Nonnull)filename
 {
 	return [NSString stringWithUTF8String:qDocument->getFilename().c_str()];
 }
 
--(NSString*)version
+- (NSString* _Nonnull)version
 {
 	return [NSString stringWithUTF8String:qDocument->getPDFVersion().c_str()];
 }
 
--(NSArray<ObjcQPDFObjectHandle*>*)pages
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)pages
 {
 	return [ObjcQPDFObjectHandle arrayWithVector:qDocument->getAllPages()];
 }
--(NSUInteger)countPages
+
+// - (NSUInteger)pageCount; // ??
+
+- (NSUInteger)countPages
 {
 	return qDocument->getAllPages().size();
-	
-//	qDocument->get
 }
 
--(NSArray<ObjcQPDFObjectHandle*>*)objects
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)objects
 {
 	return [ObjcQPDFObjectHandle arrayWithVector:qDocument->getAllObjects()];
 }
 
--(NSUInteger)countObjects
+- (NSUInteger)countObjects
 {
 	return qDocument->getObjectCount();
 }
 
--(nullable ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index
+- (ObjcQPDFObjectHandle* _Nullable)pageAtIndex:(NSUInteger)index
 {
 	std::vector<QPDFObjectHandle> qohv = qDocument->getAllPages();
 	if (index <qohv.size()) {
@@ -142,18 +143,18 @@
 	return nil;
 }
 
--(BOOL)isIndirectPage:(NSString*)objectGeneration
+- (BOOL)isIndirectPage:(NSString* _Nonnull)objectGeneration
 {
 	if ([pageDirects objectForKey:objectGeneration] != nil)
 		return YES;
 	return NO;
 }
--(NSNumber*)pageIndexForIndirect:(NSString*)objectGeneration
+- (NSNumber* _Nonnull)pageIndexForIndirect:(NSString* _Nonnull)objectGeneration
 {
 	return [pageDirects objectForKey:objectGeneration];
 }
 
--(nullable ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration
+- (ObjcQPDFObjectHandle* _Nullable)pageForIndirect:(NSString* _Nonnull)objectGeneration
 {
 	if([pageDirects objectForKey:objectGeneration] != nil)
 		return [self pageAtIndex:[[pageDirects objectForKey:objectGeneration] unsignedLongValue]];
@@ -162,13 +163,7 @@
 }
 
 
-/*
--(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index
-{
-	return [[self objects] objectAtIndex:index];
-}
-*/
--(ObjcQPDFObjectHandle*)objectAtIndex:(NSString*)objGen
+- (ObjcQPDFObjectHandle* _Nullable)objectAtIndex:(NSString* _Nullable)objGen
 {
 	
 	// i know we've been warned not to simply rely on the objectid, without the generation
@@ -189,7 +184,7 @@
 }
 
 
--(void)replaceID:(NSString*)objGen with:(ObjcQPDFObjectHandle*)obj
+- (void)replaceID:(NSString* _Nonnull)objGen with:(ObjcQPDFObjectHandle* _Nonnull)obj
 {
 	if (obj != nil && objGen != nil)
 	{
@@ -209,7 +204,7 @@
 	}
 }
 
--(void)removeID:(NSString*)objGen
+- (void)removeID:(NSString* _Nonnull)objGen
 {
 	NSArray<NSString*>* objElem= [objGen componentsSeparatedByString:@" "];
 	int objid = [[objElem objectAtIndex:0] intValue];
@@ -220,30 +215,29 @@
 	qDocument->replaceObject(objid,genid,QPDFObjectHandle::newNull());
 }
 
--(ObjcQPDFObjectHandle*)copyRootCatalog
+- (ObjcQPDFObjectHandle* _Nonnull)copyRootCatalog
 {
 	QPDFObjectHandle root = qDocument->getRoot();
 	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
 	return rootObjc;
 }
 
--(ObjcQPDFObjectHandle*)copyTrailer
+- (ObjcQPDFObjectHandle* _Nonnull)copyTrailer
 {
 	QPDFObjectHandle root = qDocument->getTrailer();
 	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
 	return rootObjc;
 }
 
--(PDFDocument*)document
+- (PDFDocument* _Nonnull)document
 {
 	NSData* qPDFData = [self data];
 	return [[[PDFDocument alloc] initWithData:qPDFData] autorelease];
 }
 
--(NSData*)data
+- (NSData* _Nonnull)data
 {
-//	NSLog(@">>> ObjcQPDF data");
-	
+
 	QPDFWriter qwriter(*qDocument);
 	qwriter.setOutputMemory();
 	qwriter.write();
@@ -262,7 +256,7 @@
 	return pdfData;
 }
 
--(NSData*)qdf
+- (NSData* _Nonnull)qdf
 {
 	QPDFWriter qpdfWriter(*qDocument);
 	qpdfWriter.setQDFMode(true);
@@ -284,20 +278,20 @@
 
 // um, so which one of these is working?
 
--(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first
+- (void)addPage:(ObjcQPDFObjectHandle* _Nonnull)newpage atStart:(BOOL)first
 {
 	qDocument->addPage([newpage qpdfobject],first);  // now what?
 	[self makePageDirects];
 }
 
--(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage
+- (void)addPage:(ObjcQPDFObjectHandle* _Nonnull)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle* _Nonnull)refpage
 {
 	qDocument->addPageAt([newpage qpdfobject], first, [refpage qpdfobject]);
 	[self makePageDirects];
 
 }
 
--(void)addPageUsingHelper:(ObjcQPDFObjectHandle*)page atStart:(BOOL)first
+- (void)addPageUsingHelper:(ObjcQPDFObjectHandle* _Nonnull)page atStart:(BOOL)first
 {
 	QPDFPageObjectHelper poh = QPDFPageObjectHelper([page qpdfobject]);
 	QPDFPageDocumentHelper pdh = QPDFPageDocumentHelper(*qDocument);

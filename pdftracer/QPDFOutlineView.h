@@ -6,7 +6,7 @@
 
 }
 
-@property (weak,nonatomic) NSSegmentedControl* relatedSegment;
+@property (nonatomic) NSSegmentedControl* relatedSegment;
 
 - (BOOL)acceptsFirstResponder;
 // - (BOOL)becomeFirstResponder;

@@ -30,9 +30,19 @@ typedef enum object_type_e object_type_e;
 
 
 typedef NS_ENUM(NSInteger, QPDFObjectType) {
- 	QPDFObjectTypeUninitialized = 0,
- 	QPDFObjectTypeReserved = 1,
- 	QPDFObjectTypeNull = 2
+	QPDFObjectTypeUninitialized = 0,
+	QPDFObjectTypeReserved = 1,
+	QPDFObjectTypeNull = 2,
+	QPDFObjectTypeBoolean = 3,
+	QPDFObjectTypeInteger = 4,
+	QPDFObjectTypeReal = 5,
+	QPDFObjectTypeString = 6,
+	QPDFObjectTypeName = 7,
+	QPDFObjectTypeArray = 8,
+	QPDFObjectTypeDictionary = 9,
+	QPDFObjectTypeStream = 10,
+	QPDFObjectTypeOperator = 11,
+	QPDFObjectTypeInlineImage = 12
 };
 
 // err but not right now, but wait there's more
@@ -45,82 +55,74 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 }
 
 // these only make sense when they are attached to a PDF structure
-@property (nonatomic,assign) ObjcQPDFObjectHandle* parent;
-@property (nonatomic,strong) NSString* elementName;
+@property (nonatomic,assign) ObjcQPDFObjectHandle* _Nullable parent;
+@property (nonatomic,strong) NSString* _Nullable elementName;
 
--(instancetype)initWithString:(NSString*)def;
--(BOOL)isNull;
--(BOOL)isStream;
--(BOOL)isArray;
--(BOOL)isDictionary;
--(BOOL)isExpandable;
--(BOOL)isIndirect;
--(BOOL)isName;
-
-- (nullable NSString*)dictionaryType;
-
--(BOOL)isPage;
--(NSInteger)pageNumber;
-
--(NSUInteger)count;
--(object_type_e)type;
-
--(ObjcQPDF*)owner;
--(NSArray<NSString*>*)keys;
--(NSArray<ObjcQPDFObjectHandle*>*)array;
--(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key;
--(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
--(ObjcQPDFObjectHandle*)streamDictionary;
--(void)removeObjectForKey:(NSString*)key;
--(void)removeObjectAtIndex:(int)index;
--(void)replaceObject:(ObjcQPDFObjectHandle*)obj forKey:(NSString*)key;
--(void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle*)obj;
--(void)addObject:(ObjcQPDFObjectHandle*)obj;
-//-(void)removeID:(NSString*)objGen;
-
--(NSData*)stream;
--(void)replaceStreamData:(NSString*)data;
--(NSString*)name;
--(NSString*)typeName;
--(NSString*)unparse;
--(NSString*)unparseResolved;
--(NSString*)objectGenerationID;
-- (NSString*)text;
-
--(BOOL)childrenContainIndirects;
-
-+ (ObjcQPDFObjectHandle*)nullObject;
-+ (ObjcQPDFObjectHandle*)boolWith:(BOOL)b;
-+ (ObjcQPDFObjectHandle*)intWith:(NSInteger)b;
-+ (ObjcQPDFObjectHandle*)realWith:(double)b;
-+ (ObjcQPDFObjectHandle*)stringWith:(NSString*)b;
-+ (ObjcQPDFObjectHandle*)nameWith:(NSString*)b;
-+ (ObjcQPDFObjectHandle*)arrayObject;
-+ (ObjcQPDFObjectHandle*)arrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array;
-+ (ObjcQPDFObjectHandle*)arrayWithRectangle:(CGRect)rect;
-+ (ObjcQPDFObjectHandle*)arrayWithMatrix:(CGAffineTransform)matrix;
-+ (ObjcQPDFObjectHandle*)dictionaryObject;
-+ (ObjcQPDFObjectHandle*)dictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict;
-
-// too many news
-+ (ObjcQPDFObjectHandle*)newNull;
-+ (ObjcQPDFObjectHandle*)newBool:(BOOL)b;
-+ (ObjcQPDFObjectHandle*)newInteger:(NSInteger)i;
-+ (ObjcQPDFObjectHandle*)newReal:(double)n;
-+ (ObjcQPDFObjectHandle*)newString:(NSString*)s;
-+ (ObjcQPDFObjectHandle*)newName:(NSString*)s;
-+ (ObjcQPDFObjectHandle*)newArray;
-+ (ObjcQPDFObjectHandle*)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>*)array;
-+ (ObjcQPDFObjectHandle*)newArrayWithRectangle:(CGRect)rect;
-+ (ObjcQPDFObjectHandle*)newArrayWithMatrix:(CGAffineTransform)matrix;
-+ (ObjcQPDFObjectHandle*)newDictionary;
-+ (ObjcQPDFObjectHandle*)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>*)dict;
-
-+ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf;
-+ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withData:(NSData*)data;
-+ (ObjcQPDFObjectHandle*)newStreamForQPDF:(ObjcQPDF*)qpdf withString:(NSString*)data;
-+ (ObjcQPDFObjectHandle*)newIndirect:(NSString*)objGen for:(ObjcQPDF*)qpdf;
-
-
+- (void)addObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)array;
++ (ObjcQPDFObjectHandle* _Nonnull)arrayObject;
++ (ObjcQPDFObjectHandle* _Nonnull)arrayWithArray:(NSArray<ObjcQPDFObjectHandle*>* _Nonnull)array;
++ (ObjcQPDFObjectHandle* _Nonnull)arrayWithMatrix:(CGAffineTransform)matrix;
++ (ObjcQPDFObjectHandle* _Nonnull)arrayWithRectangle:(CGRect)rect;
+// + (NSArray<ObjcQPDFObjectHandle*>*)arrayWithVector:(std::vector<QPDFObjectHandle>)vec
++ (ObjcQPDFObjectHandle* _Nonnull)boolWith:(BOOL)b;
+- (BOOL)childrenContainIndirects;
+- (NSUInteger)count;
+- (NSString* _Nonnull)description;
++ (ObjcQPDFObjectHandle* _Nonnull)dictionaryObject;
+- (NSString* _Nullable)dictionaryType;
++ (ObjcQPDFObjectHandle* _Nonnull)dictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>* _Nonnull)dict;
+// - (instancetype)initWithObject:(QPDFObjectHandle)obj
+- (instancetype _Nullable)initWithString:(NSString* _Nonnull)def;
++ (ObjcQPDFObjectHandle* _Nonnull)intWith:(NSInteger)b;
+- (BOOL)isArray;
+- (BOOL)isDictionary;
+- (BOOL)isExpandable;
+- (BOOL)isIndirect;
+- (BOOL)isName;
+- (BOOL)isNull;
+- (BOOL)isPage;
+- (BOOL)isStream;
+- (NSArray<NSString*>* _Nonnull)keys;
+- (NSString* _Nonnull)name;
++ (ObjcQPDFObjectHandle* _Nonnull)nameWith:(NSString* _Nonnull)b;
++ (ObjcQPDFObjectHandle* _Nonnull)newArray;
++ (ObjcQPDFObjectHandle* _Nonnull)newArrayWithArray:(NSArray<ObjcQPDFObjectHandle*>* _Nonnull)array;
++ (ObjcQPDFObjectHandle* _Nonnull)newArrayWithMatrix:(CGAffineTransform)matrix;
++ (ObjcQPDFObjectHandle* _Nonnull)newArrayWithRectangle:(CGRect)rect;
++ (ObjcQPDFObjectHandle* _Nonnull)newBool:(BOOL)b;
++ (ObjcQPDFObjectHandle* _Nonnull)newDictionary;
++ (ObjcQPDFObjectHandle* _Nonnull)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>* _Nonnull)dict;
++ (ObjcQPDFObjectHandle* _Nonnull)newIndirect:(NSString* _Nonnull)objGen for:(ObjcQPDF* _Nonnull)qpdf;
++ (ObjcQPDFObjectHandle* _Nonnull)newIndirect:(NSString* _Nonnull)objGen usingReference:(ObjcQPDFObjectHandle* _Nonnull)qpdfoh;
++ (ObjcQPDFObjectHandle* _Nonnull)newInteger:(NSInteger)i;
++ (ObjcQPDFObjectHandle* _Nonnull)newName:(NSString* _Nonnull)s;
++ (ObjcQPDFObjectHandle* _Nonnull)newNull;
++ (ObjcQPDFObjectHandle* _Nonnull)newReal:(double)n;
++ (ObjcQPDFObjectHandle* _Nonnull)newStreamForQPDF:(ObjcQPDF* _Nonnull)oQpdf;
++ (ObjcQPDFObjectHandle* _Nonnull)newStreamForQPDF:(ObjcQPDF* _Nonnull)oQpdf withData:(NSData* _Nonnull)data;
++ (ObjcQPDFObjectHandle* _Nonnull)newStreamForQPDF:(ObjcQPDF* _Nonnull)oQpdf withString:(NSString* _Nonnull)data;
++ (ObjcQPDFObjectHandle* _Nonnull)newString:(NSString* _Nonnull)s;
++ (ObjcQPDFObjectHandle* _Nonnull)nullObject;
+- (ObjcQPDFObjectHandle* _Nonnull)objectAtIndex:(NSUInteger)index;
+- (ObjcQPDFObjectHandle* _Nullable)objectForKey:(NSString* _Nonnull)key;
+- (NSString* _Nonnull)objectGenerationID;
+- (ObjcQPDF* _Nullable)owner;
+- (NSInteger)pageNumber;
+// - (QPDFObjectHandle)qpdfobject
++ (ObjcQPDFObjectHandle* _Nonnull)realWith:(double)b;
+- (void)removeObjectAtIndex:(int)index;
+- (void)removeObjectForKey:(NSString* _Nonnull)key;
+- (void)replaceObject:(ObjcQPDFObjectHandle* _Nonnull)obj forKey:(NSString* _Nonnull)key;
+- (void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
+- (void)replaceStreamData:(NSString* _Nonnull)data;
+- (NSData* _Nullable)stream;
+- (ObjcQPDFObjectHandle* _Nonnull)streamDictionary;
++ (ObjcQPDFObjectHandle* _Nonnull)stringWith:(NSString* _Nonnull)b;
+- (NSString* _Nonnull)text;
+- (object_type_e)type;
+- (NSString* _Nonnull)typeName;
+- (NSString* _Nonnull)unparse;
+- (NSString* _Nonnull)unparseResolved;
 
 @end

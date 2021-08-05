@@ -29,9 +29,9 @@
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
-@property (weak,nonatomic) QPDFOutlineView* selectedView;
+@property (nonatomic) QPDFOutlineView* selectedView;
 //@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedNode;
-@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedHandle;
+@property (nonatomic) ObjcQPDFObjectHandle* selectedHandle;
 @property (assign) NSInteger selectedPage;  // unselected sentinel is -1
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw notificationCenter:(NSNotificationCenter*)centre;

@@ -12,39 +12,34 @@
 	NSDictionary<NSString*,NSNumber*>* pageDirects; //TODO: also need to handle adding/removing pages
 }
 
--(instancetype)init; // empty pdf
--(instancetype)initWithURL:(NSURL*)fileURL;
--(instancetype)initWithData:(NSData*)pdfData;
-
--(NSURL*)fileURL;
--(NSString*)filename;
--(NSString*)version;
--(NSArray<ObjcQPDFObjectHandle*>*)pages;
--(NSArray<ObjcQPDFObjectHandle*>*)objects;
--(NSUInteger)countObjects;
--(NSUInteger)countPages;
-
+- (void)addPage:(ObjcQPDFObjectHandle* _Nonnull)newpage atStart:(BOOL)first;
+- (void)addPage:(ObjcQPDFObjectHandle* _Nonnull)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle* _Nonnull)refpage;
+- (void)addPageUsingHelper:(ObjcQPDFObjectHandle* _Nonnull)page atStart:(BOOL)first;
+- (ObjcQPDFObjectHandle* _Nonnull)copyRootCatalog;
+- (ObjcQPDFObjectHandle* _Nonnull)copyTrailer;
+- (NSUInteger)countObjects;
+- (NSUInteger)countPages;
+- (NSData* _Nonnull)data;
+- (PDFDocument* _Nonnull)document;
+- (NSString* _Nonnull)filename;
+- (NSURL* _Nonnull)fileURL;
+- (instancetype)init;
+- (instancetype)initWithData:(NSData* _Nonnull)data;
+//- (instancetype)initWithQPDF:(QPDF*)qpdf;
+- (instancetype)initWithURL:(NSURL*)fileURL;
+- (BOOL)isIndirectPage:(NSString* _Nonnull)objectGeneration;
+- (void)makePageDirects;
+- (ObjcQPDFObjectHandle* _Nullable)objectAtIndex:(NSString* _Nullable)objGen;
 //-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
--(ObjcQPDFObjectHandle*)objectAtIndex:(NSString*)objGen;
-
--(ObjcQPDFObjectHandle*)pageAtIndex:(NSUInteger)index;
-
--(BOOL)isIndirectPage:(NSString*)objectGeneration;
--(NSNumber*)pageIndexForIndirect:(NSString*)objectGeneration;
--(ObjcQPDFObjectHandle*)pageForIndirect:(NSString*)objectGeneration;
-
--(id<ObjcPDFObject>)copyRootCatalog; // naming convention for alloc
--(ObjcQPDFObjectHandle*)copyTrailer;
-
--(void)replaceID:(NSString*)objGen with:(id<ObjcPDFObject>)obj;
--(void)removeID:(NSString*)objGen;
-
--(NSData*)data;
--(PDFDocument*)document;
--(NSData*)qdf;
-
--(void)addPage:(ObjcQPDFObjectHandle*)newpage atStart:(BOOL)first;
--(void)addPage:(ObjcQPDFObjectHandle*)newpage before:(BOOL)first page:(ObjcQPDFObjectHandle*)refpage;
--(void)addPageUsingHelper:(ObjcQPDFObjectHandle*)page atStart:(BOOL)first;
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)objects;
+- (ObjcQPDFObjectHandle* _Nullable)pageAtIndex:(NSUInteger)index;
+- (ObjcQPDFObjectHandle* _Nullable)pageForIndirect:(NSString* _Nonnull)objectGeneration;
+- (NSNumber* _Nonnull)pageIndexForIndirect:(NSString* _Nonnull)objectGeneration;
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)pages;
+- (NSData* _Nonnull)qdf;
+// - (QPDF*)qpdf;
+- (void)removeID:(NSString* _Nonnull)objGen;
+- (void)replaceID:(NSString* _Nonnull)objGen with:(ObjcQPDFObjectHandle* _Nonnull)obj;
+- (NSString* _Nonnull)version;
 
 @end
