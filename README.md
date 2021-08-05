@@ -11,16 +11,34 @@ Recently I was handed a operating manual with the phrase "I have been unable to 
 
 That's where this program comes in.  It is a PDF editor in the literal sense, and it lets you edit the PDF structure and content streams, while in real time updating the finished pdf view.  
 
-Some Planned features include:
+Like any good Unix application, it doesn't throw up are you sure dialogs when you are about to delete or corrupt essential PDF objects, that could make the PDF unreadable or cause the editor to crash (I'm working on exception catching for these)
+
+Some Planned features aka TODO:
 * Document helpers for inserting bitmap images and fonts.
 * an IDE style content stream editor, with command templates.
 * High level functions such as add new Page.
 
-Tracer features
+Planned tracer features
 
 * variable transperancy background layer, from any Quartz image.
 * obtain document co-ordinates from PDFView.
-* selecting element in PDFview highlights it in content stream view. 
+* selecting element in PDFview highlights it in content stream view.
+* Highlighting Text in stream editor highlights it in PDF view.
+
+# Feature Updates (reverse chron)
+* Line numbers in the text view
+* Helper to insert one of the standard 13 PDF fonts.
+* Printing the PDF
+* Set the Page size from most common page sizes (so you don't have to remember the point dimensions like 595 x 842)
+* Syntax Highlighting
+* Choose stream editor font
+* Scroll and Zoom in the PDF
+* Add Page
+* Basic PDF command help
+* Open, Open Recent, Save, Save As
+* Retain window layout per document
+* Copy and Paste
+
 
 # What syntax is this, Objective-C?
 
