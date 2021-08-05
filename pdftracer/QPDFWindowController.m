@@ -26,6 +26,10 @@
 	if (self) {
 	// NSLog(@"win title: %@",[nsw title]);
 	
+		lastUpdate = 0;
+		updateDocumentLock = [NSLock new];
+
+		
 		QPDFWindow* qpw = (QPDFWindow*)nsw;
 		documentCenter = dc;
 		
@@ -39,6 +43,11 @@
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
+		
+		NSLog(@"doc-view: %@",[qpw documentView]);
+		NSLog(@"DOCUMENT: %@",[self document]);
+		
+	//	[[qpw documentView] setDocument:[[self document] pdfdocument]];
 	}
 	return self;
 }
@@ -61,6 +70,9 @@
 	[[w outlineAtIndex:2] setDataSource:pageDS];
 	
 	[[w textView] setDelegate:self];
+	
+	// [[w documentView] setDocument:[[self document] pdfdocument]];
+
 	
 	//[qp pdfdocument];
 	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(0)];
@@ -294,9 +306,9 @@
 				NSLog(@"parent is not dictionary or array");  // so wtf is it?
 			}
 			[newobj autorelease];
-			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
 
 		}
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
 	}
 	// update outlines
 	// update textview
@@ -320,23 +332,23 @@
 			text = [qpdf unparseResolved];
 			[self setEditEnable:YES];
 		}
-	}
 	
-	// or post another notification
-	QPDFWindow* w = (QPDFWindow*)[self window];
-	
-	QPDFTextView* ntv = w.textView;
+		
+		// or post another notification
+		QPDFWindow* w = (QPDFWindow*)[self window];
+		
+		QPDFTextView* ntv = w.textView;
 
-	[ntv setString:text];
-	[ntv checkTextInDocument:nil];
-	
-	// this one for quickly colouring the displayed text
-	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-															 inTextContainer:w.textView.textContainer];
-	NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-	
-	[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
-	
+		[ntv setString:text];
+		[ntv checkTextInDocument:nil];
+		
+		// this one for quickly colouring the displayed text
+		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+																 inTextContainer:w.textView.textContainer];
+		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+		
+		[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
+	}
 }
 
 // selectRow -> #setOV, #setRow, #setText, enaEdit, #enaAddRemove;
@@ -503,7 +515,7 @@ void printView (NSView* n)
 	//	[self performSelector:@selector(updateDoc:) withObject:doc afterDelay:0.1];
 		
 		// post NSNotification
-		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(self.selectedPage)];
 
 //		[self updateCurrentPage];
 
@@ -552,6 +564,8 @@ void printView (NSView* n)
 
 - (void)documentChange:(NSNotification*)notification
 {
+	/*
+	// why am I using notification user info?
 	NSNumber* page = [notification object];
 	int selPage = [page intValue];
 	
@@ -561,16 +575,46 @@ void printView (NSView* n)
 	// wonder if passing a nil object to set document will grey it out.
 	if (selPage >= 0)
 		doc = [[self document] pdfDocumentPage:selPage];  // arrays are zero indexed...
+	*/
 	
+	[self updatePDFView];
+	
+}
+- (void)updatePDFView
+{
+	// if timer not running {
+	PDFDocument* doc = nil;
+	if (selectedPage>=0)
+		doc = [[self document] pdfDocumentPage:selectedPage];  // arrays are zero indexed...
+
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
 	QPDFView* pv = [qwin documentView];
 	
 	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
 	NSRect saveRect = [visRect visibleRect];
 	
+	// [updateDocumentLock lock];  // hoping this will prevent the update display crash.
+	//[visRect scrollRectToVisible:saveRect];
+	
+	// [pv setCanDrawConcurrently:NO];
+	if (time(NULL) != lastUpdate)
+	{
+		[CATransaction begin];
+		[CATransaction setValue:(id)kCFBooleanTrue
+						 forKey:kCATransactionDisableActions];  // this might fix the crashing... // no
+	
+		[pv setDocument:doc];
+		lastUpdate = time(NULL);
+		[CATransaction commit];
+	}
+	
+//	[pv layoutDocumentView];  // does not work, as the document is static in memory
 	[visRect scrollRectToVisible:saveRect];
-	[pv setDocument:doc];
-	[visRect scrollRectToVisible:saveRect];
+	// [updateDocumentLock unlock];
+	// } end if
+	// cancel old timer
+	// create new
+	
 }
 
 /*
@@ -616,7 +660,10 @@ void printView (NSView* n)
 	//	NSLog(@"selected Node: %@",selectedHandle);
 		
 		NSString * editor = [[fieldEditor textStorage] string];
-		[self changeText:selectedView with:editor];
+		
+		NSLog(@"Changed to: %@",editor);
+		
+		[self changeText:selectedView with:editor];  // why is this needed?
 		
 		// refresh outline, refreshPDF, documentChange
 	//	NSLog(@"reloading: %@",selectedHandle);
@@ -854,8 +901,9 @@ void printView (NSView* n)
 
 						}
 					} else {
-						ObjcQPDFObjectHandle* proc = [ObjcQPDFObjectHandle newName:menuName];
+						ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newName:menuName] autorelease];
 						[procset addObject:proc];
+						
 						[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:procset userInfo:@{@"ReloadChildren":@(YES)}];
 						[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
 

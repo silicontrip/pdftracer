@@ -66,7 +66,6 @@
 	return [QPDFMenu itemWithTitle:title keyEquiv:nil selector:selstr submenu:nil modifier:0 tag:tag];
 }
 
-
 + (NSMenuItem*)itemWithTitle:(NSString*)title keyEquiv:(NSString*)thisKey  modifier:(NSEventModifierFlags)keyMod selector:(NSString*)selstr
 {
 	return [QPDFMenu itemWithTitle:title keyEquiv:thisKey selector:selstr submenu:nil modifier:keyMod tag:0];
@@ -106,7 +105,7 @@
 	{
 		
 		// Would like to split these out
-		// maybe a composite class
+		// maybe a category
 		// or just another method.
 		// I really don't like all of this menu design code in -(id)init
 		
@@ -160,8 +159,8 @@
 		NSMenu* formatMenu = [[NSMenu new] autorelease];
 		[formatMenu setAutoenablesItems:YES];
 		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Show Fonts" keyEquiv:@"T" modifier:cmd|ctrl  selector:@"orderFrontFontPanel:"]];
-		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Bigger" keyEquiv:@"+" modifier:cmd|opt selector:@"modifyFont:"]];
-		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Smaller" keyEquiv:@"-" modifier:cmd|opt selector:@"modifyFont:"]];
+		// [formatMenu addItem:[QPDFMenu itemWithTitle:@"Bigger" keyEquiv:@"+" modifier:cmd|opt selector:@"modifyFont:"]];
+		// [formatMenu addItem:[QPDFMenu itemWithTitle:@"Smaller" keyEquiv:@"-" modifier:cmd|opt selector:@"modifyFont:"]];
 		[formatMenu addItem:[NSMenuItem separatorItem]];
 		[formatMenu addItem:[QPDFMenu itemWithTitle:@"Transformation" submenu:transMenu]];
 

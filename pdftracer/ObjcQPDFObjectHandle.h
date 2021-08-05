@@ -66,7 +66,6 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 -(object_type_e)type;
 
 -(ObjcQPDF*)owner;
-
 -(NSArray<NSString*>*)keys;
 -(NSArray<ObjcQPDFObjectHandle*>*)array;
 -(ObjcQPDFObjectHandle*)objectForKey:(NSString*)key;

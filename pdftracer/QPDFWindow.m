@@ -15,6 +15,7 @@
 
 -(void)setDocument:(PDFDocument*)pdf
 {
+	// put lock around here?
 	[self.documentView setDocument:pdf];
 }
 
@@ -334,9 +335,7 @@
 
 - (void)mouseDown:(NSEvent *)event
 {
-	
 	NSLog(@"Window Mouse Down: %@",event);
-	
 }
 
 /*

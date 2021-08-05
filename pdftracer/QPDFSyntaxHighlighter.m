@@ -193,7 +193,7 @@
 	NSString* storageString = [[_asyncView textStorage] string];
 	NSRange all = NSMakeRange(0, [storageString length]);
 
-	NSAssert((storageString != nil), @" colourise all storage string null");
+	NSAssert((storageString != nil), @"colourise all storage string null");
 	
 	// this async queue is not the cause of the crash but I'm leaving it out for the moment
 	
@@ -207,7 +207,7 @@
 {
 	// NSLog(@"%@",[NSThread callStackSymbols]);
 	NSString* storageString = [[_asyncView textStorage] string];
-	NSAssert((storageString != nil), @" colourise all storage string null");
+	NSAssert((storageString != nil), @"colourise range storage string null");
 	
 	// dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{ [self colouriseQueueString:storageString forRange:r]; } );
 	
@@ -325,14 +325,16 @@
 	
 	//I don't care how you do it, as long as its not a complete muppet
 	
-	dispatch_async(dispatch_get_main_queue(), ^{
+	// dispatch_async(dispatch_get_main_queue(), ^{
+		
 		[_asyncView.textStorage beginEditing];
 		for (Colourise* cr in colourInstruct)
 		{
 			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
 		}
 		[_asyncView.textStorage endEditing];
-	});
+		
+//	});
 
 
 }

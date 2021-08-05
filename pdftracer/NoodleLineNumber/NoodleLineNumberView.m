@@ -238,7 +238,7 @@
 
 - (void)calculateLines
 {
-    id              view;
+    id view;
 
     view = [self clientView];
     
@@ -246,7 +246,7 @@
     {
         NSUInteger        index, numberOfLines, stringLength, lineEnd, contentEnd;
         NSString        *text;
-        float         oldThickness, newThickness;
+        CGFloat oldThickness, newThickness;
         
         text = [view string];
         stringLength = [text length];
@@ -417,7 +417,7 @@
         range.length++;
         
         count = [lines count];
-        index = 0;
+       // index = 0;
         
         for (line = [self lineNumberForCharacterIndex:range.location inText:text]; line < count; line++)
         {

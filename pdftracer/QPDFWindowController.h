@@ -24,6 +24,8 @@
 	
 	QPDFSyntaxHighlighter *syntaxer;
 	NSNotificationCenter* documentCenter;  // really want to call this Centre
+	NSLock* updateDocumentLock;
+	unsigned long lastUpdate;
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;

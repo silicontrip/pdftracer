@@ -235,7 +235,7 @@
 	
 	NSRect rr = NSMakeRect(10, 10, 1440, 480);  // want better defaults
 	NSUInteger windowStyle =  NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable;
-	NSNotificationCenter* centre = [NSNotificationCenter new];
+	NSNotificationCenter* centre = [[NSNotificationCenter new] autorelease];
 	QPDFWindow* w = [[QPDFWindow alloc] initWithContentRect:rr styleMask:windowStyle backing:NSBackingStoreBuffered notificationCenter:centre];
 	QPDFWindowController* nwc = [[[QPDFWindowController alloc] initWithWindow:w notificationCenter:centre] autorelease];
 
