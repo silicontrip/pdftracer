@@ -126,6 +126,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
 - (void)replaceStreamData:(NSString* _Nonnull)data;
 - (void)replaceStreamData:(NSData* _Nonnull)data filter:(NSString* _Nullable)filter;
 - (NSData* _Nullable)stream;
+- (NSData* _Nullable)rawStream;
 - (ObjcQPDFObjectHandle* _Nonnull)streamDictionary;
 + (ObjcQPDFObjectHandle* _Nonnull)stringWith:(NSString* _Nonnull)b;
 - (NSString* _Nonnull)text;

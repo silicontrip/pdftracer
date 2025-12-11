@@ -584,7 +584,9 @@ void printView (NSView* n)
 		NSLog(@"[updatePDFView Point: %@ zoom: %f]",NSStringFromPoint([cDest point]),[cDest zoom]);
 
 		PDFDestination *nDest = [[PDFDestination alloc] initWithPage:[[objdoc document] pageAtIndex:0] atPoint:cPoint];
-		nDest.zoom = cZoom;
+		if (cZoom != kPDFDestinationUnspecifiedValue) {
+			nDest.zoom = cZoom;
+		}
 		[pv goToDestination:nDest];
 
 	}
@@ -697,6 +699,20 @@ void printView (NSView* n)
 	
 	if ([qpdf isStream]) {
 		fileData = [qpdf stream];
+		if (!fileData) {
+			// Decoding failed (e.g. DCTDecode not supported by QPDF).
+			// Try getting the raw stream data (e.g. the JPEG file itself).
+			fileData = [qpdf rawStream];
+			
+			if (!fileData) {
+				NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+				[alert setMessageText:@"Export Failed"];
+				[alert setInformativeText:@"Could not retrieve stream data (decoded or raw). The stream might be corrupted."];
+				[alert addButtonWithTitle:@"OK"];
+				[alert runModal];
+				return;
+			}
+		}
 	} else {
 		fileData= [[qpdf unparseResolved] dataUsingEncoding:NSMacOSRomanStringEncoding];
 	}
@@ -1120,6 +1136,11 @@ void printView (NSView* n)
 		// NSLog(@"delete... %@ %d",selectedView,selectedRow);
 		return YES;
 	}
+	
+	if (theAction == @selector(exportText:)) {
+		return (selectedView != nil && selectedRow >= 0);
+	}
+	
 	// return [super validateUserInterfaceItem:anItem];
 	return YES;
 }

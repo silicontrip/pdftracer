@@ -151,6 +151,19 @@
 
 }
 
+- (NSData* _Nullable)rawStream
+{
+	try {
+		std::shared_ptr<Buffer> bufRef = qObject.getRawStreamData();
+		Buffer* buf = bufRef.get();
+		size_t sz = buf->getSize();
+		unsigned char * bb = buf->getBuffer();
+		return [[[NSData alloc] initWithBytes:bb length:sz] autorelease];
+	} catch (QPDFExc e) {
+		return nil;
+	}
+}
+
 - (NSArray<NSString*>* _Nonnull)keys
 {
 //	if (dictionaryKeys)

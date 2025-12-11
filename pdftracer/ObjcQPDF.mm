@@ -328,8 +328,58 @@
 	QPDFPageDocumentHelper pdh = QPDFPageDocumentHelper(*qDocument);
 	
 	pdh.addPage(poh,first);
-	[self makePageDirects];
+	
+	// Fix: Explicitly ensure MediaBox/CropBox are preserved/flattened
+	// QPDF's addPage might not flatten inherited attributes automatically in all cases/versions.
+	// We retrieve the new page (which is now in *qDocument).
+	std::vector<QPDFPageObjectHelper> newPages = pdh.getAllPages();
+	if (!newPages.empty()) {
+		QPDFPageObjectHelper newPage = first ? newPages.front() : newPages.back();
+		
+		// Copy MediaBox if missing on new page but present (or inherited) on source
+		if (!newPage.getObjectHandle().hasKey("/MediaBox")) {
+			QPDFObjectHandle mbox = poh.getAttribute("/MediaBox", true);
+			if (mbox.isInitialized() && !mbox.isNull()) {
+				newPage.getObjectHandle().replaceKey("/MediaBox", mbox);
+			}
+		}
+		
+		// Copy CropBox if missing
+		if (!newPage.getObjectHandle().hasKey("/CropBox")) {
+			QPDFObjectHandle cbox = poh.getAttribute("/CropBox", true);
+			if (cbox.isInitialized() && !cbox.isNull()) {
+				newPage.getObjectHandle().replaceKey("/CropBox", cbox);
+			}
+		}
+		
+		// Copy Rotate if missing
+		if (!newPage.getObjectHandle().hasKey("/Rotate")) {
+			QPDFObjectHandle rotate = poh.getAttribute("/Rotate", true);
+			if (rotate.isInitialized() && !rotate.isNull()) {
+				newPage.getObjectHandle().replaceKey("/Rotate", rotate);
+			}
+		}
 
+		// Copy UserUnit if missing (handles scaling)
+		if (!newPage.getObjectHandle().hasKey("/UserUnit")) {
+			QPDFObjectHandle userUnit = poh.getAttribute("/UserUnit", true);
+			if (userUnit.isInitialized() && !userUnit.isNull()) {
+				newPage.getObjectHandle().replaceKey("/UserUnit", userUnit);
+			}
+		}
+		
+		// Copy other boxes (TrimBox, ArtBox, BleedBox)
+		for (const char* boxName : {"/TrimBox", "/ArtBox", "/BleedBox"}) {
+			if (!newPage.getObjectHandle().hasKey(boxName)) {
+				QPDFObjectHandle box = poh.getAttribute(boxName, true);
+				if (box.isInitialized() && !box.isNull()) {
+					newPage.getObjectHandle().replaceKey(boxName, box);
+				}
+			}
+		}
+	}
+
+	[self makePageDirects];
 }
 
 @end

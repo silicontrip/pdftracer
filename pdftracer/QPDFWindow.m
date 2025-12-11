@@ -294,6 +294,7 @@
 	//	[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
 		self.documentView = [[[QPDFView alloc] init] autorelease];
+		[self.documentView setDisplayBox:kPDFDisplayBoxMediaBox];
 		// [self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
 	//	[self.documentView setDisplayMode:kPDFDisplaySinglePage];

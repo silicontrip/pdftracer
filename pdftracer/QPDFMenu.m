@@ -129,6 +129,7 @@
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"New" keyEquiv:@"n" modifier:cmd selector:@"newDocument:"]];
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Add Stream..." keyEquiv:@"a" modifier:cmd|opt selector:@"openStream:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Save Stream..." selector:@"exportText:"]];
 
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open..." keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
