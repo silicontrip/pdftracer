@@ -247,7 +247,7 @@
 			streamData = fileData;
 			filter = @"/DCTDecode";
 		} else {
-			// Lossless Path (Flate)
+			// Lossless Path (Uncompressed for stability)
 			// 1. Create a clean RGB 8-bit bitmap context to get packed pixel data
 			NSBitmapImageRep *rawRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
 																			   pixelsWide:width
@@ -266,24 +266,11 @@
 			[NSGraphicsContext restoreGraphicsState];
 			
 			// 2. Get the raw bytes
-			NSData *rawData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
+			streamData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
 			[rawRep release];
-
-			// 3. Compress using Zlib
-			if (@available(macOS 10.13, *)) {
-				NSError *error = nil;
-				streamData = [rawData compressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:&error];
-				if (!streamData) {
-					NSLog(@"Compression failed: %@", error);
-					// Fallback to uncompressed if compression fails
-					streamData = rawData;
-				} else {
-					filter = @"/FlateDecode";
-				}
-			} else {
-				// Fallback for older systems (uncompressed)
-				streamData = rawData;
-			}
+			
+			// No filter for uncompressed data
+			filter = nil;
 		}
 		
 		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument withData:streamData];

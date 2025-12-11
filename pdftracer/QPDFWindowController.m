@@ -762,7 +762,10 @@ void printView (NSView* n)
 				{
 					[(QPDFDocument*)[self document] insertImage:[url path] onPage:self.selectedPage];
 					
-					[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
+					// Force a full reload of the outlines to show the new object and the updated page structure
+					[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:@{@"reloadChildren":@(YES)}];
+					
+					// Also refresh the document view
 					[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 				}
 			}
