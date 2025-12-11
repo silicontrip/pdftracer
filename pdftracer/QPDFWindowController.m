@@ -744,6 +744,32 @@ void printView (NSView* n)
 	// insert into indirect
 }
 
+- (void)insertXObject:(id)sender
+{
+	if (selectedPage >= 0)
+	{
+		NSOpenPanel* panel = [NSOpenPanel openPanel];
+		[panel setCanChooseFiles:YES];
+		[panel setCanChooseDirectories:NO];
+		[panel setAllowsMultipleSelection:NO];
+		[panel setAllowedFileTypes:@[@"jpg", @"jpeg", @"png", @"tif", @"tiff"]];
+		
+		[panel beginSheetModalForWindow:[self window] completionHandler:^(NSModalResponse result) {
+			if (result == NSModalResponseOK)
+			{
+				NSURL* url = [panel URL];
+				if (url)
+				{
+					[(QPDFDocument*)[self document] insertImage:[url path] onPage:self.selectedPage];
+					
+					[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
+					[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+				}
+			}
+		}];
+	}
+}
+
 
 // addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 

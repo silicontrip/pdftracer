@@ -237,7 +237,7 @@
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu ]];
 
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" selector:@"insertXObject:" ]];
 
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];

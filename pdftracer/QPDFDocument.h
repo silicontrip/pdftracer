@@ -49,6 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)addObject:(ObjcQPDFObjectHandle*)obj to:(ObjcQPDFObjectHandle*)container;
 - (BOOL)addItemOfType:(QPDFObjectTypeEnum)type toObject:(ObjcQPDFObjectHandle*)obj;
 - (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
+- (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber;
 - (void)newPageAtEnd;
 - (void)newPageBeforePage:(ObjcQPDFObjectHandle*)existingPage;
 - (void)newPageBeforePageNumber:(NSUInteger)pageNumber;

@@ -185,8 +185,8 @@
 	[printInfo setBottomMargin:0.0];
 	[printInfo setLeftMargin:0.0];
 	[printInfo setRightMargin:0.0];
-	[printInfo setHorizontalPagination:NSFitPagination];
-	[printInfo setVerticalPagination:NSFitPagination];
+	[printInfo setHorizontalPagination:NSPrintingPaginationModeFit];
+	[printInfo setVerticalPagination:NSPrintingPaginationModeFit];
 	
 // Grab the returned print operation.
 	return [[qDocument document] printOperationForPrintInfo:printInfo scalingMode:scale autoRotate:YES];
@@ -215,6 +215,103 @@
 		[pageResource replaceObject:fontResource forKey:@"/Font"];
 		[pageObj replaceObject:pageResource forKey:@"/Resources"];
 		
+	}
+}
+
+- (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		NSData* fileData = [NSData dataWithContentsOfFile:path];
+		if (!fileData) return;
+		
+		NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:fileData];
+		if (!rep) return;
+		
+		NSData *streamData = nil;
+		NSString *filter = nil;
+		
+		BOOL isJPEG = NO;
+		if (fileData.length > 2) {
+			const uint8_t *bytes = (const uint8_t*)fileData.bytes;
+			if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
+				isJPEG = YES;
+			}
+		}
+		
+		NSInteger width = [rep pixelsWide];
+		NSInteger height = [rep pixelsHigh];
+
+		if (isJPEG) {
+			streamData = fileData;
+			filter = @"/DCTDecode";
+		} else {
+			// Lossless Path (Flate)
+			// 1. Create a clean RGB 8-bit bitmap context to get packed pixel data
+			NSBitmapImageRep *rawRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
+																			   pixelsWide:width
+																			   pixelsHigh:height
+																			bitsPerSample:8
+																		  samplesPerPixel:3
+																				 hasAlpha:NO
+																				 isPlanar:NO
+																		   colorSpaceName:NSDeviceRGBColorSpace
+																			 bytesPerRow:width * 3
+																			bitsPerPixel:24];
+			
+			[NSGraphicsContext saveGraphicsState];
+			[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rawRep]];
+			[rep drawInRect:NSMakeRect(0, 0, width, height)];
+			[NSGraphicsContext restoreGraphicsState];
+			
+			// 2. Get the raw bytes
+			NSData *rawData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
+			[rawRep release];
+
+			// 3. Compress using Zlib
+			if (@available(macOS 10.13, *)) {
+				NSError *error = nil;
+				streamData = [rawData compressedDataUsingAlgorithm:NSDataCompressionAlgorithmZlib error:&error];
+				if (!streamData) {
+					NSLog(@"Compression failed: %@", error);
+					// Fallback to uncompressed if compression fails
+					streamData = rawData;
+				} else {
+					filter = @"/FlateDecode";
+				}
+			} else {
+				// Fallback for older systems (uncompressed)
+				streamData = rawData;
+			}
+		}
+		
+		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument withData:streamData];
+		ObjcQPDFObjectHandle* dict = [imageStream streamDictionary];
+		
+		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/XObject"] forKey:@"/Type"];
+		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Image"] forKey:@"/Subtype"];
+		if (filter) {
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:filter] forKey:@"/Filter"];
+		}
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:width] forKey:@"/Width"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:height] forKey:@"/Height"];
+		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"] forKey:@"/ColorSpace"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:8] forKey:@"/BitsPerComponent"];
+		
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil) {
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+			[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		}
+		
+		ObjcQPDFObjectHandle* xObjResource = [pageResource objectForKey:@"/XObject"];
+		if (xObjResource == nil) {
+			xObjResource = [ObjcQPDFObjectHandle dictionaryObject];
+			[pageResource replaceObject:xObjResource forKey:@"/XObject"];
+		}
+		
+		[QPDFDocument addObject:imageStream to:xObjResource];
 	}
 }
 
