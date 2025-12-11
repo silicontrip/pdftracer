@@ -243,12 +243,17 @@
 		NSInteger width = [rep pixelsWide];
 		NSInteger height = [rep pixelsHigh];
 
+		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument];
+		ObjcQPDFObjectHandle* dict = [imageStream streamDictionary];
+
 		if (isJPEG) {
-			streamData = fileData;
-			filter = @"/DCTDecode";
+			// JPEG Pass-through: Set data directly, set filter manually.
+			// QPDF doesn't support DCT encoding, so we don't use replaceStreamData with filter.
+			[imageStream replaceStreamData:fileData filter:nil];
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
 		} else {
-			// Lossless Path (Uncompressed for stability)
-			// 1. Create a clean RGB 8-bit bitmap context to get packed pixel data
+			// Lossless Path (Flate): Use QPDF's native compression.
+			// 1. Get raw RGB bytes
 			NSBitmapImageRep *rawRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
 																			   pixelsWide:width
 																			   pixelsHigh:height
@@ -265,22 +270,16 @@
 			[rep drawInRect:NSMakeRect(0, 0, width, height)];
 			[NSGraphicsContext restoreGraphicsState];
 			
-			// 2. Get the raw bytes
-			streamData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
+			NSData *rawData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
 			[rawRep release];
 			
-			// No filter for uncompressed data
-			filter = nil;
+			// 2. Delegate compression to QPDF
+			[imageStream replaceStreamData:rawData filter:@"/FlateDecode"];
 		}
-		
-		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument withData:streamData];
-		ObjcQPDFObjectHandle* dict = [imageStream streamDictionary];
 		
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/XObject"] forKey:@"/Type"];
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Image"] forKey:@"/Subtype"];
-		if (filter) {
-			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:filter] forKey:@"/Filter"];
-		}
+		// Filter is set by replaceStreamData (for Flate) or manually (for DCT)
 		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:width] forKey:@"/Width"];
 		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:height] forKey:@"/Height"];
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"] forKey:@"/ColorSpace"];
