@@ -281,13 +281,13 @@
 
 - (NSData* _Nonnull)qdf
 {
-	QPDFWriter qpdfWriter(*qDocument);
-	qpdfWriter.setQDFMode(true);
+	QPDFWriter writer(*qDocument);
+	writer.setQDFMode(true);
 
-	qpdfWriter.setOutputMemory();
-	qpdfWriter.write();
+	writer.setOutputMemory();
+	writer.write();
 
-	Buffer* qBuf = qpdfWriter.getBuffer();
+	Buffer* qBuf = writer.getBuffer();
 	unsigned char const* qBytes = qBuf->getBuffer();
 	
 	NSData* pdfData = [[[NSData alloc] initWithBytes:qBytes length:qBuf->getSize()] autorelease];
