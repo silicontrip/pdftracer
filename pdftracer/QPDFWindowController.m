@@ -3,6 +3,7 @@
 #import "OutlineQPDF.h"
 #import "OutlineQPDFObj.h"
 #import "OutlineQPDFPage.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface QPDFWindowController()
 {
@@ -658,15 +659,14 @@ void printView (NSView* n)
 	
 //	NSLog(@"changing font: %@",[fm selectedFont]);  // why is this nil?
 	
-	NSFont* tf = [win textFont];
-	NSLog(@"old font: %@",tf);
-	if (tf) {
-		NSFont* nf = [fm convertFont:tf];
-		NSLog(@"new font: %@",nf);
-
-		[win setFont:nf];
-	}
-}
+			NSFont* tf = [win textFont];
+			NSLog(@"old font: %@",tf);
+			if (tf) {
+				NSFont* nf = [fm convertFont:tf];
+				NSLog(@"new font: %@",nf);
+	
+				win.textFont = nf;
+			}}
 
 -(void)exportText:(id)sender
 {
@@ -752,7 +752,9 @@ void printView (NSView* n)
 		[panel setCanChooseFiles:YES];
 		[panel setCanChooseDirectories:NO];
 		[panel setAllowsMultipleSelection:NO];
-		[panel setAllowedFileTypes:@[@"jpg", @"jpeg", @"png", @"tif", @"tiff"]];
+		if (@available(macOS 11.0, *)) {
+			[panel setAllowedContentTypes:@[UTTypeJPEG, UTTypePNG, UTTypeTIFF]];
+		}
 		
 		[panel beginSheetModalForWindow:[self window] completionHandler:^(NSModalResponse result) {
 			if (result == NSModalResponseOK)
