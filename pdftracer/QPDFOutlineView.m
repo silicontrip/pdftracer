@@ -41,7 +41,10 @@
 
 - (void)print:(id)sender
 {
-	[[self nextResponder] print:sender];
+	id nextR = [self nextResponder];
+	if ([nextR respondsToSelector:@selector(print:)]) {
+		[nextR print:sender];
+	}
 }
 
 - (BOOL)acceptsFirstResponder

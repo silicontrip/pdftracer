@@ -4,10 +4,7 @@
 
 - (SEL)action
 {
-	if ([self menuForSegment:[self selectedSegment]] != nil)
-		return nil;
-	else
-		return [super action];
+    return [super action];
 }
 
 @end
