@@ -1,4 +1,6 @@
 #import "ObjcQPDFObjectHandle.hh"
+#import <qpdf/Pl_Flate.hh>
+#import <qpdf/Pl_Buffer.hh>
 
 @implementation ObjcQPDFObjectHandle
 
@@ -242,20 +244,15 @@
 
 - (void)replaceStreamData:(NSData* _Nonnull)data filter:(NSString* _Nullable)filterName
 {
-	size_t len = [data length];
-	unsigned char* bytes = (unsigned char*)[data bytes];
+	std::string sData((const char*)[data bytes], [data length]);
 	
-	// Create a Buffer. Buffer(unsigned char* buf, size_t size) creates a copy.
-	Buffer* buf = new Buffer(bytes, len);
-	std::shared_ptr<Buffer> bufPtr(buf);
-
 	QPDFObjectHandle filterObj = QPDFObjectHandle::newNull();
 	if (filterName) {
 		std::string fname = std::string([filterName cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		filterObj = QPDFObjectHandle::newName(fname);
 	}
 
-	qObject.replaceStreamData(bufPtr, filterObj, QPDFObjectHandle::newNull());
+	qObject.replaceStreamData(sData, filterObj, QPDFObjectHandle::newNull());
 }
 
 - (NSString* _Nonnull)name
@@ -490,5 +487,16 @@
 	
 }
 */
+
++ (NSData* _Nullable)deflate:(NSData* _Nonnull)source
+{
+	Pl_Buffer sink("deflate");
+	Pl_Flate flate("compress", &sink, Pl_Flate::a_deflate);
+	flate.write((unsigned char*)[source bytes], [source length]);
+	flate.finish();
+	
+	Buffer* b = sink.getBuffer();
+	return [NSData dataWithBytes:b->getBuffer() length:b->getSize()];
+}
 
 @end

@@ -273,8 +273,15 @@
 			NSData *rawData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
 			[rawRep release];
 			
-			// 2. Delegate compression to QPDF
-			[imageStream replaceStreamData:rawData filter:@"/FlateDecode"];
+			// 2. Delegate compression to QPDF (via helper)
+			NSData *compressedData = [ObjcQPDFObjectHandle deflate:rawData];
+			
+			if (compressedData) {
+				[imageStream replaceStreamData:compressedData filter:@"/FlateDecode"];
+			} else {
+				// Fallback (shouldn't happen with valid data)
+				[imageStream replaceStreamData:rawData filter:nil];
+			}
 		}
 		
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/XObject"] forKey:@"/Type"];

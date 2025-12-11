@@ -75,6 +75,9 @@ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
 + (ObjcQPDFObjectHandle* _Nonnull)dictionaryObject;
 - (NSString* _Nullable)dictionaryType;
 + (ObjcQPDFObjectHandle* _Nonnull)dictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>* _Nonnull)dict;
+
++ (NSData* _Nullable)deflate:(NSData* _Nonnull)source;
+
 // - (instancetype)initWithObject:(QPDFObjectHandle)obj
 - (instancetype _Nullable)initWithString:(NSString* _Nonnull)def;
 + (ObjcQPDFObjectHandle* _Nonnull)intWith:(NSInteger)b;
