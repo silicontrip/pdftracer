@@ -95,7 +95,7 @@
 	return -1;
 }
 
-- (object_type_e)type { return (object_type_e)qObject.getTypeCode(); }
+- (QPDFObjectTypeEnum)type { return (QPDFObjectTypeEnum)qObject.getTypeCode(); }
 
 - (NSUInteger)count
 {
@@ -128,8 +128,8 @@
 - (NSData* _Nullable)stream
 {
 	try {
-		PointerHolder<Buffer> bufRef = qObject.getStreamData();
-		Buffer* buf = bufRef.getPointer();
+		std::shared_ptr<Buffer> bufRef = qObject.getStreamData();
+		Buffer* buf = bufRef.get();
 		size_t sz = buf->getSize();
 		unsigned char * bb = buf->getBuffer();
 		return [[[NSData alloc] initWithBytes:bb length:sz] autorelease];
@@ -421,7 +421,7 @@
 	
 	Buffer* buf = new Buffer(bd,noBytes);
 	
-	PointerHolder<Buffer> phb(buf);
+	std::shared_ptr<Buffer> phb(buf);
 	
 	return [[ObjcQPDFObjectHandle alloc] initWithObject:QPDFObjectHandle::newStream([oQpdf qpdf],phb)];
 }

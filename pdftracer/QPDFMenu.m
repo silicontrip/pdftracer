@@ -42,7 +42,7 @@
 ** A2 lady grey 5.7 x 4.4
 ** A9 diplomat 8.7 x 5.7
  
- */
+*/
 
 @implementation QPDFMenu
 
@@ -127,6 +127,10 @@
 		[fileMenu setAutoenablesItems:YES];
 		[fileMenu setTitle:@"File"];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"New" keyEquiv:@"n" modifier:cmd selector:@"newDocument:"]];
+		[fileMenu addItem:[NSMenuItem separatorItem]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Add Stream..." keyEquiv:@"a" modifier:cmd|opt selector:@"openStream:"]];
+
+		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open..." keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Close" keyEquiv:@"w" modifier:cmd selector:@"performClose"]];
@@ -174,7 +178,7 @@
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Cut" keyEquiv:@"x" modifier:cmd selector:@"cut:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Copy" keyEquiv:@"c" modifier:cmd selector:@"copy:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Paste" keyEquiv:@"v" modifier:cmd selector:@"paste:"]]; // or maybe pasteAsPlainText:
-		[editMenu addItem:[QPDFMenu itemWithTitle:@"Delete"  keyEquiv:bkspace modifier:cmd selector:@"delete:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Delete" keyEquiv:bkspace modifier:cmd selector:@"delete:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Select All" keyEquiv:@"a" modifier:cmd selector:@"selectAll:"]];
 		[editMenu addItem:[NSMenuItem separatorItem]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Find" submenu:findMenu]];

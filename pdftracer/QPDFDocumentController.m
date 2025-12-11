@@ -110,7 +110,7 @@
 	QPDFDocument* newDoc = [self makeUntitledDocumentOfType:@"PDF" error:outError];
 	[self addDocument:newDoc];
 	if (dd) {
-		[newDoc makeWindowControllers];
+		[newDoc makeWindowControllers];  // calling the document to make UI? this does not seem right.
 	}
 	return newDoc;
 }

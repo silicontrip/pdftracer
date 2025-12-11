@@ -16,7 +16,8 @@
 	QPDFWriter* qpdfWriter;
 }
 
--(instancetype)initWithQPDF:(QPDF*)qpdf;
--(QPDF*)qpdf;  // only for the other objc++ class
+- (instancetype)initWithQPDF:(QPDF*)qpdf;
+- (ObjcQPDFObjectHandle*)objectHandle:(QPDFObjectHandle)obj;
+- (QPDF*)qpdf;  // only for the other objc++ class
 
 @end

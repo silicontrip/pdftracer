@@ -8,8 +8,11 @@
 {
 	[super drawRect:dirtyRect];
 	
-	NSLog(@"dirty: %@",NSStringFromRect(dirtyRect));
-	
+	NSLog(@"[QPDFPageiew drawRect:dirty: %@]",NSStringFromRect(dirtyRect));
+
+	// CGFloat scale = self.scaleFactor;
+
+
 	NSGraphicsContext* ncg = [NSGraphicsContext currentContext];
 	CGContextRef cg = [ncg CGContext];
 	
@@ -24,6 +27,12 @@
 	
 
 	PDFPage* pp = [pdfDocument pageAtIndex:0];
+
+	NSRect displayBox = [pp boundsForBox:kPDFDisplayBoxMediaBox];
+	NSRect cropBox = [pp boundsForBox:kPDFDisplayBoxCropBox];
+
+	NSLog(@"display: %@ crop: %@",NSStringFromRect(displayBox),NSStringFromRect(cropBox));
+
 	[pp drawWithBox:kPDFDisplayBoxMediaBox toContext:cg];
 	
 }

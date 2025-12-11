@@ -15,10 +15,11 @@
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate, NSUserInterfaceValidations>
 {
+	/*
 	OutlineQPDF* pdfDS;
 	OutlineQPDFPage* pageDS;
 	OutlineQPDFObj* objDS;
-	
+	*/
 	NSLayoutManager* layout;
 	NSTextStorage *textStore;
 	
@@ -29,9 +30,9 @@
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
-@property (nonatomic) QPDFOutlineView* selectedView;
+@property (nonatomic,assign) QPDFOutlineView* selectedView;
 //@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedNode;
-@property (nonatomic) ObjcQPDFObjectHandle* selectedHandle;
+@property (nonatomic,assign) ObjcQPDFObjectHandle* selectedHandle;
 @property (assign) NSInteger selectedPage;  // unselected sentinel is -1
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw notificationCenter:(NSNotificationCenter*)centre;

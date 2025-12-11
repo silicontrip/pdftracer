@@ -42,28 +42,28 @@
 @property (nonatomic,strong) QPDFView* documentView;
 @property (nonatomic,strong) NSFont* textFont;
 
--(instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing notificationCenter:(NSNotificationCenter*)centre;
-
--(void)setDocument:(PDFDocument*)pdf;
-
--(QPDFTextView*)textView;
-//-(NSString*)text;
-//-(void)setText:(NSString*)text;
-//-(void)setFont:(NSFont*)font;
-
--(void)removeEnabled:(BOOL)ena forIndex:(int)index;
--(void)addEnabled:(BOOL)ena forIndex:(int)index;
-
--(void)editorEnabled:(BOOL)ena;
-
-// -(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
--(void)updateOutline:(NSOutlineView*)ov forHandle:(ObjcQPDFObjectHandle*)nn;
-
-
--(QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
--(NSSegmentedControl*)segmentAtIndex:(NSInteger)index;
--(NSSplitView*)splitAtIndex:(int)index;
-+(NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu;
+- (void)addEnabled:(BOOL)ena forIndex:(int)index;
++ (NSSegmentedControl*)addRemoveSegmentWithMenu:(BOOL)menu;
+- (void)dealloc;
+- (void)editorEnabled:(BOOL)ena;
++ (NSScrollView*)hvScrollView:(NSView*)doc;
+- (instancetype)initWithContentRect:(NSRect)rect styleMask:(NSWindowStyleMask)style backing:(NSBackingStoreType)backing notificationCenter:(NSNotificationCenter*)centre;
+- (void)mouseDown:(NSEvent *)event;
+- (QPDFOutlineView*)outlineAtIndex:(NSInteger)index;
+// - (void)outlineNodeChanged:(NSNotification *)notification;
+- (void)removeEnabled:(BOOL)ena forIndex:(int)index;
+// - (BOOL)respondsToSelector:(SEL)aSelector;
+- (NSSegmentedControl*)segmentAtIndex:(NSInteger)index;
+- (void)setDocument:(PDFDocument*)pdf;
+// - (void)setFont:(NSFont*)font;
+// - (void)setText:(NSString*)text;
+- (NSSplitView*)splitAtIndex:(int)index;
++ (NSStackView*)stackScroll:(NSView*)scroll andSegment:(NSView*)seg;
+// - (NSString*)text;
++ (QPDFTextView*)textEditorView;
+// WithContainer:(NSTextContainer*)tCon
 // +(NSTextView*)textEditorViewWithContainer:(NSTextContainer*)tCon;
-
+- (QPDFTextView*)textView;
+- (void)updateOutline:(NSOutlineView*)ov forHandle:(ObjcQPDFObjectHandle*)nn;
+// -(void)updateOutline:(NSOutlineView*)ov forNode:(QPDFNode*)nn;
 @end

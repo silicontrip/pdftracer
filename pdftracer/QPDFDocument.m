@@ -143,6 +143,8 @@
 	return [qDocument document];
 }
 
+
+// I'm wondering if this document is being released too soon..
 - (PDFDocument*)pdfDocumentPage:(NSUInteger)page
 {
 	ObjcQPDF* blank = [[[ObjcQPDF alloc] init] autorelease];
@@ -153,6 +155,18 @@
 		[blank addPageUsingHelper:pageObj atStart:YES];
 	return [blank document];
 }
+
+- (ObjcQPDF*)copyDocumentPage:(NSUInteger)page
+{
+	ObjcQPDF* blank = [[ObjcQPDF alloc] init];
+	//ObjcQPDF* doc = qDocument;
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+
+	if (pageObj)
+		[blank addPageUsingHelper:pageObj atStart:YES];
+	return blank;
+}
+
 
 - (ObjcQPDFObjectHandle*)pageObject:(NSUInteger)page
 {
@@ -255,7 +269,7 @@
 	NSString * fn = [qDocument filename];
 	if ([fn isEqualToString:@"empty PDF"])
 		return @"Untitled";
-	
+
 	return [fn lastPathComponent];
 }
 
@@ -375,7 +389,6 @@
 	{
 		[container addObject:obj];
 	} else if ([container isDictionary]) {
-		//TODO: find unique name
 		NSString* uniqueName = @"/Untitled";
 		int version=1;
 		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
@@ -391,37 +404,55 @@
 	
 }
 
-- (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj
+/*
+ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
+ QPDFObjectTypeUninitialized = 0,
+ QPDFObjectTypeReserved = 1,
+ QPDFObjectTypeNull = 2,
+ QPDFObjectTypeBoolean = 3,
+ QPDFObjectTypeInteger = 4,
+ QPDFObjectTypeReal = 5,
+ QPDFObjectTypeString = 6,
+ QPDFObjectTypeName = 7,
+ QPDFObjectTypeArray = 8,
+ QPDFObjectTypeDictionary = 9,
+ QPDFObjectTypeStream = 10,
+ QPDFObjectTypeOperator = 11,
+ QPDFObjectTypeInlineImage = 12
+ };
+ */
+
+- (BOOL)addItemOfType:(QPDFObjectTypeEnum)type toObject:(ObjcQPDFObjectHandle*)obj
 {
 	ObjcQPDFObjectHandle* newobj = nil;
 	// if adding to dictionary auto highlight edit /Name
 	// if adding to array auto highlight edit value
 	switch (type) {
-		case ot_null:
+		case QPDFObjectTypeNull:
 			newobj = [ObjcQPDFObjectHandle newNull];
 			break;;
-		case ot_boolean:
+		case QPDFObjectTypeBoolean:
 			newobj=[ObjcQPDFObjectHandle newBool:NO];
 			break;;
-		case ot_integer:
+		case QPDFObjectTypeInteger:
 			newobj=[ObjcQPDFObjectHandle newInteger:0];
 			break;;
-		case ot_real:
+		case QPDFObjectTypeReal:
 			newobj=[ObjcQPDFObjectHandle newInteger:0.0];
 			break;;
-		case ot_string:
+		case QPDFObjectTypeString:
 			newobj=[ObjcQPDFObjectHandle newString:@""];
 			break;;
-		case ot_name:
+		case QPDFObjectTypeName:
 			newobj=[ObjcQPDFObjectHandle newName:@"/Name"];
 			break;;
-		case ot_array:
+		case QPDFObjectTypeArray:
 			newobj=[ObjcQPDFObjectHandle newArray];
 			break;;
-		case ot_dictionary:
+		case QPDFObjectTypeDictionary:
 			newobj=[ObjcQPDFObjectHandle newDictionary];
 			break;;
-		case ot_stream:
+		case QPDFObjectTypeStream:
 			//NSLog(@"creating stream");
 			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:qDocument withString:@""];
 			break;
@@ -525,9 +556,8 @@
 			NSString* gen = [nd objectGenerationID];
 			[qDocument removeID:gen];
 			[self updateChangeCount:NSChangeDone];
-
 		}
-
+		//TODO: handle deleting top level object
 	}
 }
 

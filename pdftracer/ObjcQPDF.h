@@ -10,6 +10,8 @@
 {
 	PDFDocument *pDoc;
 	NSDictionary<NSString*,NSNumber*>* pageDirects; //TODO: also need to handle adding/removing pages
+
+	NSMutableDictionary<NSValue*,ObjcQPDFObjectHandle*>* objcCache;
 }
 
 - (void)addPage:(ObjcQPDFObjectHandle* _Nonnull)newpage atStart:(BOOL)first;
@@ -23,10 +25,10 @@
 - (PDFDocument* _Nonnull)document;
 - (NSString* _Nonnull)filename;
 - (NSURL* _Nonnull)fileURL;
-- (instancetype)init;
-- (instancetype)initWithData:(NSData* _Nonnull)data;
+- (instancetype _Nullable)init;
+- (instancetype _Nullable)initWithData:(NSData* _Nonnull)data;
 //- (instancetype)initWithQPDF:(QPDF*)qpdf;
-- (instancetype)initWithURL:(NSURL*)fileURL;
+- (instancetype _Nullable)initWithURL:(NSURL* _Nonnull)fileURL;
 - (BOOL)isIndirectPage:(NSString* _Nonnull)objectGeneration;
 - (void)makePageDirects;
 - (ObjcQPDFObjectHandle* _Nullable)objectAtIndex:(NSString* _Nullable)objGen;

@@ -9,7 +9,7 @@
 	if (self)
 	{
 		qpDocument = pdf;
-		catalog = [qpDocument copyRootCatalog];
+		catalog = [qpDocument copyTrailer];
 		 // catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 	}
 	return self;
@@ -18,7 +18,7 @@
 - (void)invalidate
 {
 	[catalog release];
-	catalog = [qpDocument copyRootCatalog];
+	catalog = [qpDocument copyTrailer];
 
 }
 

@@ -138,7 +138,8 @@
 	std::vector<QPDFObjectHandle> qohv = qDocument->getAllPages();
 	if (index <qohv.size()) {
 		QPDFObjectHandle qoh = qohv[index];
-		return [[[ObjcQPDFObjectHandle alloc] initWithObject:qoh] autorelease];
+		return [self objectHandle:qoh];
+		// return [[[ObjcQPDFObjectHandle alloc] initWithObject:qoh] autorelease];
 	}
 	return nil;
 }
@@ -168,7 +169,6 @@
 	
 	// i know we've been warned not to simply rely on the objectid, without the generation
 
-	
 	// fine have it your way
 	if (objGen != nil)
 	{
@@ -177,7 +177,9 @@
 		int genid = [[objElem objectAtIndex:1] intValue];
 		
 		QPDFObjectHandle oai = qDocument->getObjectByID(objid,genid);
-		return [[[ObjcQPDFObjectHandle alloc] initWithObject:oai] autorelease];
+		// need to have a 1:1 mapping between QPDFObjectHandle and ObjC class
+		return [self objectHandle:oai];
+		// return [[[ObjcQPDFObjectHandle alloc] initWithObject:oai] autorelease];
 
 	}
 	return nil;
@@ -215,18 +217,39 @@
 	qDocument->replaceObject(objid,genid,QPDFObjectHandle::newNull());
 }
 
+- (ObjcQPDFObjectHandle* _Nonnull)objectHandle:(QPDFObjectHandle)obj
+{
+	return [[ObjcQPDFObjectHandle alloc] initWithObject:obj];
+	/* Doesn't work as expected
+	NSValue* vobj = [NSValue valueWithPointer:&obj];
+	if (!objcCache)
+	{
+		objcCache = [[NSMutableDictionary alloc] init];
+	}
+	if ([objcCache objectForKey:vobj])
+	{
+		return [objcCache objectForKey:vobj];
+	}
+	ObjcQPDFObjectHandle* oobj = [[ObjcQPDFObjectHandle alloc] initWithObject:obj];
+	[objcCache setObject:oobj forKey:vobj];
+	return oobj;
+	 */
+}
+
 - (ObjcQPDFObjectHandle* _Nonnull)copyRootCatalog
 {
 	QPDFObjectHandle root = qDocument->getRoot();
-	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
-	return rootObjc;
+	//ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
+	return [self objectHandle:root];
 }
 
 - (ObjcQPDFObjectHandle* _Nonnull)copyTrailer
 {
 	QPDFObjectHandle root = qDocument->getTrailer();
-	ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
-	return rootObjc;
+	// ObjcQPDFObjectHandle * rootObjc = [[ObjcQPDFObjectHandle alloc] initWithObject:root];
+	//return rootObjc;
+	return [self objectHandle:root];
+
 }
 
 - (PDFDocument* _Nonnull)document

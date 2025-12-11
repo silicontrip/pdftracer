@@ -73,7 +73,7 @@
 				//[NSString stringWithFormat:@"%s",pdfitem.getTypeName()];
 			}
 		} else {
-			if ( [pdfitem type] == ot_stream)
+			if ( [pdfitem type] == QPDFObjectTypeStream)
 			{
 				rs = [[pdfitem streamDictionary] unparse];
 			} else {

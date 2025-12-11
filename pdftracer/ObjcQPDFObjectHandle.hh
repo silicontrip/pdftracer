@@ -1,7 +1,7 @@
 #import "ObjcQPDFObjectHandle.h"
 #import "ObjcQPDF.hh"
 // they all go in the other one
-#include <qpdf/QPDF.hh>
+#import <qpdf/QPDF.hh>
 #include <qpdf/QPDFWriter.hh>
 // put c++ here in the extension interface.
 @interface ObjcQPDFObjectHandle()
