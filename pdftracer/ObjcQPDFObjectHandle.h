@@ -119,6 +119,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
 - (void)replaceObject:(ObjcQPDFObjectHandle* _Nonnull)obj forKey:(NSString* _Nonnull)key;
 - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
 - (void)replaceStreamData:(NSString* _Nonnull)data;
+- (void)replaceStreamData:(NSData* _Nonnull)data filter:(NSString* _Nullable)filter;
 - (NSData* _Nullable)stream;
 - (ObjcQPDFObjectHandle* _Nonnull)streamDictionary;
 + (ObjcQPDFObjectHandle* _Nonnull)stringWith:(NSString* _Nonnull)b;

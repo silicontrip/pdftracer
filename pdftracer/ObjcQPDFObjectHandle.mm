@@ -240,6 +240,24 @@
 	qObject.replaceStreamData(replacement,QPDFObjectHandle::newNull(),QPDFObjectHandle::newNull());
 }
 
+- (void)replaceStreamData:(NSData* _Nonnull)data filter:(NSString* _Nullable)filterName
+{
+	size_t len = [data length];
+	unsigned char* bytes = (unsigned char*)[data bytes];
+	
+	// Create a Buffer. Buffer(unsigned char* buf, size_t size) creates a copy.
+	Buffer* buf = new Buffer(bytes, len);
+	std::shared_ptr<Buffer> bufPtr(buf);
+
+	QPDFObjectHandle filterObj = QPDFObjectHandle::newNull();
+	if (filterName) {
+		std::string fname = std::string([filterName cStringUsingEncoding:NSMacOSRomanStringEncoding]);
+		filterObj = QPDFObjectHandle::newName(fname);
+	}
+
+	qObject.replaceStreamData(bufPtr, filterObj, QPDFObjectHandle::newNull());
+}
+
 - (NSString* _Nonnull)name
 {
 	return [NSString stringWithCString:qObject.getName().c_str() encoding:NSMacOSRomanStringEncoding];
