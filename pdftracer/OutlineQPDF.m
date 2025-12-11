@@ -22,6 +22,11 @@
 
 }
 
+- (void)refresh
+{
+	[self invalidate];
+}
+
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
 {
 	if (item == nil) // NULL means Root node

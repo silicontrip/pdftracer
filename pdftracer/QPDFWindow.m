@@ -202,12 +202,22 @@
 		outlines[0].relatedSegment = segments[0];
 		[segments[0] setTag:0];
 		
+		NSMenu* menu0 = [segments[0] menuForSegment:0];
+		for (NSMenuItem* item in [menu0 itemArray]) {
+			[item setRepresentedObject:outlines[0]];
+		}
+		
 		NSScrollView* scView = [QPDFWindow hvScrollView:outlines[0]];
 		NSStackView* scsView = [QPDFWindow stackScroll:scView andSegment:segments[0]];
 
 		segments[1] = [QPDFWindow addRemoveSegmentWithMenu:YES];
 		outlines[1].relatedSegment = segments[1];
 		[segments[1] setTag:1];
+
+		NSMenu* menu1 = [segments[1] menuForSegment:0];
+		for (NSMenuItem* item in [menu1 itemArray]) {
+			[item setRepresentedObject:outlines[1]];
+		}
 
 		NSScrollView* socView = [QPDFWindow hvScrollView:outlines[1]];
 		NSStackView* socsView = [QPDFWindow stackScroll:socView andSegment:segments[1]];

@@ -29,11 +29,6 @@
 	// [[self nextResponder] print:sender];
 }
 
-- (void)performTextFinderAction:(id)sender
-{
-	NSLog(@"Findernating the countryside: %@",sender);
-}
-
 /*
 - (void)paste:(id)sender
 {

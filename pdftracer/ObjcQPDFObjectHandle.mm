@@ -22,6 +22,11 @@
 
 - (instancetype)initWithString:(NSString* _Nonnull)def
 {
+    return [self initWithString:def error:nil];
+}
+
+- (instancetype)initWithString:(NSString* _Nonnull)def error:(NSError**)error
+{
 	//NSLog(@"ObjcObjectHandle initWithString %@",def);
 
     self = [super init];
@@ -33,7 +38,12 @@
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
 		try {
         	qObject = QPDFObjectHandle::parse(qpdfdef);
-		} catch (std::logic_error e) {
+		} catch (std::exception& e) {
+			if (error != NULL) {
+				NSString* errorString = [NSString stringWithCString:e.what() encoding:NSMacOSRomanStringEncoding];
+				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : errorString};
+				*error = [NSError errorWithDomain:@"com.qpdf" code:1 userInfo:userInfo];
+			}
 			return nil;
 		}
     }
@@ -497,6 +507,42 @@
 	
 	Buffer* b = sink.getBuffer();
 	return [NSData dataWithBytes:b->getBuffer() length:b->getSize()];
+}
+
+- (BOOL)isEqual:(id)object
+{
+	if (self == object)
+		return YES;
+	
+	if (![object isKindOfClass:[ObjcQPDFObjectHandle class]])
+		return NO;
+	
+	ObjcQPDFObjectHandle* other = (ObjcQPDFObjectHandle*)object;
+
+	QPDFObjectHandle otherQ = [other qpdfobject];
+	
+	// Compare IDs for Indirect objects
+	if (qObject.isIndirect() && otherQ.isIndirect()) {
+		return qObject.getObjectID() == otherQ.getObjectID() &&
+			   qObject.getGeneration() == otherQ.getGeneration();
+	}
+	
+	// Fallback for direct objects: Compare unparsed string content.
+	// This handles direct objects by value, which is acceptable for the outline view.
+	return qObject.unparse() == otherQ.unparse();
+}
+
+- (NSUInteger)hash
+{
+	// For indirect objects, ID is a great hash.
+	if (qObject.isIndirect())
+		return qObject.getObjectID();
+	
+	// For direct objects, we don't have a stable hash other than the address of the underlying object.
+	// But we can't easily get that address from the handle public API without some digging.
+	// So we return a constant or super's hash?
+	// If we return 0, performance suffers but correctness holds (if isEqual works).
+	return (NSUInteger)qObject.getTypeCode(); 
 }
 
 @end

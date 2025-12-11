@@ -248,39 +248,22 @@
 
 		if (isJPEG) {
 			// JPEG Pass-through: Set data directly, set filter manually.
-			// QPDF doesn't support DCT encoding, so we don't use replaceStreamData with filter.
 			[imageStream replaceStreamData:fileData filter:nil];
 			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
 		} else {
-			// Lossless Path (Flate): Use QPDF's native compression.
-			// 1. Get raw RGB bytes
-			NSBitmapImageRep *rawRep = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:NULL
-																			   pixelsWide:width
-																			   pixelsHigh:height
-																			bitsPerSample:8
-																		  samplesPerPixel:3
-																				 hasAlpha:NO
-																				 isPlanar:NO
-																		   colorSpaceName:NSDeviceRGBColorSpace
-																			 bytesPerRow:width * 3
-																			bitsPerPixel:24];
+			// Convert to JPEG
+			NSDictionary *props = @{NSImageCompressionFactor: @(0.9)};
+			NSData *jpegData = [rep representationUsingType:NSBitmapImageFileTypeJPEG properties:props];
 			
-			[NSGraphicsContext saveGraphicsState];
-			[NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithBitmapImageRep:rawRep]];
-			[rep drawInRect:NSMakeRect(0, 0, width, height)];
-			[NSGraphicsContext restoreGraphicsState];
-			
-			NSData *rawData = [NSData dataWithBytes:rawRep.bitmapData length:width * height * 3];
-			[rawRep release];
-			
-			// 2. Delegate compression to QPDF (via helper)
-			NSData *compressedData = [ObjcQPDFObjectHandle deflate:rawData];
-			
-			if (compressedData) {
-				[imageStream replaceStreamData:compressedData filter:@"/FlateDecode"];
+			if (jpegData) {
+				[imageStream replaceStreamData:jpegData filter:nil];
+				[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
 			} else {
-				// Fallback (shouldn't happen with valid data)
-				[imageStream replaceStreamData:rawData filter:nil];
+				// Fallback to raw if JPEG conversion fails (unlikely)
+				// Use standard QPDF compression for fallback
+				NSData *rawData = [NSData dataWithBytes:rep.bitmapData length:width * height * 3];
+				[imageStream replaceStreamData:rawData filter:nil]; 
+				// We don't set a filter here, relying on QPDFWriter's compress mode as a last resort
 			}
 		}
 		

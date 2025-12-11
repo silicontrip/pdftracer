@@ -197,7 +197,9 @@
 		if (outcount==0)
 		{
 			ObjcQPDFObjectHandle* selHandle = [outview itemAtRow:[outview selectedRow]];
-			[outadd setEnabled:[selHandle isExpandable] forSegment:0];
+			// Allow adding if expandable OR if nothing is selected (add to root)
+			BOOL canAdd = (selHandle == nil) || [selHandle isExpandable];
+			[outadd setEnabled:canAdd forSegment:0];
 		} else {
 			[outadd setEnabled:YES forSegment:0];
 		}
@@ -247,7 +249,17 @@
 			else
 			{
 				NSLog(@"object elem: %lu",(unsigned long)[objElem count]);
-				newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es];
+				// newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es];
+				NSError *error = nil;
+				newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es error:&error];
+				
+				if (!newobj && error) {
+					NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+					[alert setMessageText:@"Invalid PDF Syntax"];
+					[alert setInformativeText:[NSString stringWithFormat:@"%@\n\nInput: %@", [error localizedDescription], es]];
+					[alert addButtonWithTitle:@"OK"];
+					[alert runModal];
+				}
 			}
 		if (newobj) {
 			if ([parent isArray])
@@ -261,8 +273,11 @@
 			}
 			[newobj autorelease];
 
-		}
-		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
+		} 
+		// else { ... } already handled above via error check, though original logic had separate else for newobj check.
+		// Let's keep it clean. If newobj is nil, we just don't update.
+		
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
 	}
 	// update outlines
 	// update textview
@@ -299,7 +314,11 @@
 																 inTextContainer:w.textView.textContainer];
 		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
 		
-		[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
+		if ([text length] > 20000) {
+			[syntaxer colouriseRange:visRange];
+		} else {
+			[syntaxer colouriseRangeThenAll:visRange];
+		}
 	}
 }
 
@@ -765,6 +784,7 @@ void printView (NSView* n)
 					[(QPDFDocument*)[self document] insertImage:[url path] onPage:self.selectedPage];
 					
 					// Force a full reload of the outlines to show the new object and the updated page structure
+					// Passing nil triggers reloadData, which now preserves expansion state.
 					[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:@{@"reloadChildren":@(YES)}];
 					
 					// Also refresh the document view
@@ -791,9 +811,61 @@ void printView (NSView* n)
 	
 	QPDFObjectTypeEnum type = (QPDFObjectTypeEnum)((NSMenuItem*)sender).tag;
 
+	QPDFOutlineView* activeView = self.selectedView;
+	if ([sender isKindOfClass:[NSMenuItem class]] && [[sender representedObject] isKindOfClass:[QPDFOutlineView class]]) {
+		activeView = [sender representedObject];
+	}
+
 	//NSLog(@"before: %@",[selectedHandle text]);
 	
-	if ([[self document] addItemOfType:type toObject:selectedHandle])
+	ObjcQPDFObjectHandle* target = selectedHandle;
+	if (target == nil) {
+		// If in Object List (Tag 1), create new Indirect Object instead of adding to Root
+		if ([activeView relatedSegment].tag == 1) {
+			// Create the object first
+			ObjcQPDFObjectHandle* newobj = nil;
+			// We need a temporary parent or just create it?
+			// addItemOfType needs a parent to add to.
+			// Refactor: We should create the object first, then decide where to put it.
+			
+			// HACK: Use document helper to create the object instance directly
+			// But addItemOfType logic is inside QPDFDocument.
+			// Let's rely on QPDFDocument to create it, but we need a way to say "Don't add to parent".
+			
+			// Alternative: Create a dummy parent? No.
+			// We need to move the object creation logic out of addItemOfType or replicate it here.
+			
+			// Let's duplicate the creation logic here for this special case (safest change).
+			switch (type) {
+				case QPDFObjectTypeNull: newobj = [ObjcQPDFObjectHandle newNull]; break;
+				case QPDFObjectTypeBoolean: newobj = [ObjcQPDFObjectHandle newBool:NO]; break;
+				case QPDFObjectTypeInteger: newobj = [ObjcQPDFObjectHandle newInteger:0]; break;
+				case QPDFObjectTypeReal: newobj = [ObjcQPDFObjectHandle newReal:0.0]; break;
+				case QPDFObjectTypeString: newobj = [ObjcQPDFObjectHandle newString:@""]; break;
+				case QPDFObjectTypeName: newobj = [ObjcQPDFObjectHandle newName:@"/Name"]; break;
+				case QPDFObjectTypeArray: newobj = [ObjcQPDFObjectHandle newArray]; break;
+				case QPDFObjectTypeDictionary: newobj = [ObjcQPDFObjectHandle newDictionary]; break;
+				case QPDFObjectTypeStream:
+					newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[[self document] doc] withString:@""];
+					break;
+				default: break;
+			}
+			
+			if (newobj) {
+				[[[self document] doc] makeIndirectObject:newobj];
+				// Full reload
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:@{@"reloadChildren":@(YES)}];
+				[[self document] updateChangeCount:NSChangeDone];
+				[self setDocumentEdited:YES];
+			}
+			[ov endUpdates];
+			return; // Done
+		}
+		
+		target = [[[self document] doc] copyTrailer];
+	}
+
+	if ([[self document] addItemOfType:type toObject:target])
 	{
 		//	NSLog(@"after: %@",[selectedHandle text]);
 		
@@ -805,7 +877,11 @@ void printView (NSView* n)
 		NSDictionary* user = @{@"reloadChildren":@(YES)};
  
 		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
-		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:user];
+		
+		// Use object:nil to force full reload (for Flat View update)
+		// QPDFOutlineView now preserves expansion state, so this is safe.
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:user];
+		
 		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(selectedPage)];
 
 //		toObj = [ov itemAtRow:[ov selectedRow]];
@@ -882,35 +958,41 @@ void printView (NSView* n)
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-	if (selectedPage == -1)
-	{
-		[menuItem setState:NSControlStateValueOff];
-		return NO;
-	}
-	// NSString* tt = [menuItem title];
+	SEL action = [menuItem action];
 	
-	ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
-	if (pageDict)
+	if (action == @selector(setProc:))
 	{
-		ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
-		if (res) {
-			ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
-			if (procset)
-			{
-				NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
-				for (int pe =0; pe < [procset count]; ++pe)
+		if (selectedPage == -1)
+		{
+			[menuItem setState:NSControlStateValueOff];
+			return NO;
+		}
+		// NSString* tt = [menuItem title];
+		
+		ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
+		if (pageDict)
+		{
+			ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
+			if (res) {
+				ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
+				if (procset)
 				{
-					ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
-					if ([menuName isEqualToString:[pse name]]) {
-						[menuItem setState:NSControlStateValueOn];
-						return YES;
+					NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
+					for (int pe =0; pe < [procset count]; ++pe)
+					{
+						ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
+						if ([menuName isEqualToString:[pse name]]) {
+							[menuItem setState:NSControlStateValueOn];
+							return YES;
+						}
 					}
+					
 				}
-				
 			}
 		}
+		[menuItem setState:NSControlStateValueOff];
+		return YES;
 	}
-	[menuItem setState:NSControlStateValueOff];
 	return YES;
 }
 

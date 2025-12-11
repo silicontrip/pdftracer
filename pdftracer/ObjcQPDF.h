@@ -32,16 +32,9 @@
 - (BOOL)isIndirectPage:(NSString* _Nonnull)objectGeneration;
 - (void)makePageDirects;
 - (ObjcQPDFObjectHandle* _Nullable)objectAtIndex:(NSString* _Nullable)objGen;
-//-(ObjcQPDFObjectHandle*)objectAtIndex:(NSUInteger)index;
-- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)objects;
-- (ObjcQPDFObjectHandle* _Nullable)pageAtIndex:(NSUInteger)index;
-- (ObjcQPDFObjectHandle* _Nullable)pageForIndirect:(NSString* _Nonnull)objectGeneration;
-- (NSNumber* _Nonnull)pageIndexForIndirect:(NSString* _Nonnull)objectGeneration;
-- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)pages;
-- (NSData* _Nonnull)qdf;
-// - (QPDF*)qpdf;
-- (void)removeID:(NSString* _Nonnull)objGen;
+- (ObjcQPDFObjectHandle* _Nonnull)makeIndirectObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
 - (void)replaceID:(NSString* _Nonnull)objGen with:(ObjcQPDFObjectHandle* _Nonnull)obj;
+- (NSNumber* _Nonnull)pageIndexForIndirect:(NSString* _Nonnull)objectGeneration;
 - (NSString* _Nonnull)version;
 
 @end

@@ -185,6 +185,13 @@
 	return nil;
 }
 
+- (ObjcQPDFObjectHandle* _Nonnull)makeIndirectObject:(ObjcQPDFObjectHandle* _Nonnull)obj
+{
+	QPDFObjectHandle qoh = [obj qpdfobject];
+	QPDFObjectHandle newInd = qDocument->makeIndirectObject(qoh);
+	return [self objectHandle:newInd];
+}
+
 
 - (void)replaceID:(NSString* _Nonnull)objGen with:(ObjcQPDFObjectHandle* _Nonnull)obj
 {
@@ -262,6 +269,7 @@
 {
 
 	QPDFWriter qwriter(*qDocument);
+	qwriter.setStreamDataMode(qpdf_s_compress);
 	qwriter.setOutputMemory();
 	qwriter.write();
 	

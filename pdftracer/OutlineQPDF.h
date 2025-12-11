@@ -20,6 +20,7 @@
 
 - (instancetype)initWithPDF:(ObjcQPDF*)pdf;
 - (void)invalidate;
+- (void)refresh;
 
 + (QPDFOutlineView*)newView;
 

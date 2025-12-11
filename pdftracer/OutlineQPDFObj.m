@@ -10,9 +10,21 @@
 	if (self != nil)
 	{
 		qpDocument = pdf;
-	//	objTable= [[qpDocument objects] retain];
+		[self refresh];
 	}
 	return self;
+}
+
+- (void)dealloc
+{
+	[objTable release];
+	[super dealloc];
+}
+
+- (void)refresh
+{
+	if (objTable) [objTable release];
+	objTable = [[qpDocument objects] retain];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
@@ -32,7 +44,7 @@
 //	NSLog(@"Object table: %d",objTable.size());
 	
 	if (item == nil)
-		return [qpDocument countObjects];
+		return [objTable count];
 	
 	return 0;
 }
@@ -56,7 +68,7 @@
 		NSString* colid = [tableColumn identifier];
 		
 		if ([colid isEqualToString:@"objref"]) {
-			rs = [pdfitem elementName];
+			rs = [pdfitem objectGenerationID]; // Use ID for Name column in flat list
 		} else if ([colid isEqualToString:@"type"]) {
 			if ([pdfitem isDictionary])
 			{
@@ -95,13 +107,12 @@
 	
 	if (item == nil)
 	{
-		NSString* lindex = [NSString stringWithFormat:@"%d 0 R",(int)index+1];
-		ObjcQPDFObjectHandle* pdfitem = [qpDocument objectAtIndex:lindex];
-		[pdfitem setElementName:lindex];
-		[pdfitem setParent:item];
-		
-		// ObjcQPDFObjectHandle* sindex =[QPDFNode nodeWithParent:item Named:lindex Handle:pdfitem];
-		return pdfitem;
+		if (index < [objTable count]) {
+			ObjcQPDFObjectHandle* pdfitem = [objTable objectAtIndex:index];
+			// [pdfitem setElementName:lindex]; // ID is intrinsic now
+			// [pdfitem setParent:item];
+			return pdfitem;
+		}
 	}
 	
 	return nil;
