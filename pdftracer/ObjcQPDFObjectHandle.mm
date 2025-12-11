@@ -174,6 +174,19 @@
 	return [[[NSArray alloc] initWithArray:tempKeyArray] autorelease];
 }
 
+- (NSArray<NSString*>* _Nonnull)presentationKeys
+{
+	NSArray<NSString*>* allKeys = [self keys];
+	NSMutableArray<NSString*>* filtered = [NSMutableArray arrayWithCapacity:[allKeys count]];
+	
+	for (NSString* key in allKeys) {
+		if ([key caseInsensitiveCompare:@"/Parent"] != NSOrderedSame) {
+			[filtered addObject:key];
+		}
+	}
+	return [[filtered copy] autorelease];
+}
+
 - (ObjcQPDFObjectHandle* _Nullable)objectForKey:(NSString* _Nonnull)key
 {
 	std::string tempKey = std::string([key cStringUsingEncoding:NSMacOSRomanStringEncoding]);
@@ -538,11 +551,11 @@
 	if (qObject.isIndirect())
 		return qObject.getObjectID();
 	
-	// For direct objects, we don't have a stable hash other than the address of the underlying object.
-	// But we can't easily get that address from the handle public API without some digging.
-	// So we return a constant or super's hash?
-	// If we return 0, performance suffers but correctness holds (if isEqual works).
-	return (NSUInteger)qObject.getTypeCode(); 
+	// For direct objects, we MUST have a hash that aligns with isEqual (which uses unparse).
+	// Returning a constant caused N^2 collision checks.
+	// Using the hash of the unparsed string distributes them properly.
+	std::string s = qObject.unparse();
+	return std::hash<std::string>{}(s);
 }
 
 @end

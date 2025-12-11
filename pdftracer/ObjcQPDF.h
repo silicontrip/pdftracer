@@ -33,6 +33,8 @@
 - (void)makePageDirects;
 - (ObjcQPDFObjectHandle* _Nullable)objectAtIndex:(NSString* _Nullable)objGen;
 - (ObjcQPDFObjectHandle* _Nonnull)makeIndirectObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
+- (ObjcQPDFObjectHandle* _Nullable)pageAtIndex:(NSUInteger)index;
+- (NSArray<ObjcQPDFObjectHandle*>* _Nonnull)objects;
 - (void)replaceID:(NSString* _Nonnull)objGen with:(ObjcQPDFObjectHandle* _Nonnull)obj;
 - (NSNumber* _Nonnull)pageIndexForIndirect:(NSString* _Nonnull)objectGeneration;
 - (NSString* _Nonnull)version;

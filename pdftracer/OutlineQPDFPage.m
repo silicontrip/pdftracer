@@ -65,6 +65,9 @@
 		return [qpDocument countPages];
 		//return [pageArray count];
 	
+	if ([(ObjcQPDFObjectHandle*)item isDictionary]) {
+		return [[(ObjcQPDFObjectHandle*)item presentationKeys] count];
+	}
 	return [(ObjcQPDFObjectHandle*)item count];
 	
 }
@@ -123,7 +126,7 @@
 	} else if ([pdfitem isDictionary]) {
 		// NSLog(@"obj is dictionary. child:ofItem:");
 
-		NSString* keyIndex = [[pdfitem keys] objectAtIndex:index];
+		NSString* keyIndex = [[pdfitem presentationKeys] objectAtIndex:index];
 		ObjcQPDFObjectHandle* keyHandle = [pdfitem objectForKey:keyIndex];
 		[keyHandle setParent:item];
 		[keyHandle setElementName:keyIndex];

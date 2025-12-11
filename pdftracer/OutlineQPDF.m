@@ -49,8 +49,7 @@
 	}
 	if ([pdfitem isDictionary])
 	{
-		long count = [pdfitem count];
-		return count;
+		return [[pdfitem presentationKeys] count];
 	}
 	return 0;
 }
@@ -108,19 +107,12 @@
 		return thisObject;
 	} else if ([pdfitem isDictionary]) {
 
-		int loopindex=0;
-		for(NSString* iterKey in [pdfitem keys])
-		{
-			if (loopindex == index)
-			{
-				ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:iterKey];
-				[thisObject setElementName:iterKey];
-				[thisObject setParent:pdfitem];
-				// QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
-				return thisObject;
-			}
-			++loopindex;
-		}
+		NSString* keyIndex = [[pdfitem presentationKeys] objectAtIndex:index];
+		ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:keyIndex];
+		[thisObject setElementName:keyIndex];
+		[thisObject setParent:pdfitem];
+		// QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
+		return thisObject;
 	
 	}
 	return nil;

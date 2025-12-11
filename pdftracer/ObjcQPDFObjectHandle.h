@@ -91,6 +91,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
 - (BOOL)isPage;
 - (BOOL)isStream;
 - (NSArray<NSString*>* _Nonnull)keys;
+- (NSArray<NSString*>* _Nonnull)presentationKeys;
 - (NSString* _Nonnull)name;
 + (ObjcQPDFObjectHandle* _Nonnull)nameWith:(NSString* _Nonnull)b;
 + (ObjcQPDFObjectHandle* _Nonnull)newArray;
