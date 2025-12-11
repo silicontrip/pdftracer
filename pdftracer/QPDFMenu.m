@@ -145,11 +145,11 @@
 		
 		NSMenu* findMenu = [[NSMenu new] autorelease];
 		[findMenu setAutoenablesItems:YES];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find..." keyEquiv:@"f" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find and Replace..." keyEquiv:@"f" modifier:cmd|opt selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Next" keyEquiv:@"g" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Previous" keyEquiv:@"G" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Use Selection for Find" keyEquiv:@"e" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find..." keyEquiv:@"f" modifier:cmd selector:@"performFindPanelAction:" tag:1]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find and Replace..." keyEquiv:@"f" modifier:cmd|opt selector:@"performFindPanelAction:" tag:12]]; // 12 = ShowReplace
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Next" keyEquiv:@"g" modifier:cmd selector:@"performFindPanelAction:" tag:2]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Previous" keyEquiv:@"G" modifier:cmd selector:@"performFindPanelAction:" tag:3]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Use Selection for Find" keyEquiv:@"e" modifier:cmd selector:@"performFindPanelAction:" tag:7]];
 		[findMenu addItem:[QPDFMenu itemWithTitle:@"Jump to Selection" keyEquiv:@"j" modifier:cmd selector:@"centerSelectioninVisibleArea:"]];
 
 		

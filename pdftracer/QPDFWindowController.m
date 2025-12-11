@@ -795,6 +795,16 @@ void printView (NSView* n)
 	}
 }
 
+- (void)performFindPanelAction:(id)sender
+{
+	[[(QPDFWindow*)[self window] textView] performTextFinderAction:sender];
+}
+
+- (void)performTextFinderAction:(id)sender
+{
+	[[(QPDFWindow*)[self window] textView] performTextFinderAction:sender];
+}
+
 
 // addRow -> refreshOutline, setRow, setText, enaAR, refreshPDF, documentChanged
 
