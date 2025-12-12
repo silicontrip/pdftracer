@@ -52,24 +52,53 @@
 
 - (instancetype)initWithString:(NSString* _Nonnull)def forQPDF:(ObjcQPDF* _Nullable)qpdf error:(NSError**)error
 {
-	//NSLog(@"ObjcObjectHandle initWithString:forQPDF: %@", def);
+	NSLog(@">>> [initWithString:forQPDF:] Input string: '%@'", def);
+	NSLog(@">>> [initWithString:forQPDF:] QPDF context: %p", qpdf);
 
     self = [super init];
     if (self)
     {
+		// Initialize these first, before any early returns
 		dictionaryKeys = nil;
 		objectArray = nil;
 		
+		// Check if this is an indirect reference (e.g., "6 0 R")
+		NSRegularExpression *indirectRefRegex = [NSRegularExpression regularExpressionWithPattern:@"^\\s*(\\d+)\\s+(\\d+)\\s+R\\s*$" 
+																						   options:0 
+																							 error:nil];
+		NSTextCheckingResult *match = [indirectRefRegex firstMatchInString:def options:0 range:NSMakeRange(0, [def length])];
+		
+		if (match && qpdf) {
+			// Extract object ID and generation number
+			NSString *objIdStr = [def substringWithRange:[match rangeAtIndex:1]];
+			NSString *genNumStr = [def substringWithRange:[match rangeAtIndex:2]];
+			int objId = [objIdStr intValue];
+			int genNum = [genNumStr intValue];
+			
+			NSLog(@">>> [initWithString:forQPDF:] Detected indirect reference: %d %d R", objId, genNum);
+			
+			// Get the object from the QPDF document
+			qObject = [qpdf qpdf]->getObjectByID(objId, genNum);
+			NSLog(@">>> [initWithString:forQPDF:] Retrieved indirect object successfully");
+			return self;
+		}
+		
 		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
+		NSLog(@">>> [initWithString:forQPDF:] Calling QPDFObjectHandle::parse");
+		
 		try {
 			if (qpdf) {
+				NSLog(@">>> [initWithString:forQPDF:] Using QPDF context for parsing (enables indirect refs)");
 				// Parse with PDF document context for indirect references
 				qObject = QPDFObjectHandle::parse([qpdf qpdf], qpdfdef);
 			} else {
+				NSLog(@">>> [initWithString:forQPDF:] No QPDF context, parsing without indirect ref support");
 				// Fallback to parse without context
 				qObject = QPDFObjectHandle::parse(qpdfdef);
 			}
+			NSLog(@">>> [initWithString:forQPDF:] Parse successful");
 		} catch (std::exception& e) {
+			NSLog(@">>> [initWithString:forQPDF:] Parse FAILED with exception: %s", e.what());
 			if (error != NULL) {
 				NSString* errorString = [NSString stringWithCString:e.what() encoding:NSMacOSRomanStringEncoding];
 				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : errorString};
