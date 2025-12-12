@@ -62,12 +62,14 @@
 		
 		// NSString *argName = @"/\\w+";
 		//NSString *argReal = @"[+-]?([0-9]*[.])?[0-9]+";
-		NSString *stringRe = @"\\((\\\\\\)|[^\\)])*\\)";
+		// Fixed: Match any escaped character (\\.) including \( and \), not just \\
+		// In Objective-C strings: \\\\ = one backslash in regex, so \\\\\\\\ = \\ in regex
+		NSString *stringRe = @"\\((\\\\\\\\.|[^\\)])*\\)";
 		NSString *hexRe = @"<[0-9A-Fa-f]+>";
 		NSString *arrayRe = @"\\[[^\\]]*\\]";
 		NSString *dictRe = @"<<[^>]*>>";
 		
-		NSString *innerStringRe = @"(?<=\\()(\\\\\\)|[^\\)])*(?=\\))";
+		NSString *innerStringRe = @"(?<=\\()(\\\\\\\\.|[^\\)])*(?=\\))";
 		NSString *innerHexRe = @"(?<=<)[0-9A-Fa-f]+(?=>)";
 		// NSString *innerArrayRe = @"(?<=\\[)[0-9A-Fa-f]+(?=\\])";
 		NSString *nameRe = @"/\\w+";
@@ -357,6 +359,12 @@
 			}
 			
 			[_asyncView.textStorage beginEditing];
+			
+			// Set default text color first to prevent inheriting previous colors
+			NSRange fullRange = NSMakeRange(0, [_asyncView.textStorage length]);
+			[_asyncView setTextColor:[NSColor whiteColor] range:fullRange];
+			
+			// Apply syntax highlighting colors
 			NSUInteger counter = 0;
 			for (Colourise* cr in colourInstruct)
 			{
