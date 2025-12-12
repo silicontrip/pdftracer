@@ -6,15 +6,15 @@ OPTFLAGS=-O3
 CPP=clang++
 CPPFLAGS=$(OPTFLAGS) -I/usr/local/include -std=c++17
 
-#LDFLAGS=-std=c++17 -fsanitize=address -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers
-LDFLAGS=-std=c++17 -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers
+#LDFLAGS=-std=c++17 -fsanitize=address -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers -framework CoreText
+LDFLAGS=-std=c++17 -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers -framework CoreText
 
 CC=clang
-CFLAGS=$(OPTFLAGS) -I/usr/local/include 
+CFLAGS=$(OPTFLAGS) -I/usr/local/include -isysroot `xcrun --show-sdk-path`
 
 OBJ= ObjcQPDF.o ObjcQPDFObjectHandle.o \
 	Arguments.o OutlineQPDF.o OutlineQPDFObj.o OutlineQPDFPage.o \
-	QPDFDocument.o QPDFDocumentController.o QPDFHelp.o QPDFMenu.o QPDFOutlineView.o \
+	QPDFDocument.o QPDFDocumentController.o QPDFFontEmbedder.o QPDFHelp.o QPDFMenu.o QPDFOutlineView.o \
 	QPDFSegmentedCell.o QPDFSyntaxHighlighter.o QPDFTextView.o QPDFView.o QPDFWindow.o QPDFWindowController.o \
 	NoodleLineNumberMarker.o NoodleLineNumberView.o
 

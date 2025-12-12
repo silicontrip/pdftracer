@@ -222,7 +222,7 @@
 			[fontMenu addItem:[QPDFMenu itemWithTitle:fn selector:@"insertFont:" tag:fontTag++]];
 		
 		[fontMenu addItem:[NSMenuItem separatorItem]];
-		[fontMenu addItem:[QPDFMenu itemWithTitle:@"From File..."  selector:@"insertFontFile:"]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"System Font..."  selector:@"insertFontFile:"]];
 		
 		NSMenu* procMenu =[[NSMenu new] autorelease];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"PDF" selector:@"setProc:" tag:0]];

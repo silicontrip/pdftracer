@@ -308,6 +308,13 @@
 			[alert setInformativeText:[NSString stringWithFormat:@"%@\n\nInput: %@", [error localizedDescription], es]];
 			[alert addButtonWithTitle:@"OK"];
 			[alert runModal];
+			
+			// Reload the outline view to refresh the display and clear any editing state
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent ? parent : nil];
+			
+			// Return early - don't modify anything if parsing failed
+			NSLog(@">>> [changeText] Parsing failed, returning without changes");
+			return;
 		}
 		
 		if (newobj) {
@@ -359,25 +366,40 @@
 					[alert setInformativeText:@"Editing indirect objects in the list view is not yet supported for this type. Try editing from the tree view instead."];
 					[alert addButtonWithTitle:@"OK"];
 					[alert runModal];
+					
+					// Return early - don't continue processing after showing error
+					NSLog(@">>> [changeText] Returning after showing error alert");
+					return;
 				}
 				// After modifying in place, handle is still the current object
 				updatedObject = handle;
 			}
 			[newobj autorelease];
+			NSLog(@">>> [changeText] After autorelease, about to post notifications");
 			
 			// Reload parent to show the new indirect reference in the outline
 			NSLog(@">>> [changeText] Posting update notification");
 			if (parent) {
+				NSLog(@">>> [changeText] Has parent, posting with parent object");
 				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent userInfo:@{@"reloadChildren":@(YES)}];
+				NSLog(@">>> [changeText] Outline notification posted");
 			} else {
 				// Reload the entire view for indirect object changes
+				NSLog(@">>> [changeText] No parent, posting outline reload for entire view");
 				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+				NSLog(@">>> [changeText] Outline notification posted");
 			}
 			
 			// Update text view to show the edited object's new content
+			NSLog(@">>> [changeText] About to post text view update, updatedObject: %p", updatedObject);
 			if (updatedObject) {
-				[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[updatedObject text]];
+				NSLog(@">>> [changeText] Getting text from updatedObject...");
+				NSString* textContent = [updatedObject text];
+				NSLog(@">>> [changeText] Got text (length: %lu), posting notification", (unsigned long)[textContent length]);
+				[documentCenter postNotificationName:@"QPDFUpdateTextview" object:textContent];
+				NSLog(@">>> [changeText] Text view notification posted");
 			}
+			NSLog(@">>> [changeText] All notifications posted successfully");
 		} 
 	}
 	// update outlines
@@ -461,7 +483,11 @@
 {
 	NSDate *selectStartTime = [NSDate date];
 	NSLog(@">>> [selectRow] Starting selection");
-	
+	NSLog(@"[selectRow: %ld forSource: %x", sr, qov);
+
+	id item = [qov itemAtRow:sr];
+	NSLog(@"item: %x", item);
+
 	// setOV, setRow
 	[self setSelectedRow:sr];
 	[self setSelectedView:qov];
@@ -473,10 +499,24 @@
 
 	if (selectedHandle)
 	{
-		NSDate *textGenStart = [NSDate date];
-		NSString* handleText = [selectedHandle text];
-		NSTimeInterval textGenTime = [[NSDate date] timeIntervalSinceDate:textGenStart];
-		NSLog(@"⏱ [selectRow] Getting text from handle: %.3f seconds (%lu chars)", textGenTime, (unsigned long)[handleText length]);
+		NSDate *textStart = [NSDate date];
+		NSString* handleText = nil;
+		
+		@try {
+			handleText = [selectedHandle text];
+		} @catch (NSException *exception) {
+			NSLog(@"ERROR: Exception getting text from handle: %@", exception);
+			NSLog(@"Handle type: %@, isIndirect: %d", [selectedHandle typeName], [selectedHandle isIndirect]);
+			handleText = @"<Error: Object is corrupted or invalid>";
+		}
+		
+		if (!handleText) {
+			NSLog(@"WARNING: handleText is nil for object: %@", selectedHandle);
+			handleText = @"<Error: Could not get text from object>";
+		}
+		
+		NSTimeInterval textGenTime = [[NSDate date] timeIntervalSinceDate:textStart];
+		//NSLog(@"⏱ [selectRow] Getting text from handle: %.3f seconds (%lu chars)", textGenTime, (unsigned long)[handleText length]);
 		
 		// Set edit enable BEFORE loading text to avoid 2-second freeze
 		// (NSTextView is slow when changing editable state with large text already loaded)
@@ -511,7 +551,7 @@
 			[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(nPage)];
 		}
 		NSTimeInterval pageTime = [[NSDate date] timeIntervalSinceDate:pageStart];
-		NSLog(@"⏱ [selectRow] Page handling: %.3f seconds", pageTime);
+		//NSLog(@"⏱ [selectRow] Page handling: %.3f seconds", pageTime);
 	} else {
 		// but if we've selected no object, then unselect the page.
 		// make sense?
@@ -525,7 +565,7 @@
 	[self updateOutlineAddRemove];
 	
 	NSTimeInterval selectTotalTime = [[NSDate date] timeIntervalSinceDate:selectStartTime];
-	NSLog(@"⏱ [selectRow] TOTAL: %.3f seconds", selectTotalTime);
+	//	NSLog(@"⏱ [selectRow] TOTAL: %.3f seconds", selectTotalTime);
 	// NSLog(@"end selectRow");
 }
 
@@ -766,14 +806,65 @@ void printView (NSView* n)
 		selectedColumn = [selectedView editedColumn];
 		selectedHandle = [selectedView itemAtRow:selectedRow];
 		
+		// Safety check: if selectedView or selectedHandle is nil, bail out
+		if (!selectedView || !selectedHandle) {
+			NSLog(@"Warning: selectedView or selectedHandle is nil, skipping update");
+			return;
+		}
+		
 	//	NSLog(@"selected Node: %@",selectedHandle);
 		
 		NSString * editor = [[fieldEditor textStorage] string];
 		
 		NSLog(@"Changed to: %@",editor);
 		
-		[self changeText:selectedView with:editor];  // why is this needed?
+		// Get the current value to compare
+		NSString* currentValue = nil;
+		@try {
+			if (selectedColumn == 0) {
+				// Name column
+				currentValue = [selectedHandle elementName];
+			} else if (selectedColumn == 2) {
+				// Value column
+				currentValue = [selectedHandle unparse];
+			}
+		} @catch (NSException *exception) {
+			NSLog(@"Exception getting current value: %@", exception);
+			return;
+		}
 		
+		// Only process if the value actually changed
+		if (currentValue && [editor isEqualToString:currentValue]) {
+			NSLog(@"Value unchanged, skipping update");
+			return;
+		}
+		
+		// Additional safety check before calling changeText
+		if (!selectedView || !selectedHandle) {
+			NSLog(@"Warning: selectedView or selectedHandle became nil, skipping update");
+			return;
+		}
+		
+		// Debug logging to see what we're passing
+		NSLog(@">>> About to call changeText - selectedView: %p, editor: '%@'", selectedView, editor);
+		NSLog(@">>> selectedView class: %@, selectedHandle: %p", [selectedView class], selectedHandle);
+		
+		@try {
+			[self changeText:selectedView with:editor];  // why is this needed?
+			NSLog(@">>> changeText completed successfully");
+		} @catch (NSException *exception) {
+			NSLog(@"Exception in changeText: %@", exception);
+			return;
+		}
+		
+		// changeText already handles outline/textview updates and document change notification
+		// Return early to avoid accessing potentially invalidated objects
+		NSLog(@">>> Returning early from textDidEndEditing after changeText");
+		[[self document] updateChangeCount:NSChangeDone];
+		[self setDocumentEdited:YES];
+		return;
+		
+		// The code below is now unreachable - changeText handles everything
 		// refresh outline, refreshPDF, documentChange
 	//	NSLog(@"reloading: %@",selectedHandle);
 		// post NSNotification
@@ -830,6 +921,8 @@ void printView (NSView* n)
 	[self selectRow:[evv selectedRow] forSource:evv];
 }
 
+// Old method for changing text view font - commented out to avoid conflict with font panel
+/*
 -(void)changeFont:(id)sender
 {
 //	NSLog(@"changing font: %@",sender);
@@ -845,8 +938,10 @@ void printView (NSView* n)
 				NSFont* nf = [fm convertFont:tf];
 				NSLog(@"new font: %@",nf);
 	
-				win.textFont = nf;
-			}}
+				[win setTextFont:nf];
+			}
+}
+*/
 
 -(void)exportText:(id)sender
 {
@@ -957,11 +1052,70 @@ void printView (NSView* n)
 
 - (void)insertFontFile:(id)sender
 {
+	if (selectedPage >= 0)
+	{
+		// Use the system font panel to select a font
+		NSFontManager *fontManager = [NSFontManager sharedFontManager];
+		NSFontPanel *fontPanel = [fontManager fontPanel:YES];
+		
+		// Set a default font
+		NSFont *currentFont = [NSFont systemFontOfSize:12.0];
+		[fontManager setSelectedFont:currentFont isMultiple:NO];
+		
+		// Store the page number for the callback
+		[[NSUserDefaults standardUserDefaults] setInteger:selectedPage forKey:@"FontEmbedPageNumber"];
+		
+		// Set this controller as the target for font changes
+		[fontManager setTarget:self];
+		[fontManager setAction:@selector(changeFont:)];
+		
+		// Show the font panel
+		[fontPanel makeKeyAndOrderFront:nil];
+		
+		NSLog(@">>> Font panel opened - select a font and it will be embedded");
+	}
+}
 
-	// file dialog
-	// data from file
-	// stream from data
-	// insert into indirect
+// Called when user selects a font from the font panel
+- (void)changeFont:(id)sender
+{
+	NSFontManager *fontManager = sender;
+	NSFont *selectedFont = [fontManager convertFont:[fontManager selectedFont]];
+	
+	if (!selectedFont) {
+		NSLog(@">>> No font selected");
+		return;
+	}
+	
+	NSInteger pageNum = [[NSUserDefaults standardUserDefaults] integerForKey:@"FontEmbedPageNumber"];
+	
+	NSLog(@">>> Embedding font: %@ on page %ld", [selectedFont fontName], (long)pageNum);
+	
+	// Get the font file path - we need to find where this system font is located
+	// For system fonts, we'll use a different approach - embed directly from NSFont
+	NSError *error = nil;
+	BOOL success = [(QPDFDocument*)[self document] addSystemFont:selectedFont
+														   toPage:pageNum
+															error:&error];
+	
+	if (success) {
+		NSLog(@"Font embedded successfully");
+		
+		// Reload the outline view to show the new font
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+		
+		// Close the font panel
+		[[NSFontPanel sharedFontPanel] orderOut:nil];
+	} else {
+		// Show error alert
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert setMessageText:@"Font Embedding Failed"];
+		[alert setInformativeText:error ? [error localizedDescription] : @"Unknown error"];
+		[alert addButtonWithTitle:@"OK"];
+		[alert runModal];
+		[alert release];
+	}
 }
 
 - (void)insertXObject:(id)sender

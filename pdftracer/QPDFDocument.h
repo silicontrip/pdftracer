@@ -51,6 +51,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
 - (void)addColorSpace:(NSInteger)colorSpaceType toPage:(NSInteger)pageNumber;
 - (void)addExtGState:(NSInteger)extGStateType toPage:(NSInteger)pageNumber;
+- (BOOL)addFontFromFile:(NSString*)fontPath toPage:(NSInteger)pageNumber error:(NSError**)error;
+- (BOOL)addSystemFont:(NSFont*)font toPage:(NSInteger)pageNumber error:(NSError**)error;
 - (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber;
 - (void)newPageAtEnd;
 - (void)newPageBeforePage:(ObjcQPDFObjectHandle*)existingPage;

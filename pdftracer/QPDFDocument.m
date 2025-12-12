@@ -7,12 +7,14 @@
 //
 
 #import "QPDFDocument.h"
+#import <CoreText/CoreText.h>
 
 #import "OutlineQPDF.h"
 #import "OutlineQPDFPage.h"
 #import "OutlineQPDFObj.h"
 #import "QPDFWindowController.h"
 #import "ObjcQPDF.h"
+#import "QPDFFontEmbedder.h"
 
 @implementation QPDFDocument
 
@@ -356,6 +358,42 @@
 		[pageObj replaceObject:pageResource forKey:@"/Resources"];
 		[gsDict autorelease];
 	}
+}
+
+- (BOOL)addFontFromFile:(NSString*)fontPath toPage:(NSInteger)pageNumber error:(NSError**)error
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj == nil) {
+		if (error) {
+			*error = [NSError errorWithDomain:@"QPDFErrorDomain" code:1 
+									 userInfo:@{NSLocalizedDescriptionKey: @"Invalid page number"}];
+		}
+		return NO;
+	}
+	
+	NSString *fontName = [QPDFFontEmbedder embedFontFromFile:fontPath 
+													  inQPDF:qDocument 
+													  toPage:pageObj 
+													   error:error];
+	return (fontName != nil);
+}
+
+- (BOOL)addSystemFont:(NSFont*)font toPage:(NSInteger)pageNumber error:(NSError**)error
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj == nil) {
+		if (error) {
+			*error = [NSError errorWithDomain:@"QPDFErrorDomain" code:1 
+									 userInfo:@{NSLocalizedDescriptionKey: @"Invalid page number"}];
+		}
+		return NO;
+	}
+	
+	NSString *fontName = [QPDFFontEmbedder embedSystemFont:font 
+													 inQPDF:qDocument 
+													 toPage:pageObj 
+													  error:error];
+	return (fontName != nil);
 }
 
 - (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber
