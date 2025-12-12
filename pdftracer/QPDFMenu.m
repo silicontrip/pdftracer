@@ -262,7 +262,7 @@
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:extGStateMenu]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu ]];
+		// ProcSet removed - deprecated as of PDF 1.4
 
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" selector:@"insertXObject:" ]];
 
