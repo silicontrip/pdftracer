@@ -70,8 +70,10 @@
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error if you return nil.
     // Alternatively, you could remove this method and override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-	if ([typeName isEqualToString:@"QDF"])
-		return [qDocument qdf];
+
+	// this is only for objc++ code, which we are not.
+//	if ([typeName isEqualToString:@"PDF"])
+//		return [qDocument pdf];
 	
 	return [qDocument data];
 	
