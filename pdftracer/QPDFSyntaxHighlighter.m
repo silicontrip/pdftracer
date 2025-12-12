@@ -358,25 +358,32 @@
 				return;
 			}
 			
-			[_asyncView.textStorage beginEditing];
+			// Use layout manager temporary attributes instead of text storage
+			// This prevents colors from being removed when text is edited
+			NSLayoutManager *layoutManager = [_asyncView layoutManager];
 			
-			// Set default text color first to prevent inheriting previous colors
-			NSRange fullRange = NSMakeRange(0, [_asyncView.textStorage length]);
-			[_asyncView setTextColor:[NSColor whiteColor] range:fullRange];
+			// Only remove temporary attributes in the range we're about to re-color
+			// This prevents flickering in other parts of the document
+			[layoutManager removeTemporaryAttribute:NSForegroundColorAttributeName forCharacterRange:area];
 			
-			// Apply syntax highlighting colors
+			// Set default text color as temporary attribute for this range
+			[layoutManager addTemporaryAttribute:NSForegroundColorAttributeName
+										   value:[NSColor whiteColor]
+							   forCharacterRange:area];
+			
+			// Apply syntax highlighting colors as temporary attributes
 			NSUInteger counter = 0;
 			for (Colourise* cr in colourInstruct)
 			{
 				// Check cancellation flag periodically (every 100 iterations for performance)
 				if (++counter % 100 == 0 && _shouldCancel) {
 					NSLog(@"⏱ Colorization cancelled mid-UI-update");
-					[_asyncView.textStorage endEditing];
 					return;
 				}
-				[_asyncView setTextColor:cr.colour range:cr.range];
+				[layoutManager addTemporaryAttribute:NSForegroundColorAttributeName
+											   value:cr.colour
+								   forCharacterRange:cr.range];
 			}
-			[_asyncView.textStorage endEditing];
 		});
 	});
 }

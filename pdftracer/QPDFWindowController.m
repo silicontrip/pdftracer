@@ -477,6 +477,19 @@
 	}
 }
 
+// Called by timer after user stops typing
+- (void)applySyntaxHighlighting:(NSTimer*)timer
+{
+	NSDictionary *userInfo = [timer userInfo];
+	NSValue *rangeValue = [userInfo objectForKey:@"range"];
+	if (rangeValue) {
+		NSRange range = [rangeValue rangeValue];
+		NSLog(@">>> Applying debounced syntax highlighting for range: %lu,%lu", (unsigned long)range.location, (unsigned long)range.length);
+		[syntaxer colouriseRange:range];
+	}
+	syntaxHighlightTimer = nil;
+}
+
 // selectRow -> #setOV, #setRow, #setText, enaEdit, #enaAddRemove;
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
@@ -630,7 +643,7 @@ void printView (NSView* n)
 	[[self document] updateChangeCount:NSChangeDone];
 	[self setDocumentEdited:YES];
 
-	// [[self document] setDocumentEdited:YES];
+	// [[self document] setDocumentEdited:YES]];
 	
 	NSRange editRange = [notifview rangeForUserTextChange];
 	NSString *editor = [notifview string];  // much of a muchness
@@ -638,7 +651,22 @@ void printView (NSView* n)
 
 // where does paste end up?
 
-	[syntaxer colouriseRange:lineRange];
+	// Debounced syntax highlighting - invalidate previous timer and schedule new one
+	// This prevents color flickering while typing
+	if (syntaxHighlightTimer) {
+		[syntaxHighlightTimer invalidate];
+		syntaxHighlightTimer = nil;
+	}
+	
+	// Schedule syntax highlighting after 0.15 seconds of no typing
+	// Short delay since we're only colorizing the edited line, not the whole document
+	syntaxHighlightTimer = [NSTimer scheduledTimerWithTimeInterval:0.15
+															target:self
+														  selector:@selector(applySyntaxHighlighting:)
+														  userInfo:@{@"range": [NSValue valueWithRange:lineRange]}
+														   repeats:NO];
+	
+	// [syntaxer colouriseRange:lineRange];
 	// [syntaxer colouriseAll];  // no no no no, huge waste of resources
 	
 	// so which page???
@@ -855,6 +883,19 @@ void printView (NSView* n)
 		} @catch (NSException *exception) {
 			NSLog(@"Exception in changeText: %@", exception);
 			return;
+		}
+		
+		// Refresh syntax highlighting after edit
+		// The text view content has been updated via QPDFUpdateTextview notification,
+		// but we need to ensure syntax highlighting is reapplied
+		QPDFWindow* w = (QPDFWindow*)[self window];
+		NSString* currentText = [w.textView string];
+		if (currentText && [currentText length] > 0) {
+			NSRange visibleRange = [w.textView.layoutManager characterRangeForGlyphRange:
+				[w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+														inTextContainer:w.textView.textContainer]
+													   actualGlyphRange:NULL];
+			[syntaxer colouriseRange:visibleRange];
 		}
 		
 		// changeText already handles outline/textview updates and document change notification

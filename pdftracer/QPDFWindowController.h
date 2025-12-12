@@ -27,6 +27,7 @@
 	NSNotificationCenter* documentCenter;  // really want to call this Centre
 	NSLock* updateDocumentLock;
 	unsigned long lastUpdate;
+	NSTimer* syntaxHighlightTimer;  // Debounced timer for syntax highlighting
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
