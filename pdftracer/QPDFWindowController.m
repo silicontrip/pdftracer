@@ -135,34 +135,34 @@
 	BOOL isLarge = [s length] > MAX_EFFICIENT_SIZE;
 	
 	// Measure text view loading
-	NSLog(@"⏱ [textSetContent] About to call setString with %lu chars", (unsigned long)[s length]);
+	//NSLog(@"⏱ [textSetContent] About to call setString with %lu chars", (unsigned long)[s length]);
 	NSDate *setStringStart = [NSDate date];
 	[ntv setString:s];
 	NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
-	NSLog(@"⏱ [textSetContent] setString returned: %.3f seconds", setStringTime);
+	//NSLog(@"⏱ [textSetContent] setString returned: %.3f seconds", setStringTime);
 	
 	NSDate *afterSetString = [NSDate date];
 	// Deliberately do nothing here to see if freeze happens after setString returns
 	NSTimeInterval gapTime = [[NSDate date] timeIntervalSinceDate:afterSetString];
-	NSLog(@"⏱ [textSetContent] Time after setString: %.3f seconds", gapTime);
+	//NSLog(@"⏱ [textSetContent] Time after setString: %.3f seconds", gapTime);
 	
 	// Skip spell checking for large streams (saves ~1.5 seconds for 500KB)
 	if (isLarge) {
-		NSLog(@"⏱ [textSetContent] Skipping checkTextInDocument for large stream (%lu chars)", (unsigned long)[s length]);
+		NSLog(@"[textSetContent] Skipping checkTextInDocument for large stream (%lu chars)", (unsigned long)[s length]);
 		// Disable continuous spell checking for this text view
 		[ntv setContinuousSpellCheckingEnabled:NO];
 	} else {
 		NSDate *checkStart = [NSDate date];
 		[ntv checkTextInDocument:nil];
 		NSTimeInterval checkTime = [[NSDate date] timeIntervalSinceDate:checkStart];
-		NSLog(@"⏱ [textSetContent] checkTextInDocument: %.3f seconds", checkTime);
+		NSLog(@"[textSetContent] checkTextInDocument: %.3f seconds", checkTime);
 	}
 	
 	// Force line number view to recalculate before next draw to prevent stale indices
 	NSDate *rulerStart = [NSDate date];
 	[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
 	NSTimeInterval rulerTime = [[NSDate date] timeIntervalSinceDate:rulerStart];
-	NSLog(@"⏱ [textSetContent] ruler setNeedsDisplay: %.3f seconds", rulerTime);
+	//NSLog(@"⏱ [textSetContent] ruler setNeedsDisplay: %.3f seconds", rulerTime);
 	
 	// Colorization now enabled for all stream sizes (asan was the real bottleneck)
 	// this one for quickly colouring the displayed text
@@ -172,7 +172,7 @@
 
 	NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
 	NSTimeInterval layoutTime = [[NSDate date] timeIntervalSinceDate:layoutStart];
-	NSLog(@"⏱ [textSetContent] layout manager range calc: %.3f seconds (vis range: %lu,%lu)", layoutTime, (unsigned long)visRange.location, (unsigned long)visRange.length);
+	//NSLog(@"⏱ [textSetContent] layout manager range calc: %.3f seconds (vis range: %lu,%lu)", layoutTime, (unsigned long)visRange.location, (unsigned long)visRange.length);
 	
 	// Measure syntax highlighting
 	NSDate *highlightStart = [NSDate date];
@@ -184,10 +184,10 @@
 		[syntaxer colouriseRangeThenAll:visRange];
 	}
 	NSTimeInterval highlightTime = [[NSDate date] timeIntervalSinceDate:highlightStart];
-	NSLog(@"⏱ [textSetContent] Syntax highlighting: %.3f seconds", highlightTime);
+	//NSLog(@"⏱ [textSetContent] Syntax highlighting: %.3f seconds", highlightTime);
 	
 	NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
-	NSLog(@"⏱ [textSetContent] TOTAL: %.3f seconds", totalTime);
+	//NSLog(@"⏱ [textSetContent] TOTAL: %.3f seconds", totalTime);
 }
 /*
 - (void)textSetContentDirect:(NSString*)s
@@ -475,13 +475,13 @@
 		else
 			[self setEditEnable:NO];
 		NSTimeInterval editEnableTime = [[NSDate date] timeIntervalSinceDate:editEnableStart];
-		NSLog(@"⏱ [selectRow] setEditEnable (before text load): %.3f seconds", editEnableTime);
+		//NSLog(@"⏱ [selectRow] setEditEnable (before text load): %.3f seconds", editEnableTime);
 		
 		NSDate *notifyStart = [NSDate date];
-		NSLog(@"⏱ [selectRow] About to post QPDFUpdateTextview notification");
+		//NSLog(@"⏱ [selectRow] About to post QPDFUpdateTextview notification");
 		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:handleText];
 		NSTimeInterval notifyTime = [[NSDate date] timeIntervalSinceDate:notifyStart];
-		NSLog(@"⏱ [selectRow] Notification posted and all observers returned: %.3f seconds", notifyTime);
+		//NSLog(@"⏱ [selectRow] Notification posted and all observers returned: %.3f seconds", notifyTime);
 
 		// [self textSetContentDirect:handleText];
 
@@ -890,32 +890,35 @@ void printView (NSView* n)
 
 - (void)insertFont:(id)sender
 {
-	if (selectedPage >= 0)
-	{
-		// NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
-		// NSLog(@"selected view is a: %@",[self.selectedView className]);
+	NSInteger tag = [sender tag];
+	NSString* sz = [[QPDFMenu standardFonts] objectAtIndex:tag];
 	
+	if (sz)
+	{
 		NSLog(@"WC -> insertFont: %@",sender);
-		
-		NSMenuItem* nmi = (NSMenuItem*)sender;
-		
-		NSString * sz =[[QPDFMenu standardFonts] objectAtIndex:[nmi tag]];
-		
-		//	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
-		NSLog(@"font : %@", sz);
-		//	NSLog(@"selected Page: %lu",self.selectedPage);
+		// NSLog(@"WC -> insertFont: %@",sz);
+		// NSLog(@"WC -> insertFont: %ld",self.selectedPage);
 		
 		// - (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
-
-		[(QPDFDocument*)[self document] addStandardFont:sz toPage:self.selectedPage];
-
 		
-		// [[self document] setSize:sz forPage:self.selectedPage];
-		//[self updateCurrentPage];
+		[(QPDFDocument*)[self document] addStandardFont:sz toPage:self.selectedPage];
+		
+		// Reload the outline view to show the new font
 		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
-		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
-
 	}
+}
+
+- (void)insertColorSpace:(id)sender
+{
+	NSInteger tag = [sender tag];
+	
+	NSLog(@"WC -> insertColorSpace: tag=%ld", (long)tag);
+	
+	[(QPDFDocument*)[self document] addColorSpace:tag toPage:self.selectedPage];
+	
+	// Reload the outline view to show the new ColorSpace
+	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 }
 
 - (void)insertFontFile:(id)sender

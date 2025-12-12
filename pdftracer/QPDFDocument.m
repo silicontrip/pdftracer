@@ -220,6 +220,83 @@
 	}
 }
 
+- (ObjcQPDFObjectHandle*)createCalRGBColorSpace
+{
+	// [/CalRGB << /WhitePoint [0.9505 1.0 1.089] >>]
+	ObjcQPDFObjectHandle* array = [ObjcQPDFObjectHandle newArray];
+	[array addObject:[ObjcQPDFObjectHandle nameWith:@"/CalRGB"]];
+	
+	ObjcQPDFObjectHandle* dict = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* whitePoint = [ObjcQPDFObjectHandle newArray];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:0.9505]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.0]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.089]];
+	[dict replaceObject:whitePoint forKey:@"/WhitePoint"];
+	
+	[array addObject:dict];
+	return [array autorelease];
+}
+
+- (ObjcQPDFObjectHandle*)createCalGrayColorSpace
+{
+	// [/CalGray << /WhitePoint [0.9505 1.0 1.089] >>]
+	ObjcQPDFObjectHandle* array = [ObjcQPDFObjectHandle newArray];
+	[array addObject:[ObjcQPDFObjectHandle nameWith:@"/CalGray"]];
+	
+	ObjcQPDFObjectHandle* dict = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* whitePoint = [ObjcQPDFObjectHandle newArray];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:0.9505]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.0]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.089]];
+	[dict replaceObject:whitePoint forKey:@"/WhitePoint"];
+	
+	[array addObject:dict];
+	return [array autorelease];
+}
+
+- (void)addColorSpace:(NSInteger)colorSpaceType toPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		// Get or create Resources dictionary
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil)
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Get or create ColorSpace dictionary
+		ObjcQPDFObjectHandle* csResource = [pageResource objectForKey:@"/ColorSpace"];
+		if (csResource == nil)
+			csResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Create ColorSpace object based on type
+		ObjcQPDFObjectHandle* csObj = nil;
+		switch (colorSpaceType) {
+			case 0: // DeviceRGB
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"];
+				break;
+			case 1: // DeviceCMYK
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceCMYK"];
+				break;
+			case 2: // DeviceGray
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceGray"];
+				break;
+			case 3: // CalRGB
+				csObj = [self createCalRGBColorSpace];
+				break;
+			case 4: // CalGray
+				csObj = [self createCalGrayColorSpace];
+				break;
+		}
+		
+		if (csObj) {
+			[QPDFDocument addObject:csObj to:csResource];
+			[pageResource replaceObject:csResource forKey:@"/ColorSpace"];
+			[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		}
+	}
+}
+
 - (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber
 {
 	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];

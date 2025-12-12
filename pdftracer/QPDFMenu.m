@@ -229,10 +229,19 @@
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"Text" selector:@"setProc:" tag:1]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageB" selector:@"setProc:" tag:2]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageC" selector:@"setProc:" tag:3]];
-		
+	
+		NSMenu* colorSpaceMenu = [[NSMenu new] autorelease];
+		[colorSpaceMenu setAutoenablesItems:YES];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceRGB" selector:@"insertColorSpace:" tag:0]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceCMYK" selector:@"insertColorSpace:" tag:1]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceGray" selector:@"insertColorSpace:" tag:2]];
+		[colorSpaceMenu addItem:[NSMenuItem separatorItem]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalRGB" selector:@"insertColorSpace:" tag:3]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalGray" selector:@"insertColorSpace:" tag:4]];
+	
 		NSMenu* resourceMenu = [[NSMenu new] autorelease];
 		//[resourceMenu setAutoenablesItems:YES];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:colorSpaceMenu]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:nil ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
