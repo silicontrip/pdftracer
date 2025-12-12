@@ -126,6 +126,9 @@
 	[ntv setString:s]; // yeah getting desperate now
 	[ntv checkTextInDocument:nil];
 	
+	// Force line number view to recalculate before next draw to prevent stale indices
+	[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
+	
 	// this one for quickly colouring the displayed text
 	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
 															 inTextContainer:w.textView.textContainer];
@@ -308,6 +311,9 @@
 
 		[ntv setString:text];
 		[ntv checkTextInDocument:nil];
+		
+		// Force line number view to recalculate before next draw to prevent stale indices
+		[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
 		
 		// this one for quickly colouring the displayed text
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
