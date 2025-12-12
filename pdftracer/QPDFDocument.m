@@ -407,9 +407,12 @@
 		NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:fileData];
 		if (!rep) return;
 		
-		NSData *streamData = nil;
-		NSString *filter = nil;
+		NSInteger width = [rep pixelsWide];
+		NSInteger height = [rep pixelsHigh];
+		NSInteger bitsPerComponent = [rep bitsPerSample];
+		NSInteger samplesPerPixel = [rep samplesPerPixel];
 		
+		// Check if it's a JPEG file (pass through as-is)
 		BOOL isJPEG = NO;
 		if (fileData.length > 2) {
 			const uint8_t *bytes = (const uint8_t*)fileData.bytes;
@@ -417,42 +420,140 @@
 				isJPEG = YES;
 			}
 		}
-		
-		NSInteger width = [rep pixelsWide];
-		NSInteger height = [rep pixelsHigh];
 
 		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument];
 		ObjcQPDFObjectHandle* dict = [imageStream streamDictionary];
 
 		if (isJPEG) {
-			// JPEG Pass-through: Set data directly, set filter manually.
+			// JPEG Pass-through: Set data directly, set filter manually
+			NSLog(@">>> Inserting JPEG image (pass-through): %ldx%ld", (long)width, (long)height);
 			[imageStream replaceStreamData:fileData filter:nil];
 			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
 		} else {
-			// Convert to JPEG
-			NSDictionary *props = @{NSImageCompressionFactor: @(0.9)};
-			NSData *jpegData = [rep representationUsingType:NSBitmapImageFileTypeJPEG properties:props];
+			// PNG/TIFF: Extract raw bitmap data - QPDF will auto-compress with Flate
+			NSLog(@">>> Inserting lossless image: %ldx%ld, %ld bpc, %ld spp", 
+				  (long)width, (long)height, (long)bitsPerComponent, (long)samplesPerPixel);
 			
-			if (jpegData) {
-				[imageStream replaceStreamData:jpegData filter:nil];
-				[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
-			} else {
-				// Fallback to raw if JPEG conversion fails (unlikely)
-				// Use standard QPDF compression for fallback
-				NSData *rawData = [NSData dataWithBytes:rep.bitmapData length:width * height * 3];
-				[imageStream replaceStreamData:rawData filter:nil]; 
-				// We don't set a filter here, relying on QPDFWriter's compress mode as a last resort
+			// Check if the bitmap is planar (not supported by PDF directly)
+			BOOL isPlanar = [rep isPlanar];
+			NSLog(@">>> Bitmap format - Planar: %d, BytesPerRow: %ld, BitsPerPixel: %ld", 
+				  isPlanar, (long)[rep bytesPerRow], (long)[rep bitsPerPixel]);
+			
+			if (isPlanar) {
+				NSLog(@">>> ERROR: Planar images not supported");
+				[imageStream autorelease];
+				return;
 			}
+			
+			// Get raw bitmap data
+			unsigned char *bitmapData = [rep bitmapData];
+			if (!bitmapData) {
+				NSLog(@">>> ERROR: Could not get bitmap data");
+				[imageStream autorelease];
+				return;
+			}
+			
+			// Determine the actual color space and samples per pixel
+			NSInteger actualSamplesPerPixel = samplesPerPixel;
+			NSString *colorSpace = @"/DeviceRGB";
+			BOOL hasAlpha = [rep hasAlpha];
+			
+			NSLog(@">>> Has alpha: %d", hasAlpha);
+			
+			// PDF expects RGB (3 samples) or Gray (1 sample) without alpha
+			// If we have alpha, we need to strip it or handle it separately
+			NSData *rawData = nil;
+			
+			if (samplesPerPixel == 1) {
+				// Grayscale - use as-is
+				colorSpace = @"/DeviceGray";
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				NSInteger dataSize = bytesPerRow * height;
+				rawData = [NSData dataWithBytes:bitmapData length:dataSize];
+				actualSamplesPerPixel = 1;
+			} else if (samplesPerPixel == 3) {
+				// RGB without alpha - use as-is
+				colorSpace = @"/DeviceRGB";
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				NSInteger dataSize = bytesPerRow * height;
+				rawData = [NSData dataWithBytes:bitmapData length:dataSize];
+				actualSamplesPerPixel = 3;
+			} else if (samplesPerPixel == 4 && hasAlpha) {
+				// RGBA - need to strip alpha channel
+				NSLog(@">>> Stripping alpha channel from RGBA image");
+				colorSpace = @"/DeviceRGB";
+				actualSamplesPerPixel = 3;
+				
+				NSMutableData *rgbData = [NSMutableData dataWithCapacity:width * height * 3];
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				
+				for (NSInteger y = 0; y < height; y++) {
+					unsigned char *rowPtr = bitmapData + (y * bytesPerRow);
+					for (NSInteger x = 0; x < width; x++) {
+						unsigned char *pixel = rowPtr + (x * 4);
+						// Copy RGB, skip A
+						[rgbData appendBytes:pixel length:3];
+					}
+				}
+				rawData = rgbData;
+			} else {
+				// Unsupported format - try to convert
+				NSLog(@">>> WARNING: Unusual pixel format (%ld spp), attempting conversion", (long)samplesPerPixel);
+				colorSpace = @"/DeviceRGB";
+				actualSamplesPerPixel = 3;
+				
+				// Use NSBitmapImageRep to convert to standard RGB
+				NSBitmapImageRep *rgbRep = [[NSBitmapImageRep alloc] 
+					initWithBitmapDataPlanes:NULL
+					pixelsWide:width
+					pixelsHigh:height
+					bitsPerSample:8
+					samplesPerPixel:3
+					hasAlpha:NO
+					isPlanar:NO
+					colorSpaceName:NSDeviceRGBColorSpace
+					bytesPerRow:width * 3
+					bitsPerPixel:24];
+				
+				// Draw the original image into the new representation
+				[NSGraphicsContext saveGraphicsState];
+				NSGraphicsContext *ctx = [NSGraphicsContext graphicsContextWithBitmapImageRep:rgbRep];
+				[NSGraphicsContext setCurrentContext:ctx];
+				[rep drawInRect:NSMakeRect(0, 0, width, height)];
+				[NSGraphicsContext restoreGraphicsState];
+				
+				rawData = [NSData dataWithBytes:[rgbRep bitmapData] length:width * height * 3];
+				[rgbRep release];
+			}
+			
+			NSLog(@">>> Final data size: %lu bytes for %ldx%ld image (%@ colorspace)", 
+				  (unsigned long)[rawData length], (long)width, (long)height, colorSpace);
+			
+			// Pass raw uncompressed data with NO filter
+			// QPDF will automatically compress it with FlateDecode when writing the PDF
+			[imageStream replaceStreamData:rawData filter:nil];
+			
+			// Update samples per pixel for the actual data we're storing
+			samplesPerPixel = actualSamplesPerPixel;
+			
+			// Set the color space
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:colorSpace] forKey:@"/ColorSpace"];
 		}
 		
+		// Set image dictionary properties
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/XObject"] forKey:@"/Type"];
 		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Image"] forKey:@"/Subtype"];
-		// Filter is set by replaceStreamData (for Flate) or manually (for DCT)
 		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:width] forKey:@"/Width"];
 		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:height] forKey:@"/Height"];
-		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"] forKey:@"/ColorSpace"];
-		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:8] forKey:@"/BitsPerComponent"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:bitsPerComponent] forKey:@"/BitsPerComponent"];
 		
+		// ColorSpace is already set in the conditional logic above for non-JPEG images
+		// For JPEG, set it here
+		if (isJPEG) {
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"] forKey:@"/ColorSpace"];
+		}
+		
+		// Add to page resources
 		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
 		if (pageResource == nil) {
 			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
@@ -466,6 +567,8 @@
 		}
 		
 		[QPDFDocument addObject:imageStream to:xObjResource];
+		
+		NSLog(@">>> Image inserted successfully");
 	}
 }
 
@@ -726,10 +829,8 @@
 	//ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
 	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
 	ObjcQPDFObjectHandle* resources = [[ObjcQPDFObjectHandle newDictionary] autorelease];
-	ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newArray] autorelease];
 	
-	[proc addObject:[ObjcQPDFObjectHandle nameWith:@"/PDF"]]; // hmm wonder why the / isn't automatically added
-	[resources replaceObject:proc forKey:@"/ProcSet"];
+	// Note: /ProcSet is deprecated as of PDF 1.4 and has been removed
 	
 	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
 	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];

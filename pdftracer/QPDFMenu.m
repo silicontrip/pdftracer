@@ -264,7 +264,7 @@
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
 		// ProcSet removed - deprecated as of PDF 1.4
 
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" selector:@"insertXObject:" ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Image" selector:@"insertXObject:" ]];
 
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];
