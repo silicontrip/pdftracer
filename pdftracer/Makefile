@@ -1,10 +1,13 @@
 
-OPTFLAGS=-g -fsanitize=address
-#OPTFLAGS=-g
+# be careful using asan as it slows down NSTextView dramatically.
+#OPTFLAGS=-g -fsanitize=address
+
+OPTFLAGS=-O3
 CPP=clang++
 CPPFLAGS=$(OPTFLAGS) -I/usr/local/include -std=c++17
 
-LDFLAGS=-std=c++17 -fsanitize=address -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers
+#LDFLAGS=-std=c++17 -fsanitize=address -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers
+LDFLAGS=-std=c++17 -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers
 
 CC=clang
 CFLAGS=$(OPTFLAGS) -I/usr/local/include 
