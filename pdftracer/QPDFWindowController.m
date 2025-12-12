@@ -119,6 +119,9 @@
 	NSDate *startTime = [NSDate date];
 	NSLog(@">>> [textSetContent] Starting");
 	
+	// Cancel any in-progress colorization from previous selection
+	[syntaxer cancelColorization];
+	
 	NSString* s = (NSString*)[n object];
 	if(!s) { s = @""; }
 	
@@ -132,10 +135,16 @@
 	BOOL isLarge = [s length] > MAX_EFFICIENT_SIZE;
 	
 	// Measure text view loading
+	NSLog(@"⏱ [textSetContent] About to call setString with %lu chars", (unsigned long)[s length]);
 	NSDate *setStringStart = [NSDate date];
 	[ntv setString:s];
 	NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
-	NSLog(@"⏱ [textSetContent] Text view setString: %.3f seconds (%lu chars)", setStringTime, (unsigned long)[s length]);
+	NSLog(@"⏱ [textSetContent] setString returned: %.3f seconds", setStringTime);
+	
+	NSDate *afterSetString = [NSDate date];
+	// Deliberately do nothing here to see if freeze happens after setString returns
+	NSTimeInterval gapTime = [[NSDate date] timeIntervalSinceDate:afterSetString];
+	NSLog(@"⏱ [textSetContent] Time after setString: %.3f seconds", gapTime);
 	
 	// Skip spell checking for large streams (saves ~1.5 seconds for 500KB)
 	if (isLarge) {
@@ -155,15 +164,7 @@
 	NSTimeInterval rulerTime = [[NSDate date] timeIntervalSinceDate:rulerStart];
 	NSLog(@"⏱ [textSetContent] ruler setNeedsDisplay: %.3f seconds", rulerTime);
 	
-	// For large streams, skip layout manager calculations and syntax highlighting
-	// (saves ~2 seconds for layout + ~1 second for highlighting)
-	if (isLarge) {
-		NSLog(@"⏱ [textSetContent] Skipping layout/highlighting for large stream - text remains editable");
-		NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
-		NSLog(@"⏱ [textSetContent] TOTAL (large stream, optimized): %.3f seconds", totalTime);
-		return;
-	}
-	
+	// Colorization now enabled for all stream sizes (asan was the real bottleneck)
 	// this one for quickly colouring the displayed text
 	NSDate *layoutStart = [NSDate date];
 	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
@@ -272,6 +273,11 @@
 	ObjcQPDFObjectHandle* parent = [handle parent];
 	NSString* name = [handle elementName];  // dictionary key or array index value
 
+	NSLog(@">>> [changeText] row:%ld col:%ld", (long)row, (long)col);
+	NSLog(@">>> [changeText] handle: %@ (type: %@, isIndirect: %d)", handle, [handle typeName], [handle isIndirect]);
+	NSLog(@">>> [changeText] parent: %@ (type: %@, isDict: %d, isArray: %d)", parent, [parent typeName], [parent isDictionary], [parent isArray]);
+	NSLog(@">>> [changeText] elementName: %@", name);
+
 	// NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
 	// something else is changing...
 	// NSLog(@"not doing anything");
@@ -288,49 +294,80 @@
 		}
 	}
 	if (col == 2) {
-		// make indirect object
+		NSLog(@">>> [changeText] Column 2 edit - input: '%@'", es);
 		
-		ObjcQPDFObjectHandle* newobj;
+		// Parse value with PDF document context (handles indirect refs automatically)
+		NSError *error = nil;
+		ObjcQPDFObjectHandle* newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es forQPDF:[[self document] doc] error:&error];
 		
-		NSArray<NSString*>* objElem= [es componentsSeparatedByString:@" "];
-		if (([objElem count] == 3) &&
-			([[objElem objectAtIndex:2] isEqualToString:@"R"]) &&
-			([[objElem objectAtIndex:0] integerValue] != 0))
-			{
-				newobj = [ObjcQPDFObjectHandle newIndirect:es for:[[self document] doc]];
-			}
-			else
-			{
-				NSLog(@"object elem: %lu",(unsigned long)[objElem count]);
-				// newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es];
-				NSError *error = nil;
-				newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es error:&error];
+		NSLog(@">>> [changeText] newobj created: %@, error: %@", newobj ? @"YES" : @"NO", error);
+		
+		if (!newobj && error) {
+			NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+			[alert setMessageText:@"Invalid PDF Syntax"];
+			[alert setInformativeText:[NSString stringWithFormat:@"%@\n\nInput: %@", [error localizedDescription], es]];
+			[alert addButtonWithTitle:@"OK"];
+			[alert runModal];
+		}
+		
+		if (newobj) {
+			if (parent) {
+				// Object is in a container (dictionary or array)
+				NSLog(@">>> [changeText] Replacing in parent (type: %@)", [parent typeName]);
+				if ([parent isArray])
+				{
+					[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
+					NSLog(@">>> [changeText] Replaced in array at index %@", name);
+				} else if ([parent isDictionary]) {
+					[parent replaceObject:newobj forKey:name];
+					NSLog(@">>> [changeText] Replaced in dictionary for key %@", name);
+				} else {
+					NSLog(@"parent is not dictionary or array");
+				}
+			} else {
+				// No parent - this is an indirect object in the flat list
+				// We need to replace the object's content, not the object itself
+				NSLog(@">>> [changeText] No parent - editing indirect object directly");
 				
-				if (!newobj && error) {
+				// Copy the new object's content into the existing indirect object
+				if ([handle isDictionary] && [newobj isDictionary]) {
+					// Replace dictionary contents
+					for (NSString* key in [handle keys]) {
+						[handle removeObjectForKey:key];
+					}
+					for (NSString* key in [newobj keys]) {
+						[handle replaceObject:[newobj objectForKey:key] forKey:key];
+					}
+					NSLog(@">>> [changeText] Replaced dictionary contents");
+				} else if ([handle isArray] && [newobj isArray]) {
+					// Replace array contents
+					while ([handle count] > 0) {
+						[handle removeObjectAtIndex:0];
+					}
+					for (NSUInteger i = 0; i < [newobj count]; i++) {
+						[handle addObject:[newobj objectAtIndex:i]];
+					}
+					NSLog(@">>> [changeText] Replaced array contents");
+				} else {
+					NSLog(@">>> [changeText] Cannot replace - type mismatch or unsupported type");
 					NSAlert *alert = [[[NSAlert alloc] init] autorelease];
-					[alert setMessageText:@"Invalid PDF Syntax"];
-					[alert setInformativeText:[NSString stringWithFormat:@"%@\n\nInput: %@", [error localizedDescription], es]];
+					[alert setMessageText:@"Cannot Edit Indirect Object"];
+					[alert setInformativeText:@"Editing indirect objects in the list view is not yet supported for this type. Try editing from the tree view instead."];
 					[alert addButtonWithTitle:@"OK"];
 					[alert runModal];
 				}
 			}
-		if (newobj) {
-			if ([parent isArray])
-			{
-				[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
-			} else if ([parent isDictionary]) {
-				[parent replaceObject:newobj forKey:name];
-			} else {
-				// who's your daddy?
-				NSLog(@"parent is not dictionary or array");  // so wtf is it?
-			}
 			[newobj autorelease];
-
 		} 
-		// else { ... } already handled above via error check, though original logic had separate else for newobj check.
-		// Let's keep it clean. If newobj is nil, we just don't update.
 		
-		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+		// Reload parent to show the new indirect reference in the outline
+		NSLog(@">>> [changeText] Posting update notification");
+		if (parent) {
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent userInfo:@{@"reloadChildren":@(YES)}];
+		} else {
+			// Reload the entire view for indirect object changes
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+		}
 	}
 	// update outlines
 	// update textview
@@ -430,18 +467,27 @@
 		NSTimeInterval textGenTime = [[NSDate date] timeIntervalSinceDate:textGenStart];
 		NSLog(@"⏱ [selectRow] Getting text from handle: %.3f seconds (%lu chars)", textGenTime, (unsigned long)[handleText length]);
 		
-		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:handleText];
-
-		// [self textSetContentDirect:handleText];
-
-		// I'm starting to wonder if showing non stream objects is useful.
+		// Set edit enable BEFORE loading text to avoid 2-second freeze
+		// (NSTextView is slow when changing editable state with large text already loaded)
+		NSDate *editEnableStart = [NSDate date];
 		if ([selectedHandle isStream])
 			[self setEditEnable:YES];
 		else
 			[self setEditEnable:NO];
+		NSTimeInterval editEnableTime = [[NSDate date] timeIntervalSinceDate:editEnableStart];
+		NSLog(@"⏱ [selectRow] setEditEnable (before text load): %.3f seconds", editEnableTime);
+		
+		NSDate *notifyStart = [NSDate date];
+		NSLog(@"⏱ [selectRow] About to post QPDFUpdateTextview notification");
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:handleText];
+		NSTimeInterval notifyTime = [[NSDate date] timeIntervalSinceDate:notifyStart];
+		NSLog(@"⏱ [selectRow] Notification posted and all observers returned: %.3f seconds", notifyTime);
+
+		// [self textSetContentDirect:handleText];
 
 	 // think I could get text from here...  I did, see above
 		// and that's not all I can get from selectedHandle. look page numbers now.
+		NSDate *pageStart = [NSDate date];
 		NSInteger nPage = [selectedHandle pageNumber];
 		// NSLog(@"selected Handle says... %ld",nPage);
 		
@@ -453,6 +499,8 @@
 			self.selectedPage = nPage;
 			[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(nPage)];
 		}
+		NSTimeInterval pageTime = [[NSDate date] timeIntervalSinceDate:pageStart];
+		NSLog(@"⏱ [selectRow] Page handling: %.3f seconds", pageTime);
 	} else {
 		// but if we've selected no object, then unselect the page.
 		// make sense?
@@ -750,11 +798,17 @@ void printView (NSView* n)
 	[syntaxer colouriseRange:glyphRange];
 }
 
-- (void)selectChangeNotification:(NSNotification*)nn
+- (void)selectChangeNotification:(NSNotification*)notification
 {
-	NSLog(@">>> [QPDFWindowController selectChangeNotification:%@] [NSNotification %@]",nn,[nn userInfo]);
-	QPDFOutlineView* sv = [nn object];
+	NSDate *notificationStartTime = [NSDate date];
+	NSLog(@">>> [QPDFWindowController selectChangeNotification:%@] [NSNotification %@]",notification,[notification object]);
+	
+	QPDFOutlineView* sv = (QPDFOutlineView*)[notification object];
+	
 	[self selectRow:[sv selectedRow] forSource:sv];
+	
+	NSTimeInterval notificationTime = [[NSDate date] timeIntervalSinceDate:notificationStartTime];
+	NSLog(@"⏱ [selectChangeNotification] TOTAL: %.3f seconds", notificationTime);
 }
 
 - (void)selectObject:(id)sender
