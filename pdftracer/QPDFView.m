@@ -44,7 +44,29 @@
 
 - (void)keyDown:(NSEvent*)event
 {
-	; // do nothing
+	// Disable all keyboard navigation (arrow keys, page up/down, etc.)
+	// Do nothing - prevents user from changing pages
+}
+
+// Override page navigation methods to prevent user control
+- (IBAction)goToNextPage:(id)sender
+{
+	// Disabled - page changes only via external controls
+}
+
+- (IBAction)goToPreviousPage:(id)sender
+{
+	// Disabled - page changes only via external controls
+}
+
+- (IBAction)goToFirstPage:(id)sender
+{
+	// Disabled - page changes only via external controls
+}
+
+- (IBAction)goToLastPage:(id)sender
+{
+	// Disabled - page changes only via external controls
 }
 
 - (BOOL)acceptsFirstResponder

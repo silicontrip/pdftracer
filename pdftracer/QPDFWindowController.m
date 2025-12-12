@@ -24,22 +24,28 @@
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
 	if (self) {
-	// NSLog(@"win title: %@",[nsw title]);
-	
-		lastUpdate = 0;
-		updateDocumentLock = [NSLock new];
+		// NSLog(@"QPDFWindowController init");
+		documentCenter = dc;
+		[documentCenter retain];
 		
-		QPDFWindow* qpw = (QPDFWindow*)nsw;
-		documentCenter = [dc retain];
+		selectedRow = -1;
+		selectedPage = -1;
+		lastDisplayedPage = -1;  // Initialize to -1 (no page displayed yet)
+		
+		updateDocumentLock = [[NSLock alloc] init];
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
+		
+		// NSLog(@"QPDFWindowController init complete");
+		
+		QPDFWindow* qpw = (QPDFWindow*)nsw;
 		syntaxer.asyncView = qpw.textView;
 		
 		[documentCenter addObserver:self selector:@selector(documentChange:) name:@"QPDFUpdateDocument" object:nil];
 		[documentCenter addObserver:self selector:@selector(rowChangedContent:) name:@"QPDFSelectOutlineRow" object:nil];
 		[documentCenter addObserver:self selector:@selector(textSetContent:) name:@"QPDFUpdateTextview" object:nil];
 
-		self.selectedPage = 0;
+		self.selectedPage = 0;  // Initialize to page 0 to trigger PDF view setup
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
@@ -723,101 +729,112 @@ void printView (NSView* n)
 
 - (void)documentChange:(NSNotification*)notification
 {
-	/*
-	// why am I using notification user info?
-	NSNumber* page = [notification object];
-	int selPage = [page intValue];
+	// Document has been edited - refresh the PDFView with updated content
+	QPDFWindow* qwin = (QPDFWindow*)[self window];
+	QPDFView* pv = [qwin documentView];
 	
-	// NSLog(@"getting page: %d",selPage);
+	// Save current view state before refresh
+	PDFDestination* cDest = [pv currentDestination];
+	CGPoint cPoint = NSZeroPoint;
+	CGFloat cZoom = 1.0;
 	
-	PDFDocument* doc = nil;
-	// wonder if passing a nil object to set document will grey it out.
-	if (selPage >= 0)
-		doc = [[self document] pdfDocumentPage:selPage];  // arrays are zero indexed...
-	*/
+	if (cDest) {
+		cPoint = [cDest point];
+		cZoom = [cDest zoom];
+	}
 	
-	[self updatePDFView];
+	// Regenerate PDFDocument with latest edits
+	PDFDocument* fullDoc = [[self document] pdfdocument];
 	
+	[CATransaction begin];
+	[CATransaction setValue:(id)kCFBooleanTrue
+					 forKey:kCATransactionDisableActions];
+	
+	[pv setDocument:fullDoc];
+	
+	[CATransaction commit];
+	
+	// Restore view state (stay on same page with same zoom/scroll)
+	if (selectedPage >= 0) {
+		PDFPage* targetPage = [fullDoc pageAtIndex:selectedPage];
+		if (targetPage) {
+			PDFDestination *nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:cPoint];
+			if (cZoom != kPDFDestinationUnspecifiedValue && cZoom > 0) {
+				nDest.zoom = cZoom;
+			}
+			[pv goToDestination:nDest];
+			[nDest release];
+		}
+	}
 }
 - (void)updatePDFView
 {
-	// if timer not running {
-	if (selectedPage>=0)
+	if (selectedPage >= 0)
 	{
-		ObjcQPDF* objdoc;
-
-
-// testing control of the release
-//		PDFDocument* doc;
-//		doc = [[self document] pdfDocumentPage:selectedPage];  // arrays are zero indexed...
-
-
-		objdoc = [[[self document] copyDocumentPage:selectedPage] autorelease];
-
-		[CATransaction begin];
 		QPDFWindow* qwin = (QPDFWindow*)[self window];
 		QPDFView* pv = [qwin documentView];
 
-		/*
-		NSLog(@"[updatePDFView PDF view frame: %@]",
-			  NSStringFromRect(pv.frame)
-			  );
-
-		NSLog(@"[updatePDFView PDF view bounds: %@]",
-			  NSStringFromRect(pv.bounds)
-			  );
-
-
-		NSView* dv = [pv documentView];
-
-		NSLog(@"PDF document frame: %@",
-			  NSStringFromRect(dv.frame)
-			  );
-
-		NSLog(@"PDF document bounds: %@",
-			  NSStringFromRect(dv.bounds)
-			  );
-*/
-
-	// [updateDocumentLock lock];  // hoping this will prevent the update display crash.
-	//[visRect scrollRectToVisible:saveRect];
-	
-	// [pv setCanDrawConcurrently:NO];
-//	if (time(NULL) != lastUpdate)  // must reset NSTimer trigger
-//	{
-		// NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-		// NSRect saveRect = [visRect visibleRect];
-
+		// Save current view state (zoom and position) BEFORE any changes
 		PDFDestination* cDest = [pv currentDestination];
-		NSLog(@"[updatePDFView Point: %@ zoom: %f]",NSStringFromPoint([cDest point]),[cDest zoom]);
-		CGPoint cPoint = [cDest point];
-		CGFloat cZoom = [cDest zoom];
-
-
-		[CATransaction setValue:(id)kCFBooleanTrue
-						 forKey:kCATransactionDisableActions];  // this might fix the crashing... // no
-	
-		[pv setDocument:[objdoc document]];
-		//[visRect scrollRectToVisible:saveRect];
-
-//		lastUpdate = time(NULL);
-		[CATransaction commit];
-		NSLog(@"[updatePDFView Point: %@ zoom: %f]",NSStringFromPoint([cDest point]),[cDest zoom]);
-
-		PDFDestination *nDest = [[PDFDestination alloc] initWithPage:[[objdoc document] pageAtIndex:0] atPoint:cPoint];
-		if (cZoom != kPDFDestinationUnspecifiedValue) {
-			nDest.zoom = cZoom;
+		CGPoint cPoint = NSZeroPoint;
+		CGFloat cZoom = 1.0;
+		
+		if (cDest) {
+			cPoint = [cDest point];
+			cZoom = [cDest zoom];
+			NSLog(@"[updatePDFView] Saved state - Point: %@ zoom: %f", NSStringFromPoint(cPoint), cZoom);
 		}
-		[pv goToDestination:nDest];
 
+		// Check if the page number changed (not the document content)
+		BOOL pageChanged = (lastDisplayedPage != selectedPage);
+		lastDisplayedPage = selectedPage;
+
+		// Only set document if it's not set yet (first time)
+		// For document updates after edits, use documentChange: notification instead
+		if ([pv document] == nil) {
+			NSLog(@"[updatePDFView] Setting initial document");
+			PDFDocument* fullDoc = [[self document] pdfdocument];
+			
+			[CATransaction begin];
+			[CATransaction setValue:(id)kCFBooleanTrue
+							 forKey:kCATransactionDisableActions];
+			
+			[pv setDocument:fullDoc];
+			
+			[CATransaction commit];
+		}
+		
+		// Navigate to the selected page
+		PDFDocument* currentDoc = [pv document];
+		if (currentDoc) {
+			PDFPage* targetPage = [currentDoc pageAtIndex:selectedPage];
+			if (targetPage) {
+				NSLog(@"[updatePDFView] Going to page %ld (pageChanged: %d)", (long)selectedPage, pageChanged);
+				
+				// Create destination for the selected page
+				// If page changed, start at top (NSZeroPoint)
+				// If same page (just content edited), preserve the scroll position
+				PDFDestination *nDest;
+				if (pageChanged) {
+					// Page changed - start at top of new page
+					nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:NSZeroPoint];
+				} else {
+					// Same page, content edited - preserve scroll position
+					nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:cPoint];
+				}
+				
+				// Always preserve zoom level
+				if (cZoom != kPDFDestinationUnspecifiedValue && cZoom > 0) {
+					nDest.zoom = cZoom;
+				}
+				
+				[pv goToDestination:nDest];
+				[nDest release];
+			}
+		}
 	}
-//	[pv layoutDocumentView];  // does not work, as the document is static in memory
-	// [updateDocumentLock unlock];
-	// } end if
-	// cancel old timer
-	// create new
-	
 }
+
 
 // This notification is sent when enter is pressed after editing a text cell
 - (void)textDidEndEditing:(NSNotification*)aNotification {

@@ -28,6 +28,7 @@
 	NSLock* updateDocumentLock;
 	unsigned long lastUpdate;
 	NSTimer* syntaxHighlightTimer;  // Debounced timer for syntax highlighting
+	NSInteger lastDisplayedPage;  // Track which page is currently displayed to detect page changes
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;

@@ -261,6 +261,7 @@
 
 - (PDFDocument* _Nonnull)document
 {
+	// Always create fresh PDFDocument from current QPDF data
 	NSData* qPDFData = [self data];
 	return [[[PDFDocument alloc] initWithData:qPDFData] autorelease];
 }
