@@ -297,6 +297,67 @@
 	}
 }
 
+- (void)addExtGState:(NSInteger)extGStateType toPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		// Get or create Resources dictionary
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil)
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Get or create ExtGState dictionary
+		ObjcQPDFObjectHandle* gsResource = [pageResource objectForKey:@"/ExtGState"];
+		if (gsResource == nil)
+			gsResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Create ExtGState dictionary
+		ObjcQPDFObjectHandle* gsDict = [ObjcQPDFObjectHandle newDictionary];
+		[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/ExtGState"] forKey:@"/Type"];
+		
+		switch (extGStateType) {
+			case 0: // Multiply
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Multiply"] forKey:@"/BM"];
+				break;
+			case 1: // Screen
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Screen"] forKey:@"/BM"];
+				break;
+			case 2: // Overlay
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Overlay"] forKey:@"/BM"];
+				break;
+			case 3: // Darken
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Darken"] forKey:@"/BM"];
+				break;
+			case 4: // Lighten
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Lighten"] forKey:@"/BM"];
+				break;
+			case 5: // 50% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/CA"];
+				break;
+			case 6: // 75% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.75] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.75] forKey:@"/CA"];
+				break;
+			case 7: // 25% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.25] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.25] forKey:@"/CA"];
+				break;
+			case 8: // Multiply + 50% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Multiply"] forKey:@"/BM"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/CA"];
+				break;
+		}
+		
+		[QPDFDocument addObject:gsDict to:gsResource];
+		[pageResource replaceObject:gsResource forKey:@"/ExtGState"];
+		[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		[gsDict autorelease];
+	}
+}
+
 - (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber
 {
 	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];

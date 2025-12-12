@@ -921,6 +921,19 @@ void printView (NSView* n)
 	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
 }
 
+- (void)insertExtGState:(id)sender
+{
+	NSInteger tag = [sender tag];
+	
+	NSLog(@"WC -> insertExtGState: tag=%ld", (long)tag);
+	
+	[(QPDFDocument*)[self document] addExtGState:tag toPage:self.selectedPage];
+	
+	// Reload the outline view to show the new ExtGState
+	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+}
+
 - (void)insertFontFile:(id)sender
 {
 

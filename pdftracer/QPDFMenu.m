@@ -239,10 +239,27 @@
 		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalRGB" selector:@"insertColorSpace:" tag:3]];
 		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalGray" selector:@"insertColorSpace:" tag:4]];
 	
+		NSMenu* extGStateMenu = [[NSMenu new] autorelease];
+		[extGStateMenu setAutoenablesItems:YES];
+		// Blend modes
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Multiply" selector:@"insertExtGState:" tag:0]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Screen" selector:@"insertExtGState:" tag:1]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Overlay" selector:@"insertExtGState:" tag:2]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Darken" selector:@"insertExtGState:" tag:3]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Lighten" selector:@"insertExtGState:" tag:4]];
+		[extGStateMenu addItem:[NSMenuItem separatorItem]];
+		// Opacity
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"50% Opacity" selector:@"insertExtGState:" tag:5]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"75% Opacity" selector:@"insertExtGState:" tag:6]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"25% Opacity" selector:@"insertExtGState:" tag:7]];
+		[extGStateMenu addItem:[NSMenuItem separatorItem]];
+		// Combined
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Multiply + 50% Opacity" selector:@"insertExtGState:" tag:8]];
+	
 		NSMenu* resourceMenu = [[NSMenu new] autorelease];
 		//[resourceMenu setAutoenablesItems:YES];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:colorSpaceMenu]];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:extGStateMenu]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu ]];
