@@ -311,6 +311,8 @@
 		}
 		
 		if (newobj) {
+			ObjcQPDFObjectHandle* updatedObject = nil;
+			
 			if (parent) {
 				// Object is in a container (dictionary or array)
 				NSLog(@">>> [changeText] Replacing in parent (type: %@)", [parent typeName]);
@@ -324,6 +326,8 @@
 				} else {
 					NSLog(@"parent is not dictionary or array");
 				}
+				// After replacement, newobj is the current object
+				updatedObject = newobj;
 			} else {
 				// No parent - this is an indirect object in the flat list
 				// We need to replace the object's content, not the object itself
@@ -356,18 +360,25 @@
 					[alert addButtonWithTitle:@"OK"];
 					[alert runModal];
 				}
+				// After modifying in place, handle is still the current object
+				updatedObject = handle;
 			}
 			[newobj autorelease];
+			
+			// Reload parent to show the new indirect reference in the outline
+			NSLog(@">>> [changeText] Posting update notification");
+			if (parent) {
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent userInfo:@{@"reloadChildren":@(YES)}];
+			} else {
+				// Reload the entire view for indirect object changes
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+			}
+			
+			// Update text view to show the edited object's new content
+			if (updatedObject) {
+				[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[updatedObject text]];
+			}
 		} 
-		
-		// Reload parent to show the new indirect reference in the outline
-		NSLog(@">>> [changeText] Posting update notification");
-		if (parent) {
-			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent userInfo:@{@"reloadChildren":@(YES)}];
-		} else {
-			// Reload the entire view for indirect object changes
-			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
-		}
 	}
 	// update outlines
 	// update textview
@@ -919,6 +930,11 @@ void printView (NSView* n)
 	// Reload the outline view to show the new ColorSpace
 	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
 	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+	
+	// Update text view if page is currently displayed
+	if (selectedHandle) {
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+	}
 }
 
 - (void)insertExtGState:(id)sender
@@ -932,6 +948,11 @@ void printView (NSView* n)
 	// Reload the outline view to show the new ExtGState
 	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
 	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+	
+	// Update text view if page is currently displayed
+	if (selectedHandle) {
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+	}
 }
 
 - (void)insertFontFile:(id)sender
