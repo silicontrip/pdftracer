@@ -116,27 +116,77 @@
 
 - (void)textSetContent:(NSNotification*)n
 {
+	NSDate *startTime = [NSDate date];
+	NSLog(@">>> [textSetContent] Starting");
+	
 	NSString* s = (NSString*)[n object];
 	if(!s) { s = @""; }
 	
 	QPDFWindow* w = (QPDFWindow*)[self window];
 	QPDFTextView* ntv = w.textView;
 	
-	// Now I discover that textView has a setColour forRange...
-	[ntv setString:s]; // yeah getting desperate now
-	[ntv checkTextInDocument:nil];
+	// Size thresholds for performance optimization
+	#define MAX_EFFICIENT_SIZE (100 * 1024)  // 100 KB - disable spell check above this
+	#define MAX_FULL_HIGHLIGHT_SIZE (20 * 1024)  // 20 KB - only highlight visible range above this
+	
+	BOOL isLarge = [s length] > MAX_EFFICIENT_SIZE;
+	
+	// Measure text view loading
+	NSDate *setStringStart = [NSDate date];
+	[ntv setString:s];
+	NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
+	NSLog(@"⏱ [textSetContent] Text view setString: %.3f seconds (%lu chars)", setStringTime, (unsigned long)[s length]);
+	
+	// Skip spell checking for large streams (saves ~1.5 seconds for 500KB)
+	if (isLarge) {
+		NSLog(@"⏱ [textSetContent] Skipping checkTextInDocument for large stream (%lu chars)", (unsigned long)[s length]);
+		// Disable continuous spell checking for this text view
+		[ntv setContinuousSpellCheckingEnabled:NO];
+	} else {
+		NSDate *checkStart = [NSDate date];
+		[ntv checkTextInDocument:nil];
+		NSTimeInterval checkTime = [[NSDate date] timeIntervalSinceDate:checkStart];
+		NSLog(@"⏱ [textSetContent] checkTextInDocument: %.3f seconds", checkTime);
+	}
 	
 	// Force line number view to recalculate before next draw to prevent stale indices
+	NSDate *rulerStart = [NSDate date];
 	[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
+	NSTimeInterval rulerTime = [[NSDate date] timeIntervalSinceDate:rulerStart];
+	NSLog(@"⏱ [textSetContent] ruler setNeedsDisplay: %.3f seconds", rulerTime);
+	
+	// For large streams, skip layout manager calculations and syntax highlighting
+	// (saves ~2 seconds for layout + ~1 second for highlighting)
+	if (isLarge) {
+		NSLog(@"⏱ [textSetContent] Skipping layout/highlighting for large stream - text remains editable");
+		NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
+		NSLog(@"⏱ [textSetContent] TOTAL (large stream, optimized): %.3f seconds", totalTime);
+		return;
+	}
 	
 	// this one for quickly colouring the displayed text
+	NSDate *layoutStart = [NSDate date];
 	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-															 inTextContainer:w.textView.textContainer];
+													  inTextContainer:w.textView.textContainer];
 
 	NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+	NSTimeInterval layoutTime = [[NSDate date] timeIntervalSinceDate:layoutStart];
+	NSLog(@"⏱ [textSetContent] layout manager range calc: %.3f seconds (vis range: %lu,%lu)", layoutTime, (unsigned long)visRange.location, (unsigned long)visRange.length);
 	
-	[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
+	// Measure syntax highlighting
+	NSDate *highlightStart = [NSDate date];
+	if ([s length] > MAX_FULL_HIGHLIGHT_SIZE) {
+		// Only highlight visible range for medium-sized streams
+		[syntaxer colouriseRange:visRange];
+	} else {
+		// Full highlighting for small streams
+		[syntaxer colouriseRangeThenAll:visRange];
+	}
+	NSTimeInterval highlightTime = [[NSDate date] timeIntervalSinceDate:highlightStart];
+	NSLog(@"⏱ [textSetContent] Syntax highlighting: %.3f seconds", highlightTime);
 	
+	NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
+	NSLog(@"⏱ [textSetContent] TOTAL: %.3f seconds", totalTime);
 }
 /*
 - (void)textSetContentDirect:(NSString*)s
@@ -291,16 +341,33 @@
 {
 	NSLog(@"[QPDFWindowController RowChangedContent:%@]", notification);
 	
+	NSDate *startTime = [NSDate date];
+	NSDate *stepTime = startTime;
+	
 	NSString* text = nil;
 	if (selectedRow >= 0)
 	{
 		ObjcQPDFObjectHandle* qpdf = selectedHandle;
 		
 		if ([qpdf isStream]) {
-			text =  [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
+			// Measure stream decoding
+			NSDate *decodeStart = [NSDate date];
+			NSData* streamData = [qpdf stream];
+			NSTimeInterval decodeTime = [[NSDate date] timeIntervalSinceDate:decodeStart];
+			NSLog(@"⏱ Stream decode: %.3f seconds (%lu bytes)", decodeTime, (unsigned long)[streamData length]);
+			
+			// Measure string conversion
+			NSDate *convertStart = [NSDate date];
+			text = [[[NSString alloc] initWithData:streamData encoding:NSMacOSRomanStringEncoding] autorelease];
+			NSTimeInterval convertTime = [[NSDate date] timeIntervalSinceDate:convertStart];
+			NSLog(@"⏱ String conversion: %.3f seconds (%lu chars)", convertTime, (unsigned long)[text length]);
+			
 			[self setEditEnable:YES];
 		} else {
+			NSDate *unparseStart = [NSDate date];
 			text = [qpdf unparseResolved];
+			NSTimeInterval unparseTime = [[NSDate date] timeIntervalSinceDate:unparseStart];
+			NSLog(@"⏱ Unparse: %.3f seconds", unparseTime);
 			[self setEditEnable:YES];
 		}
 		
@@ -309,7 +376,12 @@
 		
 		QPDFTextView* ntv = w.textView;
 
+		// Measure text view loading
+		NSDate *setStringStart = [NSDate date];
 		[ntv setString:text];
+		NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
+		NSLog(@"⏱ Text view setString: %.3f seconds", setStringTime);
+		
 		[ntv checkTextInDocument:nil];
 		
 		// Force line number view to recalculate before next draw to prevent stale indices
@@ -317,14 +389,21 @@
 		
 		// this one for quickly colouring the displayed text
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-																 inTextContainer:w.textView.textContainer];
+														  inTextContainer:w.textView.textContainer];
 		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
 		
+		// Measure syntax highlighting
+		NSDate *highlightStart = [NSDate date];
 		if ([text length] > 20000) {
 			[syntaxer colouriseRange:visRange];
 		} else {
 			[syntaxer colouriseRangeThenAll:visRange];
 		}
+		NSTimeInterval highlightTime = [[NSDate date] timeIntervalSinceDate:highlightStart];
+		NSLog(@"⏱ Syntax highlighting: %.3f seconds", highlightTime);
+		
+		NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
+		NSLog(@"⏱ TOTAL rowChangedContent: %.3f seconds", totalTime);
 	}
 }
 
@@ -332,6 +411,9 @@
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
+	NSDate *selectStartTime = [NSDate date];
+	NSLog(@">>> [selectRow] Starting selection");
+	
 	// setOV, setRow
 	[self setSelectedRow:sr];
 	[self setSelectedView:qov];
@@ -343,8 +425,11 @@
 
 	if (selectedHandle)
 	{
-
+		NSDate *textGenStart = [NSDate date];
 		NSString* handleText = [selectedHandle text];
+		NSTimeInterval textGenTime = [[NSDate date] timeIntervalSinceDate:textGenStart];
+		NSLog(@"⏱ [selectRow] Getting text from handle: %.3f seconds (%lu chars)", textGenTime, (unsigned long)[handleText length]);
+		
 		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:handleText];
 
 		// [self textSetContentDirect:handleText];
@@ -379,6 +464,9 @@
 	// update selectedPageNumber
 	
 	[self updateOutlineAddRemove];
+	
+	NSTimeInterval selectTotalTime = [[NSDate date] timeIntervalSinceDate:selectStartTime];
+	NSLog(@"⏱ [selectRow] TOTAL: %.3f seconds", selectTotalTime);
 	// NSLog(@"end selectRow");
 }
 
