@@ -50,6 +50,37 @@
     return self;
 }
 
+- (instancetype)initWithString:(NSString* _Nonnull)def forQPDF:(ObjcQPDF* _Nullable)qpdf error:(NSError**)error
+{
+	//NSLog(@"ObjcObjectHandle initWithString:forQPDF: %@", def);
+
+    self = [super init];
+    if (self)
+    {
+		dictionaryKeys = nil;
+		objectArray = nil;
+		
+		std::string qpdfdef = std::string([def cStringUsingEncoding:NSMacOSRomanStringEncoding]);
+		try {
+			if (qpdf) {
+				// Parse with PDF document context for indirect references
+				qObject = QPDFObjectHandle::parse([qpdf qpdf], qpdfdef);
+			} else {
+				// Fallback to parse without context
+				qObject = QPDFObjectHandle::parse(qpdfdef);
+			}
+		} catch (std::exception& e) {
+			if (error != NULL) {
+				NSString* errorString = [NSString stringWithCString:e.what() encoding:NSMacOSRomanStringEncoding];
+				NSDictionary *userInfo = @{NSLocalizedDescriptionKey : errorString};
+				*error = [NSError errorWithDomain:@"com.qpdf" code:1 userInfo:userInfo];
+			}
+			return nil;
+		}
+    }
+    return self;
+}
+
 // returns
 - (ObjcQPDF* _Nullable)owner
 {
