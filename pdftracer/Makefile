@@ -4,10 +4,10 @@
 
 OPTFLAGS=-O3
 CPP=clang++
-CPPFLAGS=$(OPTFLAGS) -I/usr/local/include -std=c++17
+CPPFLAGS=$(OPTFLAGS) -I/usr/local/include -std=c++17 -I/opt/homebrew/include
 
 #LDFLAGS=-std=c++17 -fsanitize=address -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers -framework CoreText
-LDFLAGS=-std=c++17 -L/usr/local/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers -framework CoreText
+LDFLAGS=-std=c++17 -L/usr/local/lib -L/opt/homebrew/lib -lqpdf -framework Foundation -framework AppKit -framework QuartzCore -framework PDFKit -framework UniformTypeIdentifiers -framework CoreText
 
 CC=clang
 CFLAGS=$(OPTFLAGS) -I/usr/local/include -isysroot `xcrun --show-sdk-path`
