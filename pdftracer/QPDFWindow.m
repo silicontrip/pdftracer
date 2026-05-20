@@ -294,26 +294,37 @@
 	//	[[self.scrollTextView contentView] setPostsFrameChangedNotifications:YES];
 		
 		self.documentView = [[[QPDFView alloc] init] autorelease];
-		[self.documentView setDisplayBox:kPDFDisplayBoxMediaBox];
-		// [self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
+	[self.documentView setDisplayBox:kPDFDisplayBoxMediaBox];
+	[self.documentView setDisplayMode:kPDFDisplaySinglePage];
+	[self.documentView setAutoScales:YES];  // Enable auto-scaling for better zoom
+	[self.documentView setInterpolationQuality:kPDFInterpolationQualityHigh];  // High-quality rendering
+	// [self.documentView setTranslatesAutoresizingMaskIntoConstraints:NO];
 
-	//	[self.documentView setDisplayMode:kPDFDisplaySinglePage];
+		NSRect initColRect = NSMakeRect(0, 0, rect.size.width / 3.0, rect.size.height);
+		NSRect initRowRect = NSMakeRect(0, 0, rect.size.width / 3.0, rect.size.height / 3.0);
 
-		NSRect vRect = NSZeroRect; // Err maybe because initWithFrame, needs a frame?
-
-		sView[1]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		sView[1] = [[[NSSplitView alloc] initWithFrame:initColRect] autorelease];
 		[sView[1] setTranslatesAutoresizingMaskIntoConstraints:NO];
 		[sView[1] setVertical:NO];
+		
+		[scsView setFrame:initRowRect];
+		[socsView setFrame:initRowRect];
+		[spcsView setFrame:initRowRect];
+		
 		[sView[1] addArrangedSubview:scsView];
 		[sView[1] addArrangedSubview:socsView];
 		[sView[1] addArrangedSubview:spcsView];
 		[sView[1] setPostsFrameChangedNotifications:YES];
 
 		// and the windows windows
-		sView[0]=[[[NSSplitView alloc] initWithFrame:vRect] autorelease];
+		sView[0] = [[[NSSplitView alloc] initWithFrame:NSMakeRect(0, 0, rect.size.width, rect.size.height)] autorelease];
 		[sView[0] setTranslatesAutoresizingMaskIntoConstraints:NO];
-
 		[sView[0] setVertical:YES];
+
+		[sView[1] setFrame:initColRect];
+		[self.scrollTextView setFrame:initColRect];
+		[self.documentView setFrame:initColRect];
+
 		[sView[0] addArrangedSubview:sView[1]];
 		[sView[0] addArrangedSubview:self.scrollTextView];
 		[sView[0] addArrangedSubview:self.documentView];
