@@ -1,11 +1,14 @@
 #import <Foundation/Foundation.h>
 #import "ObjcPDFObject.h"
-
 // I'd like to turn this into a class cluster
 
 @class ObjcQPDF;
 
-enum object_type_e {
+
+// not sure why these had to be named differetnly in earlier versions.
+
+/*
+enum ns_object_type_e {
 	// Object types internal to qpdf
 	ot_uninitialized,
 	ot_reserved,
@@ -23,13 +26,13 @@ enum object_type_e {
 	ot_operator,
 	ot_inlineimage,
 };
-
-typedef enum object_type_e object_type_e;
+*/
+//typedef enum ns_object_type_e ns_object_type_e;
 
 // The Foundation way...
 
 
-typedef NS_ENUM(NSInteger, QPDFObjectType) {
+typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
 	QPDFObjectTypeUninitialized = 0,
 	QPDFObjectTypeReserved = 1,
 	QPDFObjectTypeNull = 2,
@@ -45,7 +48,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 	QPDFObjectTypeInlineImage = 12
 };
 
-// err but not right now, but wait there's more
+// err not right now, but wait there's more
 
 @interface ObjcQPDFObjectHandle : NSObject<ObjcPDFObject>
 {
@@ -72,8 +75,14 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 + (ObjcQPDFObjectHandle* _Nonnull)dictionaryObject;
 - (NSString* _Nullable)dictionaryType;
 + (ObjcQPDFObjectHandle* _Nonnull)dictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>* _Nonnull)dict;
+
++ (NSData* _Nullable)deflate:(NSData* _Nonnull)source;
+
 // - (instancetype)initWithObject:(QPDFObjectHandle)obj
 - (instancetype _Nullable)initWithString:(NSString* _Nonnull)def;
+- (instancetype _Nullable)initWithString:(NSString* _Nonnull)def error:(NSError* _Nullable * _Nullable)error;
+// New: Parse string with PDF document context for indirect references
+- (instancetype _Nullable)initWithString:(NSString* _Nonnull)def forQPDF:(ObjcQPDF* _Nullable)qpdf error:(NSError* _Nullable * _Nullable)error;
 + (ObjcQPDFObjectHandle* _Nonnull)intWith:(NSInteger)b;
 - (BOOL)isArray;
 - (BOOL)isDictionary;
@@ -84,6 +93,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 - (BOOL)isPage;
 - (BOOL)isStream;
 - (NSArray<NSString*>* _Nonnull)keys;
+- (NSArray<NSString*>* _Nonnull)presentationKeys;
 - (NSString* _Nonnull)name;
 + (ObjcQPDFObjectHandle* _Nonnull)nameWith:(NSString* _Nonnull)b;
 + (ObjcQPDFObjectHandle* _Nonnull)newArray;
@@ -94,7 +104,7 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 + (ObjcQPDFObjectHandle* _Nonnull)newDictionary;
 + (ObjcQPDFObjectHandle* _Nonnull)newDictionaryWithDictionary:(NSDictionary<NSString*,ObjcQPDFObjectHandle*>* _Nonnull)dict;
 + (ObjcQPDFObjectHandle* _Nonnull)newIndirect:(NSString* _Nonnull)objGen for:(ObjcQPDF* _Nonnull)qpdf;
-+ (ObjcQPDFObjectHandle* _Nonnull)newIndirect:(NSString* _Nonnull)objGen usingReference:(ObjcQPDFObjectHandle* _Nonnull)qpdfoh;
+// + (ObjcQPDFObjectHandle* _Nonnull)newIndirect:(NSString* _Nonnull)objGen usingReference:(ObjcQPDFObjectHandle* _Nonnull)qpdfoh;
 + (ObjcQPDFObjectHandle* _Nonnull)newInteger:(NSInteger)i;
 + (ObjcQPDFObjectHandle* _Nonnull)newName:(NSString* _Nonnull)s;
 + (ObjcQPDFObjectHandle* _Nonnull)newNull;
@@ -116,11 +126,13 @@ typedef NS_ENUM(NSInteger, QPDFObjectType) {
 - (void)replaceObject:(ObjcQPDFObjectHandle* _Nonnull)obj forKey:(NSString* _Nonnull)key;
 - (void)replaceObjectAtIndex:(NSUInteger)index withObject:(ObjcQPDFObjectHandle* _Nonnull)obj;
 - (void)replaceStreamData:(NSString* _Nonnull)data;
+- (void)replaceStreamData:(NSData* _Nonnull)data filter:(NSString* _Nullable)filter;
 - (NSData* _Nullable)stream;
+- (NSData* _Nullable)rawStream;
 - (ObjcQPDFObjectHandle* _Nonnull)streamDictionary;
 + (ObjcQPDFObjectHandle* _Nonnull)stringWith:(NSString* _Nonnull)b;
 - (NSString* _Nonnull)text;
-- (object_type_e)type;
+- (QPDFObjectTypeEnum)type;
 - (NSString* _Nonnull)typeName;
 - (NSString* _Nonnull)unparse;
 - (NSString* _Nonnull)unparseResolved;

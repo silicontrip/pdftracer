@@ -9,7 +9,7 @@
 	if (self)
 	{
 		qpDocument = pdf;
-		catalog = [qpDocument copyRootCatalog];
+		catalog = [qpDocument copyTrailer];
 		 // catalog = [[QPDFNode alloc] initWithParent:nil Named:@"CATALOG" Handle:rootCatalog];
 	}
 	return self;
@@ -18,8 +18,13 @@
 - (void)invalidate
 {
 	[catalog release];
-	catalog = [qpDocument copyRootCatalog];
+	catalog = [qpDocument copyTrailer];
 
+}
+
+- (void)refresh
+{
+	[self invalidate];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item
@@ -44,8 +49,7 @@
 	}
 	if ([pdfitem isDictionary])
 	{
-		long count = [pdfitem count];
-		return count;
+		return [[pdfitem presentationKeys] count];
 	}
 	return 0;
 }
@@ -103,19 +107,12 @@
 		return thisObject;
 	} else if ([pdfitem isDictionary]) {
 
-		int loopindex=0;
-		for(NSString* iterKey in [pdfitem keys])
-		{
-			if (loopindex == index)
-			{
-				ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:iterKey];
-				[thisObject setElementName:iterKey];
-				[thisObject setParent:pdfitem];
-				// QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
-				return thisObject;
-			}
-			++loopindex;
-		}
+		NSString* keyIndex = [[pdfitem presentationKeys] objectAtIndex:index];
+		ObjcQPDFObjectHandle* thisObject = [pdfitem objectForKey:keyIndex];
+		[thisObject setElementName:keyIndex];
+		[thisObject setParent:pdfitem];
+		// QPDFNode* nKey = [QPDFNode nodeWithParent:item Named:iterKey Handle:thisObject];
+		return thisObject;
 	
 	}
 	return nil;

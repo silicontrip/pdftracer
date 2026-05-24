@@ -3,6 +3,7 @@
 #import "OutlineQPDF.h"
 #import "OutlineQPDFObj.h"
 #import "OutlineQPDFPage.h"
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 @interface QPDFWindowController()
 {
@@ -16,7 +17,6 @@
 @synthesize selectedRow;
 @synthesize selectedColumn;
 @synthesize selectedPage;
-
 @synthesize selectedView;
 @synthesize selectedHandle;
 
@@ -24,28 +24,34 @@
 {
 	self = [super initWithWindow:nsw]; // I just wanted to call this variable NSW,
 	if (self) {
-	// NSLog(@"win title: %@",[nsw title]);
-	
-		lastUpdate = 0;
-		updateDocumentLock = [NSLock new];
-
-		
-		QPDFWindow* qpw = (QPDFWindow*)nsw;
+		// NSLog(@"QPDFWindowController init");
 		documentCenter = dc;
+		[documentCenter retain];
+		
+		selectedRow = -1;
+		selectedPage = -1;
+		lastDisplayedPage = -1;  // Initialize to -1 (no page displayed yet)
+		
+		updateDocumentLock = [[NSLock alloc] init];
 		
 		syntaxer = [[QPDFSyntaxHighlighter alloc] init];
+		
+		// NSLog(@"QPDFWindowController init complete");
+		
+		QPDFWindow* qpw = (QPDFWindow*)nsw;
 		syntaxer.asyncView = qpw.textView;
 		
-		[dc addObserver:self selector:@selector(documentChange:) name:@"QPDFUpdateDocument" object:nil];
-		[dc addObserver:self selector:@selector(rowChangedContent:) name:@"QPDFSelectOutlineRow" object:nil];
-		[dc addObserver:self selector:@selector(textSetContent:) name:@"QPDFUpdateTextview" object:nil];
-		self.selectedPage = 0;
+		[documentCenter addObserver:self selector:@selector(documentChange:) name:@"QPDFUpdateDocument" object:nil];
+		[documentCenter addObserver:self selector:@selector(rowChangedContent:) name:@"QPDFSelectOutlineRow" object:nil];
+		[documentCenter addObserver:self selector:@selector(textSetContent:) name:@"QPDFUpdateTextview" object:nil];
+
+		self.selectedPage = 0;  // Initialize to page 0 to trigger PDF view setup
 		
 		[self synchronizeWindowTitleWithDocumentName];
 		[self setSelectedRow:-1];
 		
-		NSLog(@"doc-view: %@",[qpw documentView]);
-		NSLog(@"DOCUMENT: %@",[self document]);
+		//NSLog(@"doc-view: %@",[qpw documentView]);
+		//NSLog(@"DOCUMENT: %@",[self document]);
 		
 	//	[[qpw documentView] setDocument:[[self document] pdfdocument]];
 	}
@@ -60,25 +66,20 @@
 	
 	ObjcQPDF* qDoc = [[self document] doc];
 	QPDFWindow* w = (QPDFWindow*)[self window];
-	
-	pdfDS = [[OutlineQPDF alloc] initWithPDF:qDoc];
-	objDS = [[OutlineQPDFObj alloc] initWithPDF:qDoc];
-	pageDS = [[OutlineQPDFPage alloc] initWithPDF:qDoc];
+
+	//No autorelease here, the outline views only have a weak reference to their datasources.
+	OutlineQPDF* pdfDS = [[OutlineQPDF alloc] initWithPDF:qDoc];
+	OutlineQPDFObj* objDS = [[OutlineQPDFObj alloc] initWithPDF:qDoc];
+	OutlineQPDFPage* pageDS = [[OutlineQPDFPage alloc] initWithPDF:qDoc];
 	
 	[[w outlineAtIndex:0] setDataSource:pdfDS];
 	[[w outlineAtIndex:1] setDataSource:objDS];
 	[[w outlineAtIndex:2] setDataSource:pageDS];
 	
 	[[w textView] setDelegate:self];
-	
-	// [[w documentView] setDocument:[[self document] pdfdocument]];
 
-	
-	//[qp pdfdocument];
 	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(0)];
-	//PDFDocument* ppdf = [[self document] pdfDocumentPage:0];
-	// [w setDocument:ppdf];
-	
+
 	NSString* documentName = [[self document] displayName];
 	
 	[[w splitAtIndex:1] setAutosaveName:[NSString stringWithFormat:@"SplitOutline-%@",documentName]];
@@ -92,18 +93,17 @@
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:1]];
 	[dc addObserver:self selector:@selector(textDidEndEditing:) name:@"NSControlTextDidEndEditingNotification" object:[w outlineAtIndex:2]];
-
-// NSOutlineViewSelectionDidChangeNotification
 	
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:0]];
 	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:1]];
-	[dc addObserver:self selector:@selector(selectChangeNotification:) name:NSOutlineViewSelectionDidChangeNotification object:[w outlineAtIndex:2]];
+	[dc addObserver:self selector:@selector(selectChangeNotification:) name:@"NSOutlineViewSelectionDidChangeNotification" object:[w outlineAtIndex:2]];
 	
 	
 	// not enough performance
 	[dc addObserver:self selector:@selector(textViewScrollNotification:) name:NSViewBoundsDidChangeNotification object:[w.scrollTextView contentView]] ;
 	// [dc addObserver:self selector:@selector(boundsDidChange:) name:NSViewBoundsDidChangeNotification object:contentView];
 
+	NSLog(@"<<< [QPDFWindowController initDataSource");
 }
 
 // MARK: View state change
@@ -122,96 +122,111 @@
 
 - (void)textSetContent:(NSNotification*)n
 {
+	NSDate *startTime = [NSDate date];
+	NSLog(@">>> [textSetContent] Starting");
+	
+	// Cancel any in-progress colorization from previous selection
+	[syntaxer cancelColorization];
+	
 	NSString* s = (NSString*)[n object];
 	if(!s) { s = @""; }
 	
 	QPDFWindow* w = (QPDFWindow*)[self window];
 	QPDFTextView* ntv = w.textView;
 	
+	// Size thresholds for performance optimization
+	#define MAX_EFFICIENT_SIZE (100 * 1024)  // 100 KB - disable spell check above this
+	#define MAX_FULL_HIGHLIGHT_SIZE (20 * 1024)  // 20 KB - only highlight visible range above this
+	
+	BOOL isLarge = [s length] > MAX_EFFICIENT_SIZE;
+	
+	// Measure text view loading
+	//NSLog(@"⏱ [textSetContent] About to call setString with %lu chars", (unsigned long)[s length]);
+	NSDate *setStringStart = [NSDate date];
+	[ntv setString:s];
+	NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
+	//NSLog(@"⏱ [textSetContent] setString returned: %.3f seconds", setStringTime);
+	
+	NSDate *afterSetString = [NSDate date];
+	// Deliberately do nothing here to see if freeze happens after setString returns
+	NSTimeInterval gapTime = [[NSDate date] timeIntervalSinceDate:afterSetString];
+	//NSLog(@"⏱ [textSetContent] Time after setString: %.3f seconds", gapTime);
+	
+	// Skip spell checking for large streams (saves ~1.5 seconds for 500KB)
+	if (isLarge) {
+		NSLog(@"[textSetContent] Skipping checkTextInDocument for large stream (%lu chars)", (unsigned long)[s length]);
+		// Disable continuous spell checking for this text view
+		[ntv setContinuousSpellCheckingEnabled:NO];
+	} else {
+		NSDate *checkStart = [NSDate date];
+		[ntv checkTextInDocument:nil];
+		NSTimeInterval checkTime = [[NSDate date] timeIntervalSinceDate:checkStart];
+		NSLog(@"[textSetContent] checkTextInDocument: %.3f seconds", checkTime);
+	}
+	
+	// Force line number view to recalculate before next draw to prevent stale indices
+	NSDate *rulerStart = [NSDate date];
+	[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
+	NSTimeInterval rulerTime = [[NSDate date] timeIntervalSinceDate:rulerStart];
+	//NSLog(@"⏱ [textSetContent] ruler setNeedsDisplay: %.3f seconds", rulerTime);
+	
+	// Colorization now enabled for all stream sizes (asan was the real bottleneck)
+	// this one for quickly colouring the displayed text
+	NSDate *layoutStart = [NSDate date];
+	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+													  inTextContainer:w.textView.textContainer];
+
+	NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
+	NSTimeInterval layoutTime = [[NSDate date] timeIntervalSinceDate:layoutStart];
+	//NSLog(@"⏱ [textSetContent] layout manager range calc: %.3f seconds (vis range: %lu,%lu)", layoutTime, (unsigned long)visRange.location, (unsigned long)visRange.length);
+	
+	// Measure syntax highlighting
+	NSDate *highlightStart = [NSDate date];
+	if ([s length] > MAX_FULL_HIGHLIGHT_SIZE) {
+		// Only highlight visible range for medium-sized streams
+		[syntaxer colouriseRange:visRange];
+	} else {
+		// Full highlighting for small streams
+		[syntaxer colouriseRangeThenAll:visRange];
+	}
+	NSTimeInterval highlightTime = [[NSDate date] timeIntervalSinceDate:highlightStart];
+	//NSLog(@"⏱ [textSetContent] Syntax highlighting: %.3f seconds", highlightTime);
+	
+	NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
+	//NSLog(@"⏱ [textSetContent] TOTAL: %.3f seconds", totalTime);
+}
+/*
+- (void)textSetContentDirect:(NSString*)s
+{
+	 // NSString* s = (NSString*)[n object];
+	if(!s) { s = @""; }
+
+	QPDFWindow* w = (QPDFWindow*)[self window];
+	QPDFTextView* ntv = w.textView;
+
 	// Now I discover that textView has a setColour forRange...
 	[ntv setString:s]; // yeah getting desperate now
 	[ntv checkTextInDocument:nil];
-	
+
 	// this one for quickly colouring the displayed text
 	NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
 															 inTextContainer:w.textView.textContainer];
 	NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
-	
-	[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
-	
-}
 
+	[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
+
+}
+*/
 
 - (void)setEditEnable:(BOOL)ee
 {
 	[(QPDFWindow*)[self window] editorEnabled:ee];
 }
 
-// how many of these should I show ?
-/*
-- (ObjcQPDFObjectHandle*)selectedObject
-{
-	return [[self selectedNode] object];
-}
-*/
-
-/*
-- (BOOL)canEditSelectedObject
-{
-	if ([self isSelected])
-	{
-		ObjcQPDFObjectHandle* qpdf = [selectedNode object];
-		if ([qpdf isStream])
-			return YES;
-		else
-			return ![qpdf childrenContainIndirects];
-	}
-	return NO;
-}
-*/
-
 - (BOOL)isSelected
 {
 	return ([self selectedRow]>=0);
 }
-
-/*
-- (void)setText:(NSInteger)row forSource:(QPDFOutlineView*)ov {
-	
-	NSLog(@"QPDFWindowController: selectRow:%d forSource:%@",(int)row,ov);
-	
-	if (row >= 0)
-	{
-		NSString* objText;
-		
-		QPDFNode* node = [ov itemAtRow:row];  // QPDFNode* node = ov->itemAtRow(row);
-		ObjcQPDFObjectHandle* qpdf = [node object]; // QPDFObjectHandle qpdf = node->object();
-		
-		//	NSLog (@"obj selected %s",qpdf->getTypeName());
-		if ([qpdf isStream]) {
-			objText= [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
-			[(QPDFWindow*)[self window] editorEnabled:YES];
-		} else {
-			// BOOL allowEdit = ![qpdf childrenContainIndirects];
-			
-			//NSLog(@"set editable: %d",allowEdit);
-			[(QPDFWindow*)[self window] editorEnabled:NO];
-			// NSString* objText = [NSString stringWithUTF8String:qpdf->unparse().c_str()];
-			objText = [qpdf unparseResolved];
-		}
-		[(QPDFWindow*)[self window] setText:objText];
-	} else {
-		[(QPDFWindow*)[self window] editorEnabled:NO];
-		//NSError* err;
-		//NSData* pdfRep = [[self document] dataOfType:@"QDF" error:&err];
-		//NSString* objText=[[[NSString alloc] initWithData:pdfRep encoding:NSMacOSRomanStringEncoding] autorelease];
-		//[(QPDFWindow*)[self window]setText:objText];
-		// disable delete button
-		[(QPDFWindow*)[self window] setText:@""];
-		//[tView setString:@"can you see what I see?"];
-	}
-}
-*/
 
 - (BOOL)canAddToSelectedObject
 {
@@ -242,7 +257,9 @@
 		if (outcount==0)
 		{
 			ObjcQPDFObjectHandle* selHandle = [outview itemAtRow:[outview selectedRow]];
-			[outadd setEnabled:[selHandle isExpandable] forSegment:0];
+			// Allow adding if expandable OR if nothing is selected (add to root)
+			BOOL canAdd = (selHandle == nil) || [selHandle isExpandable];
+			[outadd setEnabled:canAdd forSegment:0];
 		} else {
 			[outadd setEnabled:YES forSegment:0];
 		}
@@ -252,7 +269,6 @@
 
 // changeText -> refreshOutline, setText, refreshPDF, documentChanged
 
-//- (void)changeText:(NSInteger)row column:(NSInteger)column forSource:(QPDFOutlineView*)qov with:(NSString*)es
 - (void)changeText:(QPDFOutlineView*)qov with:(NSString*)es
 {
 	NSInteger row = [qov editedRow];
@@ -262,6 +278,11 @@
 	ObjcQPDFObjectHandle* handle = [qov itemAtRow:row];
 	ObjcQPDFObjectHandle* parent = [handle parent];
 	NSString* name = [handle elementName];  // dictionary key or array index value
+
+	NSLog(@">>> [changeText] row:%ld col:%ld", (long)row, (long)col);
+	NSLog(@">>> [changeText] handle: %@ (type: %@, isIndirect: %d)", handle, [handle typeName], [handle isIndirect]);
+	NSLog(@">>> [changeText] parent: %@ (type: %@, isDict: %d, isArray: %d)", parent, [parent typeName], [parent isDictionary], [parent isArray]);
+	NSLog(@">>> [changeText] elementName: %@", name);
 
 	// NSLog(@"changeText: row %ld col:%ld view for:%@ new value with:%@",(long int)row,(long int)col,qov,es);
 	// something else is changing...
@@ -279,36 +300,113 @@
 		}
 	}
 	if (col == 2) {
-		// make indirect object
+		NSLog(@">>> [changeText] Column 2 edit - input: '%@'", es);
 		
-		ObjcQPDFObjectHandle* newobj;
+		// Parse value with PDF document context (handles indirect refs automatically)
+		NSError *error = nil;
+		ObjcQPDFObjectHandle* newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es forQPDF:[[self document] doc] error:&error];
 		
-		NSArray<NSString*>* objElem= [es componentsSeparatedByString:@" "];
-		if (([objElem count] == 3) &&
-			([[objElem objectAtIndex:2] isEqualToString:@"R"]) &&
-			([[objElem objectAtIndex:0] integerValue] != 0))
-			{
-				newobj = [ObjcQPDFObjectHandle newIndirect:es for:[[self document] doc]];
-			}
-			else
-			{
-				NSLog(@"object elem: %lu",(unsigned long)[objElem count]);
-				newobj = [[ObjcQPDFObjectHandle alloc] initWithString:es];
-			}
+		NSLog(@">>> [changeText] newobj created: %@, error: %@", newobj ? @"YES" : @"NO", error);
+		
+		if (!newobj && error) {
+			NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+			[alert setMessageText:@"Invalid PDF Syntax"];
+			[alert setInformativeText:[NSString stringWithFormat:@"%@\n\nInput: %@", [error localizedDescription], es]];
+			[alert addButtonWithTitle:@"OK"];
+			[alert runModal];
+			
+			// Reload the outline view to refresh the display and clear any editing state
+			[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent ? parent : nil];
+			
+			// Return early - don't modify anything if parsing failed
+			NSLog(@">>> [changeText] Parsing failed, returning without changes");
+			return;
+		}
+		
 		if (newobj) {
-			if ([parent isArray])
-			{
-				[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
-			} else if ([parent isDictionary]) {
-				[parent replaceObject:newobj forKey:name];
+			ObjcQPDFObjectHandle* updatedObject = nil;
+			
+			if (parent) {
+				// Object is in a container (dictionary or array)
+				NSLog(@">>> [changeText] Replacing in parent (type: %@)", [parent typeName]);
+				if ([parent isArray])
+				{
+					[parent replaceObjectAtIndex:[name integerValue] withObject:newobj];
+					NSLog(@">>> [changeText] Replaced in array at index %@", name);
+				} else if ([parent isDictionary]) {
+					[parent replaceObject:newobj forKey:name];
+					NSLog(@">>> [changeText] Replaced in dictionary for key %@", name);
+				} else {
+					NSLog(@"parent is not dictionary or array");
+				}
+				// After replacement, newobj is the current object
+				updatedObject = newobj;
 			} else {
-				// who's your daddy?
-				NSLog(@"parent is not dictionary or array");  // so wtf is it?
+				// No parent - this is an indirect object in the flat list
+				// We need to replace the object's content, not the object itself
+				NSLog(@">>> [changeText] No parent - editing indirect object directly");
+				
+				// Copy the new object's content into the existing indirect object
+				if ([handle isDictionary] && [newobj isDictionary]) {
+					// Replace dictionary contents
+					for (NSString* key in [handle keys]) {
+						[handle removeObjectForKey:key];
+					}
+					for (NSString* key in [newobj keys]) {
+						[handle replaceObject:[newobj objectForKey:key] forKey:key];
+					}
+					NSLog(@">>> [changeText] Replaced dictionary contents");
+				} else if ([handle isArray] && [newobj isArray]) {
+					// Replace array contents
+					while ([handle count] > 0) {
+						[handle removeObjectAtIndex:0];
+					}
+					for (NSUInteger i = 0; i < [newobj count]; i++) {
+						[handle addObject:[newobj objectAtIndex:i]];
+					}
+					NSLog(@">>> [changeText] Replaced array contents");
+				} else {
+					NSLog(@">>> [changeText] Cannot replace - type mismatch or unsupported type");
+					NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+					[alert setMessageText:@"Cannot Edit Indirect Object"];
+					[alert setInformativeText:@"Editing indirect objects in the list view is not yet supported for this type. Try editing from the tree view instead."];
+					[alert addButtonWithTitle:@"OK"];
+					[alert runModal];
+					
+					// Return early - don't continue processing after showing error
+					NSLog(@">>> [changeText] Returning after showing error alert");
+					return;
+				}
+				// After modifying in place, handle is still the current object
+				updatedObject = handle;
 			}
 			[newobj autorelease];
-
-		}
-		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent];
+			NSLog(@">>> [changeText] After autorelease, about to post notifications");
+			
+			// Reload parent to show the new indirect reference in the outline
+			NSLog(@">>> [changeText] Posting update notification");
+			if (parent) {
+				NSLog(@">>> [changeText] Has parent, posting with parent object");
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:parent userInfo:@{@"reloadChildren":@(YES)}];
+				NSLog(@">>> [changeText] Outline notification posted");
+			} else {
+				// Reload the entire view for indirect object changes
+				NSLog(@">>> [changeText] No parent, posting outline reload for entire view");
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+				NSLog(@">>> [changeText] Outline notification posted");
+			}
+			
+			// Update text view to show the edited object's new content
+			NSLog(@">>> [changeText] About to post text view update, updatedObject: %p", updatedObject);
+			if (updatedObject) {
+				NSLog(@">>> [changeText] Getting text from updatedObject...");
+				NSString* textContent = [updatedObject text];
+				NSLog(@">>> [changeText] Got text (length: %lu), posting notification", (unsigned long)[textContent length]);
+				[documentCenter postNotificationName:@"QPDFUpdateTextview" object:textContent];
+				NSLog(@">>> [changeText] Text view notification posted");
+			}
+			NSLog(@">>> [changeText] All notifications posted successfully");
+		} 
 	}
 	// update outlines
 	// update textview
@@ -317,7 +415,10 @@
 
 - (void)rowChangedContent:(NSNotification*)notification
 {
-	// NSLog(@"RowChangedContent notification");
+	NSLog(@"[QPDFWindowController RowChangedContent:%@]", notification);
+	
+	NSDate *startTime = [NSDate date];
+	NSDate *stepTime = startTime;
 	
 	NSString* text = nil;
 	if (selectedRow >= 0)
@@ -325,39 +426,87 @@
 		ObjcQPDFObjectHandle* qpdf = selectedHandle;
 		
 		if ([qpdf isStream]) {
-			text =  [[[NSString alloc] initWithData:[qpdf stream] encoding:NSMacOSRomanStringEncoding ] autorelease];
+			// Measure stream decoding
+			NSDate *decodeStart = [NSDate date];
+			NSData* streamData = [qpdf stream];
+			NSTimeInterval decodeTime = [[NSDate date] timeIntervalSinceDate:decodeStart];
+			NSLog(@"⏱ Stream decode: %.3f seconds (%lu bytes)", decodeTime, (unsigned long)[streamData length]);
+			
+			// Measure string conversion
+			NSDate *convertStart = [NSDate date];
+			text = [[[NSString alloc] initWithData:streamData encoding:NSMacOSRomanStringEncoding] autorelease];
+			NSTimeInterval convertTime = [[NSDate date] timeIntervalSinceDate:convertStart];
+			NSLog(@"⏱ String conversion: %.3f seconds (%lu chars)", convertTime, (unsigned long)[text length]);
+			
 			[self setEditEnable:YES];
-
 		} else {
+			NSDate *unparseStart = [NSDate date];
 			text = [qpdf unparseResolved];
+			NSTimeInterval unparseTime = [[NSDate date] timeIntervalSinceDate:unparseStart];
+			NSLog(@"⏱ Unparse: %.3f seconds", unparseTime);
 			[self setEditEnable:YES];
 		}
-	
 		
 		// or post another notification
 		QPDFWindow* w = (QPDFWindow*)[self window];
 		
 		QPDFTextView* ntv = w.textView;
 
+		// Measure text view loading
+		NSDate *setStringStart = [NSDate date];
 		[ntv setString:text];
+		NSTimeInterval setStringTime = [[NSDate date] timeIntervalSinceDate:setStringStart];
+		NSLog(@"⏱ Text view setString: %.3f seconds", setStringTime);
+		
 		[ntv checkTextInDocument:nil];
+		
+		// Force line number view to recalculate before next draw to prevent stale indices
+		[w.scrollTextView.verticalRulerView setNeedsDisplay:YES];
 		
 		// this one for quickly colouring the displayed text
 		NSRange glyphRange = [w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
-																 inTextContainer:w.textView.textContainer];
+														  inTextContainer:w.textView.textContainer];
 		NSRange visRange = [w.textView.layoutManager characterRangeForGlyphRange:glyphRange actualGlyphRange:NULL];
 		
-		[syntaxer colouriseRangeThenAll:visRange];  // no more concurrent update crashes??
+		// Measure syntax highlighting
+		NSDate *highlightStart = [NSDate date];
+		if ([text length] > 20000) {
+			[syntaxer colouriseRange:visRange];
+		} else {
+			[syntaxer colouriseRangeThenAll:visRange];
+		}
+		NSTimeInterval highlightTime = [[NSDate date] timeIntervalSinceDate:highlightStart];
+		NSLog(@"⏱ Syntax highlighting: %.3f seconds", highlightTime);
+		
+		NSTimeInterval totalTime = [[NSDate date] timeIntervalSinceDate:startTime];
+		NSLog(@"⏱ TOTAL rowChangedContent: %.3f seconds", totalTime);
 	}
+}
+
+// Called by timer after user stops typing
+- (void)applySyntaxHighlighting:(NSTimer*)timer
+{
+	NSDictionary *userInfo = [timer userInfo];
+	NSValue *rangeValue = [userInfo objectForKey:@"range"];
+	if (rangeValue) {
+		NSRange range = [rangeValue rangeValue];
+		NSLog(@">>> Applying debounced syntax highlighting for range: %lu,%lu", (unsigned long)range.location, (unsigned long)range.length);
+		[syntaxer colouriseRange:range];
+	}
+	syntaxHighlightTimer = nil;
 }
 
 // selectRow -> #setOV, #setRow, #setText, enaEdit, #enaAddRemove;
 
 - (void)selectRow:(NSInteger)sr forSource:(QPDFOutlineView*)qov
 {
-//	NSLog(@"wincon selectRow -> %ld",(long)sr);
-//	NSLog(@"wincon selectView -> %@",qov);
-	
+	NSDate *selectStartTime = [NSDate date];
+	NSLog(@">>> [selectRow] Starting selection");
+	NSLog(@"[selectRow: %ld forSource: %x", sr, qov);
+
+	id item = [qov itemAtRow:sr];
+	NSLog(@"item: %x", item);
+
 	// setOV, setRow
 	[self setSelectedRow:sr];
 	[self setSelectedView:qov];
@@ -369,16 +518,46 @@
 
 	if (selectedHandle)
 	{
-	
-		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
-	
+		NSDate *textStart = [NSDate date];
+		NSString* handleText = nil;
+		
+		@try {
+			handleText = [selectedHandle text];
+		} @catch (NSException *exception) {
+			NSLog(@"ERROR: Exception getting text from handle: %@", exception);
+			NSLog(@"Handle type: %@, isIndirect: %d", [selectedHandle typeName], [selectedHandle isIndirect]);
+			handleText = @"<Error: Object is corrupted or invalid>";
+		}
+		
+		if (!handleText) {
+			NSLog(@"WARNING: handleText is nil for object: %@", selectedHandle);
+			handleText = @"<Error: Could not get text from object>";
+		}
+		
+		NSTimeInterval textGenTime = [[NSDate date] timeIntervalSinceDate:textStart];
+		//NSLog(@"⏱ [selectRow] Getting text from handle: %.3f seconds (%lu chars)", textGenTime, (unsigned long)[handleText length]);
+		
+		// Set edit enable BEFORE loading text to avoid 2-second freeze
+		// (NSTextView is slow when changing editable state with large text already loaded)
+		NSDate *editEnableStart = [NSDate date];
 		if ([selectedHandle isStream])
 			[self setEditEnable:YES];
 		else
 			[self setEditEnable:NO];
+		NSTimeInterval editEnableTime = [[NSDate date] timeIntervalSinceDate:editEnableStart];
+		//NSLog(@"⏱ [selectRow] setEditEnable (before text load): %.3f seconds", editEnableTime);
+		
+		NSDate *notifyStart = [NSDate date];
+		//NSLog(@"⏱ [selectRow] About to post QPDFUpdateTextview notification");
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:handleText];
+		NSTimeInterval notifyTime = [[NSDate date] timeIntervalSinceDate:notifyStart];
+		//NSLog(@"⏱ [selectRow] Notification posted and all observers returned: %.3f seconds", notifyTime);
+
+		// [self textSetContentDirect:handleText];
 
 	 // think I could get text from here...  I did, see above
 		// and that's not all I can get from selectedHandle. look page numbers now.
+		NSDate *pageStart = [NSDate date];
 		NSInteger nPage = [selectedHandle pageNumber];
 		// NSLog(@"selected Handle says... %ld",nPage);
 		
@@ -386,10 +565,12 @@
 		if (nPage>=0 && nPage != self.selectedPage)
 		{
 			// OK, now what page is it?  // Ha Ha, sucks to be you, I found it.
-			// and I then made it into a method in ObjcQPDFObjectHandle, ner nerny ner ner
+			// and I then made it into a method in ObjcQPDFObjectHandle, called pageNumber, ner nerny ner ner
 			self.selectedPage = nPage;
 			[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(nPage)];
 		}
+		NSTimeInterval pageTime = [[NSDate date] timeIntervalSinceDate:pageStart];
+		//NSLog(@"⏱ [selectRow] Page handling: %.3f seconds", pageTime);
 	} else {
 		// but if we've selected no object, then unselect the page.
 		// make sense?
@@ -401,6 +582,9 @@
 	// update selectedPageNumber
 	
 	[self updateOutlineAddRemove];
+	
+	NSTimeInterval selectTotalTime = [[NSDate date] timeIntervalSinceDate:selectStartTime];
+	//	NSLog(@"⏱ [selectRow] TOTAL: %.3f seconds", selectTotalTime);
 	// NSLog(@"end selectRow");
 }
 
@@ -410,17 +594,6 @@
 	
 	NSString * sz =[[QPDFMenu pageSizes] objectAtIndex:[nmi tag]];
 
-	/*
-	NSString* selType = [selectedHandle dictionaryType];
-	if ([selType isEqualToString:@"/Pages"])
-	{
-		NSLog(@"Adding to pages");
-	 // despite reading that if a page has no size it is read from the /Pages object
-	 // this does not appear to be the case.
-		[[self document] setPagesSize:sz];  // data changes here.
-	}
-	else {
-	 */
 	NSLog(@"Adding to page: %ld",self.selectedPage);
 	[[self document] setSize:sz forPage:self.selectedPage];  // data changes here.
 	// }
@@ -447,14 +620,6 @@
 	[[self document] print:sender];
 }
 
-/* - (void)saveDocumentAs:(id)sender
-{
-	NSLog(@"save as:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
-
-	[[self nextResponder] saveDocumentAs:sender];
-}
-*/
-
 // MARK: interface events
 
 void printView (NSView* n)
@@ -477,26 +642,37 @@ void printView (NSView* n)
 - (void)textDidChange:(NSNotification *)notification
 {
 	// would like to capture the keydown event... not update if space is pressed.
-	// NSLog(@"QPDFWinCon textDidChange %@",notification); // from textview
+	NSLog(@">>> [QPDFWindowController textDidChange:%@]",notification); // from textview
 	
 	QPDFTextView* notifview = [notification object];
 	
 	[[self document] updateChangeCount:NSChangeDone];
 	[self setDocumentEdited:YES];
 
-	// [[self document] setDocumentEdited:YES];
+	// [[self document] setDocumentEdited:YES]];
 	
 	NSRange editRange = [notifview rangeForUserTextChange];
 	NSString *editor = [notifview string];  // much of a muchness
 	NSRange lineRange = [editor lineRangeForRange:editRange];
+
+// where does paste end up?
+
+	// Debounced syntax highlighting - invalidate previous timer and schedule new one
+	// This prevents color flickering while typing
+	if (syntaxHighlightTimer) {
+		[syntaxHighlightTimer invalidate];
+		syntaxHighlightTimer = nil;
+	}
 	
-	//NSString *editor = [[(QPDFWindow*)[self window] textView] string];
-	// NSString *editor = [textStore string];
-	//	NSLog(@"%@",editor);
+	// Schedule syntax highlighting after 0.15 seconds of no typing
+	// Short delay since we're only colorizing the edited line, not the whole document
+	syntaxHighlightTimer = [NSTimer scheduledTimerWithTimeInterval:0.15
+															target:self
+														  selector:@selector(applySyntaxHighlighting:)
+														  userInfo:@{@"range": [NSValue valueWithRange:lineRange]}
+														   repeats:NO];
 	
-	// NSLog(@"textchange: %@", NSStringFromRange([notifview rangeForUserTextChange]));
-	
-	[syntaxer colouriseRange:lineRange];
+	// [syntaxer colouriseRange:lineRange];
 	// [syntaxer colouriseAll];  // no no no no, huge waste of resources
 	
 	// so which page???
@@ -524,8 +700,8 @@ void printView (NSView* n)
 //		[NSObject cancelPreviousPerformRequestsWithTarget:self];
 //		[self performSelector:@selector(restoreDocRect:) withObject:[NSValue valueWithRect:saveRect] afterDelay:1];
 		
-		[[self document] updateChangeCount:NSChangeDone];
-		[self setDocumentEdited:YES];
+		//[[self document] updateChangeCount:NSChangeDone];
+		//[self setDocumentEdited:YES];
 		
 	//	[visRect scrollRectToVisible:saveRect];
 		
@@ -537,8 +713,6 @@ void printView (NSView* n)
 
 	}
 }
-
-
 
 - (void)restoreDocRect:(NSValue*)nsrect
 {
@@ -553,94 +727,114 @@ void printView (NSView* n)
 
 }
 
-/* use NSNotification */
-/*
-- (void)updateCurrentPage
-{
-	PDFDocument* doc = [[self document] pdfDocumentPage:self.selectedPage];  // arrays are zero indexed...
-	[self updateDoc:doc];
-}
-*/
-
 - (void)documentChange:(NSNotification*)notification
 {
-	/*
-	// why am I using notification user info?
-	NSNumber* page = [notification object];
-	int selPage = [page intValue];
-	
-	// NSLog(@"getting page: %d",selPage);
-	
-	PDFDocument* doc = nil;
-	// wonder if passing a nil object to set document will grey it out.
-	if (selPage >= 0)
-		doc = [[self document] pdfDocumentPage:selPage];  // arrays are zero indexed...
-	*/
-	
-	[self updatePDFView];
-	
-}
-- (void)updatePDFView
-{
-	// if timer not running {
-	PDFDocument* doc = nil;
-	if (selectedPage>=0)
-		doc = [[self document] pdfDocumentPage:selectedPage];  // arrays are zero indexed...
-
+	// Document has been edited - refresh the PDFView with updated content
 	QPDFWindow* qwin = (QPDFWindow*)[self window];
 	QPDFView* pv = [qwin documentView];
 	
-	NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-	NSRect saveRect = [visRect visibleRect];
+	// Save current view state before refresh
+	PDFDestination* cDest = [pv currentDestination];
+	CGPoint cPoint = NSZeroPoint;
+	CGFloat cZoom = 1.0;
 	
-	// [updateDocumentLock lock];  // hoping this will prevent the update display crash.
-	//[visRect scrollRectToVisible:saveRect];
-	
-	// [pv setCanDrawConcurrently:NO];
-	if (time(NULL) != lastUpdate)
-	{
-		[CATransaction begin];
-		[CATransaction setValue:(id)kCFBooleanTrue
-						 forKey:kCATransactionDisableActions];  // this might fix the crashing... // no
-	
-		[pv setDocument:doc];
-		lastUpdate = time(NULL);
-		[CATransaction commit];
+	if (cDest) {
+		cPoint = [cDest point];
+		cZoom = [cDest zoom];
 	}
 	
-//	[pv layoutDocumentView];  // does not work, as the document is static in memory
-	[visRect scrollRectToVisible:saveRect];
-	// [updateDocumentLock unlock];
-	// } end if
-	// cancel old timer
-	// create new
+	// Regenerate PDFDocument with latest edits
+	PDFDocument* fullDoc = [[self document] pdfdocument];
 	
+	[CATransaction begin];
+	[CATransaction setValue:(id)kCFBooleanTrue
+					 forKey:kCATransactionDisableActions];
+	
+	[pv setDocument:fullDoc];
+	
+	[CATransaction commit];
+	
+	// Restore view state (stay on same page with same zoom/scroll)
+	if (selectedPage >= 0) {
+		PDFPage* targetPage = [fullDoc pageAtIndex:selectedPage];
+		if (targetPage) {
+			PDFDestination *nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:cPoint];
+			if (cZoom != kPDFDestinationUnspecifiedValue && cZoom > 0) {
+				nDest.zoom = cZoom;
+			}
+			[pv goToDestination:nDest];
+			[nDest release];
+		}
+	}
 }
-
-/*
-// why is this separate from updateCurrentPage
-- (void)updateDoc:(PDFDocument*)doc
+- (void)updatePDFView
 {
-	// [syntaxer colouriseRange:lineRange];
-
-	// probably a bad idea
-	// dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-	// maybe a better idea?
-//		dispatch_async(dispatch_get_main_queue(), ^{
-
+	if (selectedPage >= 0)
+	{
 		QPDFWindow* qwin = (QPDFWindow*)[self window];
 		QPDFView* pv = [qwin documentView];
-	
-		NSView* visRect = [[[[pv subviews] firstObject] subviews] firstObject];
-		NSRect saveRect = [visRect visibleRect];
-	
-	 [visRect scrollRectToVisible:saveRect];
-		[pv setDocument:doc];
-		[visRect scrollRectToVisible:saveRect];
-//	} );
 
+		// Save current view state (zoom and position) BEFORE any changes
+		PDFDestination* cDest = [pv currentDestination];
+		CGPoint cPoint = NSZeroPoint;
+		CGFloat cZoom = 1.0;
+		
+		if (cDest) {
+			cPoint = [cDest point];
+			cZoom = [cDest zoom];
+			NSLog(@"[updatePDFView] Saved state - Point: %@ zoom: %f", NSStringFromPoint(cPoint), cZoom);
+		}
+
+		// Check if the page number changed (not the document content)
+		BOOL pageChanged = (lastDisplayedPage != selectedPage);
+		lastDisplayedPage = selectedPage;
+
+		// Only set document if it's not set yet (first time)
+		// For document updates after edits, use documentChange: notification instead
+		if ([pv document] == nil) {
+			NSLog(@"[updatePDFView] Setting initial document");
+			PDFDocument* fullDoc = [[self document] pdfdocument];
+			
+			[CATransaction begin];
+			[CATransaction setValue:(id)kCFBooleanTrue
+							 forKey:kCATransactionDisableActions];
+			
+			[pv setDocument:fullDoc];
+			
+			[CATransaction commit];
+		}
+		
+		// Navigate to the selected page
+		PDFDocument* currentDoc = [pv document];
+		if (currentDoc) {
+			PDFPage* targetPage = [currentDoc pageAtIndex:selectedPage];
+			if (targetPage) {
+				NSLog(@"[updatePDFView] Going to page %ld (pageChanged: %d)", (long)selectedPage, pageChanged);
+				
+				// Create destination for the selected page
+				// If page changed, start at top (NSZeroPoint)
+				// If same page (just content edited), preserve the scroll position
+				PDFDestination *nDest;
+				if (pageChanged) {
+					// Page changed - start at top of new page
+					nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:NSZeroPoint];
+				} else {
+					// Same page, content edited - preserve scroll position
+					nDest = [[PDFDestination alloc] initWithPage:targetPage atPoint:cPoint];
+				}
+				
+				// Always preserve zoom level
+				if (cZoom != kPDFDestinationUnspecifiedValue && cZoom > 0) {
+					nDest.zoom = cZoom;
+				}
+				
+				[pv goToDestination:nDest];
+				[nDest release];
+			}
+		}
+	}
 }
-*/
+
 
 // This notification is sent when enter is pressed after editing a text cell
 - (void)textDidEndEditing:(NSNotification*)aNotification {
@@ -657,14 +851,78 @@ void printView (NSView* n)
 		selectedColumn = [selectedView editedColumn];
 		selectedHandle = [selectedView itemAtRow:selectedRow];
 		
+		// Safety check: if selectedView or selectedHandle is nil, bail out
+		if (!selectedView || !selectedHandle) {
+			NSLog(@"Warning: selectedView or selectedHandle is nil, skipping update");
+			return;
+		}
+		
 	//	NSLog(@"selected Node: %@",selectedHandle);
 		
 		NSString * editor = [[fieldEditor textStorage] string];
 		
 		NSLog(@"Changed to: %@",editor);
 		
-		[self changeText:selectedView with:editor];  // why is this needed?
+		// Get the current value to compare
+		NSString* currentValue = nil;
+		@try {
+			if (selectedColumn == 0) {
+				// Name column
+				currentValue = [selectedHandle elementName];
+			} else if (selectedColumn == 2) {
+				// Value column
+				currentValue = [selectedHandle unparse];
+			}
+		} @catch (NSException *exception) {
+			NSLog(@"Exception getting current value: %@", exception);
+			return;
+		}
 		
+		// Only process if the value actually changed
+		if (currentValue && [editor isEqualToString:currentValue]) {
+			NSLog(@"Value unchanged, skipping update");
+			return;
+		}
+		
+		// Additional safety check before calling changeText
+		if (!selectedView || !selectedHandle) {
+			NSLog(@"Warning: selectedView or selectedHandle became nil, skipping update");
+			return;
+		}
+		
+		// Debug logging to see what we're passing
+		NSLog(@">>> About to call changeText - selectedView: %p, editor: '%@'", selectedView, editor);
+		NSLog(@">>> selectedView class: %@, selectedHandle: %p", [selectedView class], selectedHandle);
+		
+		@try {
+			[self changeText:selectedView with:editor];  // why is this needed?
+			NSLog(@">>> changeText completed successfully");
+		} @catch (NSException *exception) {
+			NSLog(@"Exception in changeText: %@", exception);
+			return;
+		}
+		
+		// Refresh syntax highlighting after edit
+		// The text view content has been updated via QPDFUpdateTextview notification,
+		// but we need to ensure syntax highlighting is reapplied
+		QPDFWindow* w = (QPDFWindow*)[self window];
+		NSString* currentText = [w.textView string];
+		if (currentText && [currentText length] > 0) {
+			NSRange visibleRange = [w.textView.layoutManager characterRangeForGlyphRange:
+				[w.textView.layoutManager glyphRangeForBoundingRect:w.scrollTextView.documentVisibleRect
+														inTextContainer:w.textView.textContainer]
+													   actualGlyphRange:NULL];
+			[syntaxer colouriseRange:visibleRange];
+		}
+		
+		// changeText already handles outline/textview updates and document change notification
+		// Return early to avoid accessing potentially invalidated objects
+		NSLog(@">>> Returning early from textDidEndEditing after changeText");
+		[[self document] updateChangeCount:NSChangeDone];
+		[self setDocumentEdited:YES];
+		return;
+		
+		// The code below is now unreachable - changeText handles everything
 		// refresh outline, refreshPDF, documentChange
 	//	NSLog(@"reloading: %@",selectedHandle);
 		// post NSNotification
@@ -700,11 +958,17 @@ void printView (NSView* n)
 	[syntaxer colouriseRange:glyphRange];
 }
 
-- (void)selectChangeNotification:(NSNotification*)nn
+- (void)selectChangeNotification:(NSNotification*)notification
 {
-	// NSLog(@"changeNotification: %@ UI:%@",nn,[nn userInfo]);
-	QPDFOutlineView* sv = [nn object];
+	NSDate *notificationStartTime = [NSDate date];
+	NSLog(@">>> [QPDFWindowController selectChangeNotification:%@] [NSNotification %@]",notification,[notification object]);
+	
+	QPDFOutlineView* sv = (QPDFOutlineView*)[notification object];
+	
 	[self selectRow:[sv selectedRow] forSource:sv];
+	
+	NSTimeInterval notificationTime = [[NSDate date] timeIntervalSinceDate:notificationStartTime];
+	NSLog(@"⏱ [selectChangeNotification] TOTAL: %.3f seconds", notificationTime);
 }
 
 - (void)selectObject:(id)sender
@@ -715,6 +979,8 @@ void printView (NSView* n)
 	[self selectRow:[evv selectedRow] forSource:evv];
 }
 
+// Old method for changing text view font - commented out to avoid conflict with font panel
+/*
 -(void)changeFont:(id)sender
 {
 //	NSLog(@"changing font: %@",sender);
@@ -724,15 +990,16 @@ void printView (NSView* n)
 	
 //	NSLog(@"changing font: %@",[fm selectedFont]);  // why is this nil?
 	
-	NSFont* tf = [win textFont];
-	NSLog(@"old font: %@",tf);
-	if (tf) {
-		NSFont* nf = [fm convertFont:tf];
-		NSLog(@"new font: %@",nf);
-
-		[win setFont:nf];
-	}
+			NSFont* tf = [win textFont];
+			NSLog(@"old font: %@",tf);
+			if (tf) {
+				NSFont* nf = [fm convertFont:tf];
+				NSLog(@"new font: %@",nf);
+	
+				[win setTextFont:nf];
+			}
 }
+*/
 
 -(void)exportText:(id)sender
 {
@@ -744,6 +1011,20 @@ void printView (NSView* n)
 	
 	if ([qpdf isStream]) {
 		fileData = [qpdf stream];
+		if (!fileData) {
+			// Decoding failed (e.g. DCTDecode not supported by QPDF).
+			// Try getting the raw stream data (e.g. the JPEG file itself).
+			fileData = [qpdf rawStream];
+			
+			if (!fileData) {
+				NSAlert *alert = [[[NSAlert alloc] init] autorelease];
+				[alert setMessageText:@"Export Failed"];
+				[alert setInformativeText:@"Could not retrieve stream data (decoded or raw). The stream might be corrupted."];
+				[alert addButtonWithTitle:@"OK"];
+				[alert runModal];
+				return;
+			}
+		}
 	} else {
 		fileData= [[qpdf unparseResolved] dataUsingEncoding:NSMacOSRomanStringEncoding];
 	}
@@ -773,41 +1054,168 @@ void printView (NSView* n)
 
 - (void)insertFont:(id)sender
 {
-	if (selectedPage >= 0)
-	{
-		// NSLog(@"we are here:\n%@",[NSThread callStackSymbols]);  // remember this for next time so you don't have to go searching the internet
-		// NSLog(@"selected view is a: %@",[self.selectedView className]);
+	NSInteger tag = [sender tag];
+	NSString* sz = [[QPDFMenu standardFonts] objectAtIndex:tag];
 	
+	if (sz)
+	{
 		NSLog(@"WC -> insertFont: %@",sender);
-		
-		NSMenuItem* nmi = (NSMenuItem*)sender;
-		
-		NSString * sz =[[QPDFMenu standardFonts] objectAtIndex:[nmi tag]];
-		
-		//	NSLog(@"Page size selected: %ld",(long)[nmi tag]);
-		NSLog(@"font : %@", sz);
-		//	NSLog(@"selected Page: %lu",self.selectedPage);
+		// NSLog(@"WC -> insertFont: %@",sz);
+		// NSLog(@"WC -> insertFont: %ld",self.selectedPage);
 		
 		// - (void)addStandardFont:(NSString*)fontName toPage:(NSInteger)pageNumber;
-
-		[(QPDFDocument*)[self document] addStandardFont:sz toPage:self.selectedPage];
-
 		
-		// [[self document] setSize:sz forPage:self.selectedPage];
-		//[self updateCurrentPage];
+		[(QPDFDocument*)[self document] addStandardFont:sz toPage:self.selectedPage];
+		
+		// Reload the outline view to show the new font
 		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:nil];
-		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+	}
+}
 
+- (void)insertColorSpace:(id)sender
+{
+	NSInteger tag = [sender tag];
+	
+	NSLog(@"WC -> insertColorSpace: tag=%ld", (long)tag);
+	
+	[(QPDFDocument*)[self document] addColorSpace:tag toPage:self.selectedPage];
+	
+	// Reload the outline view to show the new ColorSpace
+	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+	
+	// Update text view if page is currently displayed
+	if (selectedHandle) {
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
+	}
+}
+
+- (void)insertExtGState:(id)sender
+{
+	NSInteger tag = [sender tag];
+	
+	NSLog(@"WC -> insertExtGState: tag=%ld", (long)tag);
+	
+	[(QPDFDocument*)[self document] addExtGState:tag toPage:self.selectedPage];
+	
+	// Reload the outline view to show the new ExtGState
+	[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+	[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+	
+	// Update text view if page is currently displayed
+	if (selectedHandle) {
+		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
 	}
 }
 
 - (void)insertFontFile:(id)sender
 {
+	if (selectedPage >= 0)
+	{
+		// Use the system font panel to select a font
+		NSFontManager *fontManager = [NSFontManager sharedFontManager];
+		NSFontPanel *fontPanel = [fontManager fontPanel:YES];
+		
+		// Set a default font
+		NSFont *currentFont = [NSFont systemFontOfSize:12.0];
+		[fontManager setSelectedFont:currentFont isMultiple:NO];
+		
+		// Store the page number for the callback
+		[[NSUserDefaults standardUserDefaults] setInteger:selectedPage forKey:@"FontEmbedPageNumber"];
+		
+		// Set this controller as the target for font changes
+		[fontManager setTarget:self];
+		[fontManager setAction:@selector(changeFont:)];
+		
+		// Show the font panel
+		[fontPanel makeKeyAndOrderFront:nil];
+		
+		NSLog(@">>> Font panel opened - select a font and it will be embedded");
+	}
+}
 
-	// file dialog
-	// data from file
-	// stream from data
-	// insert into indirect
+// Called when user selects a font from the font panel
+- (void)changeFont:(id)sender
+{
+	NSFontManager *fontManager = sender;
+	NSFont *selectedFont = [fontManager convertFont:[fontManager selectedFont]];
+	
+	if (!selectedFont) {
+		NSLog(@">>> No font selected");
+		return;
+	}
+	
+	NSInteger pageNum = [[NSUserDefaults standardUserDefaults] integerForKey:@"FontEmbedPageNumber"];
+	
+	NSLog(@">>> Embedding font: %@ on page %ld", [selectedFont fontName], (long)pageNum);
+	
+	// Get the font file path - we need to find where this system font is located
+	// For system fonts, we'll use a different approach - embed directly from NSFont
+	NSError *error = nil;
+	BOOL success = [(QPDFDocument*)[self document] addSystemFont:selectedFont
+														   toPage:pageNum
+															error:&error];
+	
+	if (success) {
+		NSLog(@"Font embedded successfully");
+		
+		// Reload the outline view to show the new font
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil];
+		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+		
+		// Close the font panel
+		[[NSFontPanel sharedFontPanel] orderOut:nil];
+	} else {
+		// Show error alert
+		NSAlert *alert = [[NSAlert alloc] init];
+		[alert setMessageText:@"Font Embedding Failed"];
+		[alert setInformativeText:error ? [error localizedDescription] : @"Unknown error"];
+		[alert addButtonWithTitle:@"OK"];
+		[alert runModal];
+		[alert release];
+	}
+}
+
+- (void)insertXObject:(id)sender
+{
+	if (selectedPage >= 0)
+	{
+		NSOpenPanel* panel = [NSOpenPanel openPanel];
+		[panel setCanChooseFiles:YES];
+		[panel setCanChooseDirectories:NO];
+		[panel setAllowsMultipleSelection:NO];
+		if (@available(macOS 11.0, *)) {
+			[panel setAllowedContentTypes:@[UTTypeJPEG, UTTypePNG, UTTypeTIFF]];
+		}
+		
+		[panel beginSheetModalForWindow:[self window] completionHandler:^(NSModalResponse result) {
+			if (result == NSModalResponseOK)
+			{
+				NSURL* url = [panel URL];
+				if (url)
+				{
+					[(QPDFDocument*)[self document] insertImage:[url path] onPage:self.selectedPage];
+					
+					// Force a full reload of the outlines to show the new object and the updated page structure
+					// Passing nil triggers reloadData, which now preserves expansion state.
+					[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:@{@"reloadChildren":@(YES)}];
+					
+					// Also refresh the document view
+					[documentCenter postNotificationName:@"QPDFUpdateDocument" object:nil];
+				}
+			}
+		}];
+	}
+}
+
+- (void)performFindPanelAction:(id)sender
+{
+	[[(QPDFWindow*)[self window] textView] performTextFinderAction:sender];
+}
+
+- (void)performTextFinderAction:(id)sender
+{
+	[[(QPDFWindow*)[self window] textView] performTextFinderAction:sender];
 }
 
 
@@ -824,11 +1232,63 @@ void printView (NSView* n)
 	
 	QPDFOutlineView* ov = self.selectedView;
 	
-	object_type_e type = (object_type_e)((NSMenuItem*)sender).tag;
+	QPDFObjectTypeEnum type = (QPDFObjectTypeEnum)((NSMenuItem*)sender).tag;
+
+	QPDFOutlineView* activeView = self.selectedView;
+	if ([sender isKindOfClass:[NSMenuItem class]] && [[sender representedObject] isKindOfClass:[QPDFOutlineView class]]) {
+		activeView = [sender representedObject];
+	}
 
 	//NSLog(@"before: %@",[selectedHandle text]);
 	
-	if ([[self document] addItemOfType:type toObject:selectedHandle])
+	ObjcQPDFObjectHandle* target = selectedHandle;
+	if (target == nil) {
+		// If in Object List (Tag 1), create new Indirect Object instead of adding to Root
+		if ([activeView relatedSegment].tag == 1) {
+			// Create the object first
+			ObjcQPDFObjectHandle* newobj = nil;
+			// We need a temporary parent or just create it?
+			// addItemOfType needs a parent to add to.
+			// Refactor: We should create the object first, then decide where to put it.
+			
+			// HACK: Use document helper to create the object instance directly
+			// But addItemOfType logic is inside QPDFDocument.
+			// Let's rely on QPDFDocument to create it, but we need a way to say "Don't add to parent".
+			
+			// Alternative: Create a dummy parent? No.
+			// We need to move the object creation logic out of addItemOfType or replicate it here.
+			
+			// Let's duplicate the creation logic here for this special case (safest change).
+			switch (type) {
+				case QPDFObjectTypeNull: newobj = [ObjcQPDFObjectHandle newNull]; break;
+				case QPDFObjectTypeBoolean: newobj = [ObjcQPDFObjectHandle newBool:NO]; break;
+				case QPDFObjectTypeInteger: newobj = [ObjcQPDFObjectHandle newInteger:0]; break;
+				case QPDFObjectTypeReal: newobj = [ObjcQPDFObjectHandle newReal:0.0]; break;
+				case QPDFObjectTypeString: newobj = [ObjcQPDFObjectHandle newString:@""]; break;
+				case QPDFObjectTypeName: newobj = [ObjcQPDFObjectHandle newName:@"/Name"]; break;
+				case QPDFObjectTypeArray: newobj = [ObjcQPDFObjectHandle newArray]; break;
+				case QPDFObjectTypeDictionary: newobj = [ObjcQPDFObjectHandle newDictionary]; break;
+				case QPDFObjectTypeStream:
+					newobj=[ObjcQPDFObjectHandle newStreamForQPDF:[[self document] doc] withString:@""];
+					break;
+				default: break;
+			}
+			
+			if (newobj) {
+				[[[self document] doc] makeIndirectObject:newobj];
+				// Full reload
+				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:@{@"reloadChildren":@(YES)}];
+				[[self document] updateChangeCount:NSChangeDone];
+				[self setDocumentEdited:YES];
+			}
+			[ov endUpdates];
+			return; // Done
+		}
+		
+		target = [[[self document] doc] copyTrailer];
+	}
+
+	if ([[self document] addItemOfType:type toObject:target])
 	{
 		//	NSLog(@"after: %@",[selectedHandle text]);
 		
@@ -840,7 +1300,11 @@ void printView (NSView* n)
 		NSDictionary* user = @{@"reloadChildren":@(YES)};
  
 		[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
-		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:selectedHandle userInfo:user];
+		
+		// Use object:nil to force full reload (for Flat View update)
+		// QPDFOutlineView now preserves expansion state, so this is safe.
+		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:user];
+		
 		[documentCenter postNotificationName:@"QPDFUpdateDocument" object:@(selectedPage)];
 
 //		toObj = [ov itemAtRow:[ov selectedRow]];
@@ -851,7 +1315,7 @@ void printView (NSView* n)
 		// I'm thinking another notification observer...
 		// should be something in selectedHandle to tell us.
 		[self setAddEnabled:[self canAddToSelectedObject]]; // i'm seeing a pattern here
-		[self setRemoveEnabled:[self isSelected]];
+		[self setRemoveEnabled:(selectedRow>0)];
 		
 		//documentChanged
 		[[self document] updateChangeCount:NSChangeDone];
@@ -917,35 +1381,41 @@ void printView (NSView* n)
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-	if (selectedPage == -1)
-	{
-		[menuItem setState:NSControlStateValueOff];
-		return NO;
-	}
-	// NSString* tt = [menuItem title];
+	SEL action = [menuItem action];
 	
-	ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
-	if (pageDict)
+	if (action == @selector(setProc:))
 	{
-		ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
-		if (res) {
-			ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
-			if (procset)
-			{
-				NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
-				for (int pe =0; pe < [procset count]; ++pe)
+		if (selectedPage == -1)
+		{
+			[menuItem setState:NSControlStateValueOff];
+			return NO;
+		}
+		// NSString* tt = [menuItem title];
+		
+		ObjcQPDFObjectHandle* pageDict = [(QPDFDocument*)[self document] pageObject:selectedPage];
+		if (pageDict)
+		{
+			ObjcQPDFObjectHandle* res = [pageDict objectForKey:@"/Resources"];
+			if (res) {
+				ObjcQPDFObjectHandle* procset = [res objectForKey:@"/ProcSet"];
+				if (procset)
 				{
-					ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
-					if ([menuName isEqualToString:[pse name]]) {
-						[menuItem setState:NSControlStateValueOn];
-						return YES;
+					NSString* menuName = [NSString stringWithFormat:@"/%@",[menuItem title]];
+					for (int pe =0; pe < [procset count]; ++pe)
+					{
+						ObjcQPDFObjectHandle* pse = [procset objectAtIndex:pe];
+						if ([menuName isEqualToString:[pse name]]) {
+							[menuItem setState:NSControlStateValueOn];
+							return YES;
+						}
 					}
+					
 				}
-				
 			}
 		}
+		[menuItem setState:NSControlStateValueOff];
+		return YES;
 	}
-	[menuItem setState:NSControlStateValueOff];
 	return YES;
 }
 
@@ -968,10 +1438,10 @@ void printView (NSView* n)
 	
 	[self updateOutlineAddRemove];
 	
-	NSLog(@"deleteRow: setEditText");
+	// NSLog(@"deleteRow: setEditText");
 	// NSNotification
-//	[self setEditText:[self textForSelectedObject]];
-//	NSLog(@"deleteRow: end setEditText");
+	// [self setEditText:[self textForSelectedObject]];
+	// NSLog(@"deleteRow: end setEditText");
 
 	// post NSNotification
 	[documentCenter postNotificationName:@"QPDFUpdateTextview" object:[selectedHandle text]];
@@ -985,11 +1455,12 @@ void printView (NSView* n)
 }
 
 // This should probably go into the QPDFDocument class.
-// this is only called from the Page Outline Add/Remove
+// this is only called from the Page Outline Add
+// Remove can be called from any of the 3 outlines
+
 - (void)addRemove:(id)sender
 {
 	// NSLog(@"add / Remove clicked");
-	
 	// other non menu add buttons events end up here
 	NSSegmentedControl* sc = (NSSegmentedControl*)sender;
 	
@@ -1004,7 +1475,6 @@ void printView (NSView* n)
 	if (selectedSegment == 1)  // remove
 	{
 		// silly question, but does the Document get a reference in this?
-
 		NSInteger osr = self.selectedRow;
 		ObjcQPDFObjectHandle* phandle = nil;
 		if (outlineTag == 0)
@@ -1015,9 +1485,8 @@ void printView (NSView* n)
 		[self deleteRow:osr forSource:sv];
 		// post NSNotification
 		[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:phandle userInfo:@{@"reloadChildren":@(YES)}];
-
 	}
-	else
+	else // add
 	{
 		if (outlineTag == 2) //page outline
 		{
@@ -1026,15 +1495,12 @@ void printView (NSView* n)
 			{
 				// NSLog(@"outline Page add... row: %ld",(long)selectedRow);
 				// add page
-				
 				if (selectedPage == -1)
 				{
 					[[self document] newPageAtEnd];
 					// post NSNotification
-
 				} else {
 					// post NSNotification... below
-
 					// ObjcQPDFObjectHandle* existingPage = [(QPDFDocument*)[self document] pageAtIndex];
 					// what if the selected handle isn't a page?
 					[[self document] newPageBeforePageNumber:selectedPage];
@@ -1042,7 +1508,6 @@ void printView (NSView* n)
 				}
 				// post NSNotification
 				[documentCenter postNotificationName:@"QPDFUpdateOutlineview" object:nil userInfo:nil];
-
 			}
 		}
 	}
@@ -1068,11 +1533,14 @@ void printView (NSView* n)
 		// NSLog(@"delete... %@ %d",selectedView,selectedRow);
 		return YES;
 	}
+	
+	if (theAction == @selector(exportText:)) {
+		return (selectedView != nil && selectedRow >= 0);
+	}
+	
 	// return [super validateUserInterfaceItem:anItem];
 	return YES;
 }
-
-
 
 - (void)zoomAct:(id)sender
 {

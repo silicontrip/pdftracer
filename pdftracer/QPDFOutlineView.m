@@ -34,14 +34,36 @@
 		[self reloadItem:qp reloadChildren:rc];
 		// [self reloadItem:[qp parent] reloadChildren:rc];
 	} else {
+		// Save expansion state
+		NSMutableArray* expandedItems = [NSMutableArray array];
+		NSInteger rowCount = [self numberOfRows];
+		for (NSInteger i = 0; i < rowCount; i++) {
+			id item = [self itemAtRow:i];
+			if ([self isItemExpanded:item]) {
+				[expandedItems addObject:item];
+			}
+		}
+
+		if ([[self dataSource] respondsToSelector:@selector(refresh)]) {
+			[[self dataSource] performSelector:@selector(refresh)];
+		}
+
 		[self reloadData];
+		
+		// Restore expansion state
+		for (id item in expandedItems) {
+			[self expandItem:item];
+		}
 	}
 	
 }
 
 - (void)print:(id)sender
 {
-	[[self nextResponder] print:sender];
+	id nextR = [self nextResponder];
+	if ([nextR respondsToSelector:@selector(print:)]) {
+		[nextR print:sender];
+	}
 }
 
 - (BOOL)acceptsFirstResponder

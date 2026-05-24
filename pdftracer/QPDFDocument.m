@@ -7,12 +7,14 @@
 //
 
 #import "QPDFDocument.h"
+#import <CoreText/CoreText.h>
 
 #import "OutlineQPDF.h"
 #import "OutlineQPDFPage.h"
 #import "OutlineQPDFObj.h"
 #import "QPDFWindowController.h"
 #import "ObjcQPDF.h"
+#import "QPDFFontEmbedder.h"
 
 @implementation QPDFDocument
 
@@ -70,8 +72,10 @@
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError **)outError {
     // Insert code here to write your document to data of the specified type. If outError != NULL, ensure that you create and set an appropriate error if you return nil.
     // Alternatively, you could remove this method and override -fileWrapperOfType:error:, -writeToURL:ofType:error:, or -writeToURL:ofType:forSaveOperation:originalContentsURL:error: instead.
-	if ([typeName isEqualToString:@"QDF"])
-		return [qDocument qdf];
+
+	// this is only for objc++ code, which we are not.
+//	if ([typeName isEqualToString:@"PDF"])
+//		return [qDocument pdf];
 	
 	return [qDocument data];
 	
@@ -143,6 +147,8 @@
 	return [qDocument document];
 }
 
+
+// I'm wondering if this document is being released too soon..
 - (PDFDocument*)pdfDocumentPage:(NSUInteger)page
 {
 	ObjcQPDF* blank = [[[ObjcQPDF alloc] init] autorelease];
@@ -153,6 +159,18 @@
 		[blank addPageUsingHelper:pageObj atStart:YES];
 	return [blank document];
 }
+
+- (ObjcQPDF*)copyDocumentPage:(NSUInteger)page
+{
+	ObjcQPDF* blank = [[ObjcQPDF alloc] init];
+	//ObjcQPDF* doc = qDocument;
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:page];
+
+	if (pageObj)
+		[blank addPageUsingHelper:pageObj atStart:YES];
+	return blank;
+}
+
 
 - (ObjcQPDFObjectHandle*)pageObject:(NSUInteger)page
 {
@@ -171,8 +189,8 @@
 	[printInfo setBottomMargin:0.0];
 	[printInfo setLeftMargin:0.0];
 	[printInfo setRightMargin:0.0];
-	[printInfo setHorizontalPagination:NSFitPagination];
-	[printInfo setVerticalPagination:NSFitPagination];
+	[printInfo setHorizontalPagination:NSPrintingPaginationModeFit];
+	[printInfo setVerticalPagination:NSPrintingPaginationModeFit];
 	
 // Grab the returned print operation.
 	return [[qDocument document] printOperationForPrintInfo:printInfo scalingMode:scale autoRotate:YES];
@@ -201,6 +219,356 @@
 		[pageResource replaceObject:fontResource forKey:@"/Font"];
 		[pageObj replaceObject:pageResource forKey:@"/Resources"];
 		
+	}
+}
+
+- (ObjcQPDFObjectHandle*)createCalRGBColorSpace
+{
+	// [/CalRGB << /WhitePoint [0.9505 1.0 1.089] >>]
+	ObjcQPDFObjectHandle* array = [ObjcQPDFObjectHandle newArray];
+	[array addObject:[ObjcQPDFObjectHandle nameWith:@"/CalRGB"]];
+	
+	ObjcQPDFObjectHandle* dict = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* whitePoint = [ObjcQPDFObjectHandle newArray];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:0.9505]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.0]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.089]];
+	[dict replaceObject:whitePoint forKey:@"/WhitePoint"];
+	
+	[array addObject:dict];
+	return [array autorelease];
+}
+
+- (ObjcQPDFObjectHandle*)createCalGrayColorSpace
+{
+	// [/CalGray << /WhitePoint [0.9505 1.0 1.089] >>]
+	ObjcQPDFObjectHandle* array = [ObjcQPDFObjectHandle newArray];
+	[array addObject:[ObjcQPDFObjectHandle nameWith:@"/CalGray"]];
+	
+	ObjcQPDFObjectHandle* dict = [ObjcQPDFObjectHandle newDictionary];
+	ObjcQPDFObjectHandle* whitePoint = [ObjcQPDFObjectHandle newArray];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:0.9505]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.0]];
+	[whitePoint addObject:[ObjcQPDFObjectHandle newReal:1.089]];
+	[dict replaceObject:whitePoint forKey:@"/WhitePoint"];
+	
+	[array addObject:dict];
+	return [array autorelease];
+}
+
+- (void)addColorSpace:(NSInteger)colorSpaceType toPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		// Get or create Resources dictionary
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil)
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Get or create ColorSpace dictionary
+		ObjcQPDFObjectHandle* csResource = [pageResource objectForKey:@"/ColorSpace"];
+		if (csResource == nil)
+			csResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Create ColorSpace object based on type
+		ObjcQPDFObjectHandle* csObj = nil;
+		switch (colorSpaceType) {
+			case 0: // DeviceRGB
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"];
+				break;
+			case 1: // DeviceCMYK
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceCMYK"];
+				break;
+			case 2: // DeviceGray
+				csObj = [ObjcQPDFObjectHandle nameWith:@"/DeviceGray"];
+				break;
+			case 3: // CalRGB
+				csObj = [self createCalRGBColorSpace];
+				break;
+			case 4: // CalGray
+				csObj = [self createCalGrayColorSpace];
+				break;
+		}
+		
+		if (csObj) {
+			[QPDFDocument addObject:csObj to:csResource];
+			[pageResource replaceObject:csResource forKey:@"/ColorSpace"];
+			[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		}
+	}
+}
+
+- (void)addExtGState:(NSInteger)extGStateType toPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		// Get or create Resources dictionary
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil)
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Get or create ExtGState dictionary
+		ObjcQPDFObjectHandle* gsResource = [pageResource objectForKey:@"/ExtGState"];
+		if (gsResource == nil)
+			gsResource = [ObjcQPDFObjectHandle dictionaryObject];
+		
+		// Create ExtGState dictionary
+		ObjcQPDFObjectHandle* gsDict = [ObjcQPDFObjectHandle newDictionary];
+		[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/ExtGState"] forKey:@"/Type"];
+		
+		switch (extGStateType) {
+			case 0: // Multiply
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Multiply"] forKey:@"/BM"];
+				break;
+			case 1: // Screen
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Screen"] forKey:@"/BM"];
+				break;
+			case 2: // Overlay
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Overlay"] forKey:@"/BM"];
+				break;
+			case 3: // Darken
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Darken"] forKey:@"/BM"];
+				break;
+			case 4: // Lighten
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Lighten"] forKey:@"/BM"];
+				break;
+			case 5: // 50% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/CA"];
+				break;
+			case 6: // 75% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.75] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.75] forKey:@"/CA"];
+				break;
+			case 7: // 25% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.25] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.25] forKey:@"/CA"];
+				break;
+			case 8: // Multiply + 50% Opacity
+				[gsDict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Multiply"] forKey:@"/BM"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/ca"];
+				[gsDict replaceObject:[ObjcQPDFObjectHandle newReal:0.5] forKey:@"/CA"];
+				break;
+		}
+		
+		[QPDFDocument addObject:gsDict to:gsResource];
+		[pageResource replaceObject:gsResource forKey:@"/ExtGState"];
+		[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		[gsDict autorelease];
+	}
+}
+
+- (BOOL)addFontFromFile:(NSString*)fontPath toPage:(NSInteger)pageNumber error:(NSError**)error
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj == nil) {
+		if (error) {
+			*error = [NSError errorWithDomain:@"QPDFErrorDomain" code:1 
+									 userInfo:@{NSLocalizedDescriptionKey: @"Invalid page number"}];
+		}
+		return NO;
+	}
+	
+	NSString *fontName = [QPDFFontEmbedder embedFontFromFile:fontPath 
+													  inQPDF:qDocument 
+													  toPage:pageObj 
+													   error:error];
+	return (fontName != nil);
+}
+
+- (BOOL)addSystemFont:(NSFont*)font toPage:(NSInteger)pageNumber error:(NSError**)error
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj == nil) {
+		if (error) {
+			*error = [NSError errorWithDomain:@"QPDFErrorDomain" code:1 
+									 userInfo:@{NSLocalizedDescriptionKey: @"Invalid page number"}];
+		}
+		return NO;
+	}
+	
+	NSString *fontName = [QPDFFontEmbedder embedSystemFont:font 
+													 inQPDF:qDocument 
+													 toPage:pageObj 
+													  error:error];
+	return (fontName != nil);
+}
+
+- (void)insertImage:(NSString*)path onPage:(NSInteger)pageNumber
+{
+	ObjcQPDFObjectHandle* pageObj = [qDocument pageAtIndex:pageNumber];
+	if (pageObj != nil)
+	{
+		NSData* fileData = [NSData dataWithContentsOfFile:path];
+		if (!fileData) return;
+		
+		NSBitmapImageRep *rep = [NSBitmapImageRep imageRepWithData:fileData];
+		if (!rep) return;
+		
+		NSInteger width = [rep pixelsWide];
+		NSInteger height = [rep pixelsHigh];
+		NSInteger bitsPerComponent = [rep bitsPerSample];
+		NSInteger samplesPerPixel = [rep samplesPerPixel];
+		
+		// Check if it's a JPEG file (pass through as-is)
+		BOOL isJPEG = NO;
+		if (fileData.length > 2) {
+			const uint8_t *bytes = (const uint8_t*)fileData.bytes;
+			if (bytes[0] == 0xFF && bytes[1] == 0xD8) {
+				isJPEG = YES;
+			}
+		}
+
+		ObjcQPDFObjectHandle* imageStream = [ObjcQPDFObjectHandle newStreamForQPDF:qDocument];
+		ObjcQPDFObjectHandle* dict = [imageStream streamDictionary];
+
+		if (isJPEG) {
+			// JPEG Pass-through: Set data directly, set filter manually
+			NSLog(@">>> Inserting JPEG image (pass-through): %ldx%ld", (long)width, (long)height);
+			[imageStream replaceStreamData:fileData filter:nil];
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DCTDecode"] forKey:@"/Filter"];
+		} else {
+			// PNG/TIFF: Extract raw bitmap data - QPDF will auto-compress with Flate
+			NSLog(@">>> Inserting lossless image: %ldx%ld, %ld bpc, %ld spp", 
+				  (long)width, (long)height, (long)bitsPerComponent, (long)samplesPerPixel);
+			
+			// Check if the bitmap is planar (not supported by PDF directly)
+			BOOL isPlanar = [rep isPlanar];
+			NSLog(@">>> Bitmap format - Planar: %d, BytesPerRow: %ld, BitsPerPixel: %ld", 
+				  isPlanar, (long)[rep bytesPerRow], (long)[rep bitsPerPixel]);
+			
+			if (isPlanar) {
+				NSLog(@">>> ERROR: Planar images not supported");
+				[imageStream autorelease];
+				return;
+			}
+			
+			// Get raw bitmap data
+			unsigned char *bitmapData = [rep bitmapData];
+			if (!bitmapData) {
+				NSLog(@">>> ERROR: Could not get bitmap data");
+				[imageStream autorelease];
+				return;
+			}
+			
+			// Determine the actual color space and samples per pixel
+			NSInteger actualSamplesPerPixel = samplesPerPixel;
+			NSString *colorSpace = @"/DeviceRGB";
+			BOOL hasAlpha = [rep hasAlpha];
+			
+			NSLog(@">>> Has alpha: %d", hasAlpha);
+			
+			// PDF expects RGB (3 samples) or Gray (1 sample) without alpha
+			// If we have alpha, we need to strip it or handle it separately
+			NSData *rawData = nil;
+			
+			if (samplesPerPixel == 1) {
+				// Grayscale - use as-is
+				colorSpace = @"/DeviceGray";
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				NSInteger dataSize = bytesPerRow * height;
+				rawData = [NSData dataWithBytes:bitmapData length:dataSize];
+				actualSamplesPerPixel = 1;
+			} else if (samplesPerPixel == 3) {
+				// RGB without alpha - use as-is
+				colorSpace = @"/DeviceRGB";
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				NSInteger dataSize = bytesPerRow * height;
+				rawData = [NSData dataWithBytes:bitmapData length:dataSize];
+				actualSamplesPerPixel = 3;
+			} else if (samplesPerPixel == 4 && hasAlpha) {
+				// RGBA - need to strip alpha channel
+				NSLog(@">>> Stripping alpha channel from RGBA image");
+				colorSpace = @"/DeviceRGB";
+				actualSamplesPerPixel = 3;
+				
+				NSMutableData *rgbData = [NSMutableData dataWithCapacity:width * height * 3];
+				NSInteger bytesPerRow = [rep bytesPerRow];
+				
+				for (NSInteger y = 0; y < height; y++) {
+					unsigned char *rowPtr = bitmapData + (y * bytesPerRow);
+					for (NSInteger x = 0; x < width; x++) {
+						unsigned char *pixel = rowPtr + (x * 4);
+						// Copy RGB, skip A
+						[rgbData appendBytes:pixel length:3];
+					}
+				}
+				rawData = rgbData;
+			} else {
+				// Unsupported format - try to convert
+				NSLog(@">>> WARNING: Unusual pixel format (%ld spp), attempting conversion", (long)samplesPerPixel);
+				colorSpace = @"/DeviceRGB";
+				actualSamplesPerPixel = 3;
+				
+				// Use NSBitmapImageRep to convert to standard RGB
+				NSBitmapImageRep *rgbRep = [[NSBitmapImageRep alloc] 
+					initWithBitmapDataPlanes:NULL
+					pixelsWide:width
+					pixelsHigh:height
+					bitsPerSample:8
+					samplesPerPixel:3
+					hasAlpha:NO
+					isPlanar:NO
+					colorSpaceName:NSDeviceRGBColorSpace
+					bytesPerRow:width * 3
+					bitsPerPixel:24];
+				
+				// Draw the original image into the new representation
+				[NSGraphicsContext saveGraphicsState];
+				NSGraphicsContext *ctx = [NSGraphicsContext graphicsContextWithBitmapImageRep:rgbRep];
+				[NSGraphicsContext setCurrentContext:ctx];
+				[rep drawInRect:NSMakeRect(0, 0, width, height)];
+				[NSGraphicsContext restoreGraphicsState];
+				
+				rawData = [NSData dataWithBytes:[rgbRep bitmapData] length:width * height * 3];
+				[rgbRep release];
+			}
+			
+			NSLog(@">>> Final data size: %lu bytes for %ldx%ld image (%@ colorspace)", 
+				  (unsigned long)[rawData length], (long)width, (long)height, colorSpace);
+			
+			// Pass raw uncompressed data with NO filter
+			// QPDF will automatically compress it with FlateDecode when writing the PDF
+			[imageStream replaceStreamData:rawData filter:nil];
+			
+			// Update samples per pixel for the actual data we're storing
+			samplesPerPixel = actualSamplesPerPixel;
+			
+			// Set the color space
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:colorSpace] forKey:@"/ColorSpace"];
+		}
+		
+		// Set image dictionary properties
+		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/XObject"] forKey:@"/Type"];
+		[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/Image"] forKey:@"/Subtype"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:width] forKey:@"/Width"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:height] forKey:@"/Height"];
+		[dict replaceObject:[ObjcQPDFObjectHandle newInteger:bitsPerComponent] forKey:@"/BitsPerComponent"];
+		
+		// ColorSpace is already set in the conditional logic above for non-JPEG images
+		// For JPEG, set it here
+		if (isJPEG) {
+			[dict replaceObject:[ObjcQPDFObjectHandle nameWith:@"/DeviceRGB"] forKey:@"/ColorSpace"];
+		}
+		
+		// Add to page resources
+		ObjcQPDFObjectHandle* pageResource = [pageObj objectForKey:@"/Resources"];
+		if (pageResource == nil) {
+			pageResource = [ObjcQPDFObjectHandle dictionaryObject];
+			[pageObj replaceObject:pageResource forKey:@"/Resources"];
+		}
+		
+		ObjcQPDFObjectHandle* xObjResource = [pageResource objectForKey:@"/XObject"];
+		if (xObjResource == nil) {
+			xObjResource = [ObjcQPDFObjectHandle dictionaryObject];
+			[pageResource replaceObject:xObjResource forKey:@"/XObject"];
+		}
+		
+		[QPDFDocument addObject:imageStream to:xObjResource];
+		
+		NSLog(@">>> Image inserted successfully");
 	}
 }
 
@@ -255,7 +623,7 @@
 	NSString * fn = [qDocument filename];
 	if ([fn isEqualToString:@"empty PDF"])
 		return @"Untitled";
-	
+
 	return [fn lastPathComponent];
 }
 
@@ -375,7 +743,6 @@
 	{
 		[container addObject:obj];
 	} else if ([container isDictionary]) {
-		//TODO: find unique name
 		NSString* uniqueName = @"/Untitled";
 		int version=1;
 		ObjcQPDFObjectHandle* found = [container objectForKey:uniqueName];
@@ -391,37 +758,55 @@
 	
 }
 
-- (BOOL)addItemOfType:(object_type_e)type toObject:(ObjcQPDFObjectHandle*)obj
+/*
+ typedef NS_ENUM(NSInteger, QPDFObjectTypeEnum) {
+ QPDFObjectTypeUninitialized = 0,
+ QPDFObjectTypeReserved = 1,
+ QPDFObjectTypeNull = 2,
+ QPDFObjectTypeBoolean = 3,
+ QPDFObjectTypeInteger = 4,
+ QPDFObjectTypeReal = 5,
+ QPDFObjectTypeString = 6,
+ QPDFObjectTypeName = 7,
+ QPDFObjectTypeArray = 8,
+ QPDFObjectTypeDictionary = 9,
+ QPDFObjectTypeStream = 10,
+ QPDFObjectTypeOperator = 11,
+ QPDFObjectTypeInlineImage = 12
+ };
+ */
+
+- (BOOL)addItemOfType:(QPDFObjectTypeEnum)type toObject:(ObjcQPDFObjectHandle*)obj
 {
 	ObjcQPDFObjectHandle* newobj = nil;
 	// if adding to dictionary auto highlight edit /Name
 	// if adding to array auto highlight edit value
 	switch (type) {
-		case ot_null:
+		case QPDFObjectTypeNull:
 			newobj = [ObjcQPDFObjectHandle newNull];
 			break;;
-		case ot_boolean:
+		case QPDFObjectTypeBoolean:
 			newobj=[ObjcQPDFObjectHandle newBool:NO];
 			break;;
-		case ot_integer:
+		case QPDFObjectTypeInteger:
 			newobj=[ObjcQPDFObjectHandle newInteger:0];
 			break;;
-		case ot_real:
+		case QPDFObjectTypeReal:
 			newobj=[ObjcQPDFObjectHandle newInteger:0.0];
 			break;;
-		case ot_string:
+		case QPDFObjectTypeString:
 			newobj=[ObjcQPDFObjectHandle newString:@""];
 			break;;
-		case ot_name:
+		case QPDFObjectTypeName:
 			newobj=[ObjcQPDFObjectHandle newName:@"/Name"];
 			break;;
-		case ot_array:
+		case QPDFObjectTypeArray:
 			newobj=[ObjcQPDFObjectHandle newArray];
 			break;;
-		case ot_dictionary:
+		case QPDFObjectTypeDictionary:
 			newobj=[ObjcQPDFObjectHandle newDictionary];
 			break;;
-		case ot_stream:
+		case QPDFObjectTypeStream:
 			//NSLog(@"creating stream");
 			newobj=[ObjcQPDFObjectHandle newStreamForQPDF:qDocument withString:@""];
 			break;
@@ -444,10 +829,8 @@
 	//ObjcQPDFObjectHandle* mbox = [[ObjcQPDFObjectHandle newArray] autorelease];
 	ObjcQPDFObjectHandle* type = [ObjcQPDFObjectHandle nameWith:@"/Page"];
 	ObjcQPDFObjectHandle* resources = [[ObjcQPDFObjectHandle newDictionary] autorelease];
-	ObjcQPDFObjectHandle* proc = [[ObjcQPDFObjectHandle newArray] autorelease];
 	
-	[proc addObject:[ObjcQPDFObjectHandle nameWith:@"/PDF"]]; // hmm wonder why the / isn't automatically added
-	[resources replaceObject:proc forKey:@"/ProcSet"];
+	// Note: /ProcSet is deprecated as of PDF 1.4 and has been removed
 	
 	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
 	//	[mbox addObject:[ObjcQPDFObjectHandle intWith:0]];
@@ -525,9 +908,8 @@
 			NSString* gen = [nd objectGenerationID];
 			[qDocument removeID:gen];
 			[self updateChangeCount:NSChangeDone];
-
 		}
-
+		//TODO: handle deleting top level object
 	}
 }
 

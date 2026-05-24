@@ -15,10 +15,11 @@
 
 @interface QPDFWindowController : NSWindowController <NSTextViewDelegate, NSUserInterfaceValidations>
 {
+	/*
 	OutlineQPDF* pdfDS;
 	OutlineQPDFPage* pageDS;
 	OutlineQPDFObj* objDS;
-	
+	*/
 	NSLayoutManager* layout;
 	NSTextStorage *textStore;
 	
@@ -26,12 +27,14 @@
 	NSNotificationCenter* documentCenter;  // really want to call this Centre
 	NSLock* updateDocumentLock;
 	unsigned long lastUpdate;
+	NSTimer* syntaxHighlightTimer;  // Debounced timer for syntax highlighting
+	NSInteger lastDisplayedPage;  // Track which page is currently displayed to detect page changes
 }
 @property (assign) NSInteger selectedRow;
 @property (assign) NSInteger selectedColumn;
-@property (nonatomic) QPDFOutlineView* selectedView;
+@property (nonatomic,assign) QPDFOutlineView* selectedView;
 //@property (weak,nonatomic) ObjcQPDFObjectHandle* selectedNode;
-@property (nonatomic) ObjcQPDFObjectHandle* selectedHandle;
+@property (nonatomic,strong) ObjcQPDFObjectHandle* selectedHandle;
 @property (assign) NSInteger selectedPage;  // unselected sentinel is -1
 
 - (instancetype)initWithWindow:(QPDFWindow*)nsw notificationCenter:(NSNotificationCenter*)centre;

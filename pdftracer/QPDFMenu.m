@@ -42,7 +42,7 @@
 ** A2 lady grey 5.7 x 4.4
 ** A9 diplomat 8.7 x 5.7
  
- */
+*/
 
 @implementation QPDFMenu
 
@@ -127,6 +127,11 @@
 		[fileMenu setAutoenablesItems:YES];
 		[fileMenu setTitle:@"File"];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"New" keyEquiv:@"n" modifier:cmd selector:@"newDocument:"]];
+		[fileMenu addItem:[NSMenuItem separatorItem]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Add Stream..." keyEquiv:@"a" modifier:cmd|opt selector:@"openStream:"]];
+		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Save Stream..." selector:@"exportText:"]];
+
+		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Open..." keyEquiv:@"o" modifier:cmd selector:@"openDocument:"]];
 		[fileMenu addItem:[NSMenuItem separatorItem]];
 		[fileMenu addItem:[QPDFMenu itemWithTitle:@"Close" keyEquiv:@"w" modifier:cmd selector:@"performClose"]];
@@ -141,11 +146,11 @@
 		
 		NSMenu* findMenu = [[NSMenu new] autorelease];
 		[findMenu setAutoenablesItems:YES];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find..." keyEquiv:@"f" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find and Replace..." keyEquiv:@"f" modifier:cmd|opt selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Next" keyEquiv:@"g" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Previous" keyEquiv:@"G" modifier:cmd selector:@"performFindPanelAction:"]];
-		[findMenu addItem:[QPDFMenu itemWithTitle:@"Use Selection for Find" keyEquiv:@"e" modifier:cmd selector:@"performFindPanelAction:"]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find..." keyEquiv:@"f" modifier:cmd selector:@"performFindPanelAction:" tag:1]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find and Replace..." keyEquiv:@"f" modifier:cmd|opt selector:@"performFindPanelAction:" tag:12]]; // 12 = ShowReplace
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Next" keyEquiv:@"g" modifier:cmd selector:@"performFindPanelAction:" tag:2]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Find Previous" keyEquiv:@"G" modifier:cmd selector:@"performFindPanelAction:" tag:3]];
+		[findMenu addItem:[QPDFMenu itemWithTitle:@"Use Selection for Find" keyEquiv:@"e" modifier:cmd selector:@"performFindPanelAction:" tag:7]];
 		[findMenu addItem:[QPDFMenu itemWithTitle:@"Jump to Selection" keyEquiv:@"j" modifier:cmd selector:@"centerSelectioninVisibleArea:"]];
 
 		
@@ -174,7 +179,7 @@
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Cut" keyEquiv:@"x" modifier:cmd selector:@"cut:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Copy" keyEquiv:@"c" modifier:cmd selector:@"copy:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Paste" keyEquiv:@"v" modifier:cmd selector:@"paste:"]]; // or maybe pasteAsPlainText:
-		[editMenu addItem:[QPDFMenu itemWithTitle:@"Delete"  keyEquiv:bkspace modifier:cmd selector:@"delete:"]];
+		[editMenu addItem:[QPDFMenu itemWithTitle:@"Delete" keyEquiv:bkspace modifier:cmd selector:@"delete:"]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Select All" keyEquiv:@"a" modifier:cmd selector:@"selectAll:"]];
 		[editMenu addItem:[NSMenuItem separatorItem]];
 		[editMenu addItem:[QPDFMenu itemWithTitle:@"Find" submenu:findMenu]];
@@ -217,23 +222,49 @@
 			[fontMenu addItem:[QPDFMenu itemWithTitle:fn selector:@"insertFont:" tag:fontTag++]];
 		
 		[fontMenu addItem:[NSMenuItem separatorItem]];
-		[fontMenu addItem:[QPDFMenu itemWithTitle:@"From File..."  selector:@"insertFontFile:"]];
+		[fontMenu addItem:[QPDFMenu itemWithTitle:@"System Font..."  selector:@"insertFontFile:"]];
 		
 		NSMenu* procMenu =[[NSMenu new] autorelease];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"PDF" selector:@"setProc:" tag:0]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"Text" selector:@"setProc:" tag:1]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageB" selector:@"setProc:" tag:2]];
 		[procMenu addItem:[QPDFMenu itemWithTitle:@"ImageC" selector:@"setProc:" tag:3]];
-		
+	
+		NSMenu* colorSpaceMenu = [[NSMenu new] autorelease];
+		[colorSpaceMenu setAutoenablesItems:YES];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceRGB" selector:@"insertColorSpace:" tag:0]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceCMYK" selector:@"insertColorSpace:" tag:1]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"DeviceGray" selector:@"insertColorSpace:" tag:2]];
+		[colorSpaceMenu addItem:[NSMenuItem separatorItem]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalRGB" selector:@"insertColorSpace:" tag:3]];
+		[colorSpaceMenu addItem:[QPDFMenu itemWithTitle:@"CalGray" selector:@"insertColorSpace:" tag:4]];
+	
+		NSMenu* extGStateMenu = [[NSMenu new] autorelease];
+		[extGStateMenu setAutoenablesItems:YES];
+		// Blend modes
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Multiply" selector:@"insertExtGState:" tag:0]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Screen" selector:@"insertExtGState:" tag:1]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Overlay" selector:@"insertExtGState:" tag:2]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Darken" selector:@"insertExtGState:" tag:3]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Lighten" selector:@"insertExtGState:" tag:4]];
+		[extGStateMenu addItem:[NSMenuItem separatorItem]];
+		// Opacity
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"50% Opacity" selector:@"insertExtGState:" tag:5]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"75% Opacity" selector:@"insertExtGState:" tag:6]];
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"25% Opacity" selector:@"insertExtGState:" tag:7]];
+		[extGStateMenu addItem:[NSMenuItem separatorItem]];
+		// Combined
+		[extGStateMenu addItem:[QPDFMenu itemWithTitle:@"Multiply + 50% Opacity" selector:@"insertExtGState:" tag:8]];
+	
 		NSMenu* resourceMenu = [[NSMenu new] autorelease];
 		//[resourceMenu setAutoenablesItems:YES];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:nil ]];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ColorSpace" submenu:colorSpaceMenu]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ExtGState" submenu:extGStateMenu]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Font" submenu:fontMenu ]];
 		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Pattern" submenu:nil ]];
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"ProcSet" submenu:procMenu ]];
+		// ProcSet removed - deprecated as of PDF 1.4
 
-		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"XObject" submenu:nil ]];
+		[resourceMenu addItem:[QPDFMenu itemWithTitle:@"Image" selector:@"insertXObject:" ]];
 
 		NSMenu* toolMenu = [[NSMenu new] autorelease];
 		[toolMenu setAutoenablesItems:YES];

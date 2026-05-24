@@ -70,7 +70,12 @@
 {
 	return NO;
 }
-
+/*
+** QPDFMenu custom application menu
+** QPDFDocumentController 
+** pdfApp
+** QPDFHelp
+*/
 int main (int argc, char * const argv[])
 {
 

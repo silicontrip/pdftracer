@@ -62,12 +62,14 @@
 		
 		// NSString *argName = @"/\\w+";
 		//NSString *argReal = @"[+-]?([0-9]*[.])?[0-9]+";
-		NSString *stringRe = @"\\((\\\\\\)|[^\\)])*\\)";
+		// Fixed: Match any escaped character (\\.) including \( and \), not just \\
+		// In Objective-C strings: \\\\ = one backslash in regex, so \\\\\\\\ = \\ in regex
+		NSString *stringRe = @"\\((\\\\\\\\.|[^\\)])*\\)";
 		NSString *hexRe = @"<[0-9A-Fa-f]+>";
 		NSString *arrayRe = @"\\[[^\\]]*\\]";
 		NSString *dictRe = @"<<[^>]*>>";
 		
-		NSString *innerStringRe = @"(?<=\\()(\\\\\\)|[^\\)])*(?=\\))";
+		NSString *innerStringRe = @"(?<=\\()(\\\\\\\\.|[^\\)])*(?=\\))";
 		NSString *innerHexRe = @"(?<=<)[0-9A-Fa-f]+(?=>)";
 		// NSString *innerArrayRe = @"(?<=\\[)[0-9A-Fa-f]+(?=\\])";
 		NSString *nameRe = @"/\\w+";
@@ -215,8 +217,15 @@
 }
 
 // hoping this one works better and doesn't crash.
+- (void)cancelColorization
+{
+	_shouldCancel = YES;
+}
+
 - (void)colouriseRangeThenAll:(NSRange)viewRange
 {
+	_shouldCancel = NO;  // Reset cancel flag for new colorization
+	
 	NSString* storageString = [[_asyncView textStorage] string];
 	NSRange all = NSMakeRange(0, [storageString length]);
 
@@ -228,6 +237,10 @@
 	} );
 	*/
 	[self colouriseQueueString:storageString forRange:viewRange];
+	if (_shouldCancel) {
+		NSLog(@"⏱ Colorization cancelled after visible range");
+		return;
+	}
 	[self colouriseQueueString:storageString forRange:all];
 	
 }
@@ -248,95 +261,131 @@
 {
 	NSAssert(searchText!=nil,@"searchText nil");
 	
-	NSMutableArray<Colourise*>* colourInstruct = [NSMutableArray arrayWithCapacity:16];
+	// Capture current cancel state at start
+	BOOL wasCancelled = _shouldCancel;
+	if (wasCancelled) {
+		NSLog(@"⏱ Colorization skipped - already cancelled");
+		return;
+	}
 	
-	NSArray<NSTextCheckingResult*>* matchbox;
-	NSArray<NSTextCheckingResult*>* colourbox;
-	
-	for (NSRegularExpression *re in pdf_keyword_re)
-	{
-		matchbox = [re matchesInString:searchText
-							   options:0
-								 range:area];
+	// Do expensive regex matching on background thread
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
 		
-		for (NSTextCheckingResult* cr in matchbox)
+		// Check if cancelled before starting work
+		if (_shouldCancel) {
+			NSLog(@"⏱ Colorization cancelled before regex matching");
+			return;
+		}
+		
+		NSMutableArray<Colourise*>* colourInstruct = [NSMutableArray arrayWithCapacity:16];
+		
+		NSArray<NSTextCheckingResult*>* matchbox;
+		NSArray<NSTextCheckingResult*>* colourbox;
+		
+		for (NSRegularExpression *re in pdf_keyword_re)
 		{
-//			[_theView setTextColor:keywordColour range:fr];
-	
-			NSRange fr = [cr range];
-			Colourise* thisColour = [[Colourise new] autorelease];
-			thisColour.colour = keywordColour;
-			thisColour.range = fr;
+			// Check cancellation periodically during regex matching
+			if (_shouldCancel) {
+				NSLog(@"⏱ Colorization cancelled during regex matching");
+				return;
+			}
 			
-			[colourInstruct addObject:thisColour];
+			matchbox = [re matchesInString:searchText
+								   options:0
+									 range:area];
 			
-			
-			for (NSUInteger av=0; av < [colourre_arr count]; ++av)
+			for (NSTextCheckingResult* cr in matchbox)
 			{
-				NSRegularExpression* hire = [colourre_arr objectAtIndex:av];
-
-				colourbox = [hire matchesInString:searchText
-										  options:0
-											range:fr];
+				NSRange fr = [cr range];
+				Colourise* thisColour = [[Colourise new] autorelease];
+				thisColour.colour = keywordColour;
+				thisColour.range = fr;
 				
-				NSColor * matchColour = [colour_arr objectAtIndex:av];
-				for (NSTextCheckingResult* dr in colourbox)
+				[colourInstruct addObject:thisColour];
+				
+				
+				for (NSUInteger av=0; av < [colourre_arr count]; ++av)
 				{
+					NSRegularExpression* hire = [colourre_arr objectAtIndex:av];
 
-					Colourise* moreColour = [[Colourise new] autorelease];
-					moreColour.colour = matchColour;
-					moreColour.range =  [dr range];
+					colourbox = [hire matchesInString:searchText
+												  options:0
+													range:fr];
+					
+					NSColor * matchColour = [colour_arr objectAtIndex:av];
+					for (NSTextCheckingResult* dr in colourbox)
+					{
 
-					[colourInstruct addObject:moreColour];
+						Colourise* moreColour = [[Colourise new] autorelease];
+						moreColour.colour = matchColour;
+						moreColour.range =  [dr range];
 
-					// [_theView setTextColor:matchColour range:gr];
+						[colourInstruct addObject:moreColour];
+					}
 				}
 			}
 		}
-	}
-	
-	//NSRegularExpression* commentRe;
-	NSError* error;
-	NSRegularExpression* commentRe=[NSRegularExpression regularExpressionWithPattern:@"%.*" options:0 error:&error];
-	
-	NSArray<NSTextCheckingResult*>* commentBox = [commentRe matchesInString:searchText
-																	options:0
-																	  range:area];
-	
-	//NSColor * matchColour = [colour_arr objectAtIndex:6];
-	// NSColor* commentColour = [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];  // settings settings settings
-	
-	
-	for (NSTextCheckingResult* dr in commentBox)
-	{
-		//		NSRange gr = [dr range];
 		
-		Colourise* commentColour = [[Colourise new] autorelease];
-		commentColour.colour =  [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];  // settings settings settings;
-		commentColour.range =  [dr range];
+		// Comments
+		NSError* error;
+		NSRegularExpression* commentRe=[NSRegularExpression regularExpressionWithPattern:@"%.*" options:0 error:&error];
 		
-		[colourInstruct addObject:commentColour];
+		NSArray<NSTextCheckingResult*>* commentBox = [commentRe matchesInString:searchText
+													 options:0
+													   range:area];
 		
-		//[_theView setTextColor:commentColour range:[dr range]];
-	}
-	
-	// this should be much faster than the Regex search
-	// but unfortunately not enough.
-	
-	//I don't care how you do it, as long as its not a complete muppet
-	
-	// dispatch_async(dispatch_get_main_queue(), ^{
-		
-		[_asyncView.textStorage beginEditing];
-		for (Colourise* cr in colourInstruct)
+		for (NSTextCheckingResult* dr in commentBox)
 		{
-			[_asyncView setTextColor:cr.colour range:cr.range];  // well just, but too slow that it's unsettlingly noticable
+			Colourise* commentColour = [[Colourise new] autorelease];
+			commentColour.colour =  [NSColor colorWithRed:0.255 green:0.714 blue:0.270 alpha:1];
+			commentColour.range =  [dr range];
+			
+			[colourInstruct addObject:commentColour];
 		}
-		[_asyncView.textStorage endEditing];
 		
-//	});
-
-
+		// Check if cancelled before applying colors
+		if (_shouldCancel) {
+			NSLog(@"⏱ Colorization cancelled before applying colors");
+			return;
+		}
+		
+		// Apply colors on main thread (UI updates must be on main thread)
+		dispatch_async(dispatch_get_main_queue(), ^{
+			
+			// Final cancellation check before modifying UI
+			if (_shouldCancel) {
+				NSLog(@"⏱ Colorization cancelled before UI update");
+				return;
+			}
+			
+			// Use layout manager temporary attributes instead of text storage
+			// This prevents colors from being removed when text is edited
+			NSLayoutManager *layoutManager = [_asyncView layoutManager];
+			
+			// Only remove temporary attributes in the range we're about to re-color
+			// This prevents flickering in other parts of the document
+			[layoutManager removeTemporaryAttribute:NSForegroundColorAttributeName forCharacterRange:area];
+			
+			// Set default text color as temporary attribute for this range
+			[layoutManager addTemporaryAttribute:NSForegroundColorAttributeName
+										   value:[NSColor whiteColor]
+							   forCharacterRange:area];
+			
+			// Apply syntax highlighting colors as temporary attributes
+			NSUInteger counter = 0;
+			for (Colourise* cr in colourInstruct)
+			{
+				// Check cancellation flag periodically (every 100 iterations for performance)
+				if (++counter % 100 == 0 && _shouldCancel) {
+					NSLog(@"⏱ Colorization cancelled mid-UI-update");
+					return;
+				}
+				[layoutManager addTemporaryAttribute:NSForegroundColorAttributeName
+											   value:cr.colour
+								   forCharacterRange:cr.range];
+			}
+		});
+	});
 }
 
 - (void) dealloc

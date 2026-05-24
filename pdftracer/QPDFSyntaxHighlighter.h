@@ -4,11 +4,12 @@
 
 @interface QPDFSyntaxHighlighter : NSObject
 {
-	NSArray <NSRegularExpression*> * pdf_keyword_re;
-	NSArray <NSRegularExpression*>* colourre_arr;
-	NSArray <NSColor*>* colour_arr;
-	
-	NSColor *keywordColour;  // talk about conflicting spelling :-P
+	NSArray* pdf_keyword_re;
+	NSArray* colourre_arr;
+	NSArray* colour_arr;
+	NSColor* keywordColour;
+	QPDFTextView* _asyncView;
+	BOOL _shouldCancel;  // Flag to abort in-progress colorization
 
 }
 
@@ -21,6 +22,7 @@
 */
 
 - (instancetype)init;
+- (void)cancelColorization;
 - (void)colouriseRange:(NSRange)r;
 - (void)colouriseAll;
 - (void)colouriseRangeThenAll:(NSRange)r;
